@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis</title>
+<title>FINI Petrópolis · V5 Firebase OK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -48,6 +48,7 @@ input[type=date].inp{color-scheme:light}
 .btn.primary{background:var(--fini);color:#fff}.btn.primary:hover{background:var(--fini-deep);transform:translateY(-2px);box-shadow:0 8px 18px -8px rgba(232,38,110,.6)}
 .btn.primary:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
 .btn.ghost{background:#fff;color:var(--ink-soft);border:1px solid var(--line)}.btn.ghost:hover{border-color:var(--ink-faint);color:var(--ink)}
+.btn.danger{color:var(--fini-deep);border-color:#f3b7c9;background:#fff5f8}.btn.danger:hover{background:#ffe8f1;border-color:var(--fini);color:var(--fini)}
 .btn.sm{padding:6px 11px;font-size:12px;border-radius:9px}
 .search{flex:1;min-width:150px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
@@ -139,10 +140,20 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useCallback,useMemo,useRef}=React;
+const FINI_BUILD="02/06/2026 18:55 - V8_SALVAR_CONTAGEM_CORRIGIDO";
+console.log("FINI BUILD", FINI_BUILD);
+const APP_VERSION="26/05/2026 01:45 · V6_EXCLUIR_CONTAGEM";
 
 /* Firebase */
-const fbCfg={apiKey:"AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",authDomain:"ficha-tecnica-burger.firebaseapp.com",projectId:"ficha-tecnica-burger",storageBucket:"ficha-tecnica-burger.firebasestorage.app",messagingSenderId:"592388673050",appId:"1:592388673050:web:b1d0bb3b15d5f3e9930ba3"};
-firebase.initializeApp(fbCfg);
+const firebaseConfig = {
+  apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
+  authDomain: "ficha-tecnica-burger.firebaseapp.com",
+  projectId: "ficha-tecnica-burger",
+  storageBucket: "ficha-tecnica-burger.firebasestorage.app",
+  messagingSenderId: "592388673050",
+  appId: "1:592388673050:web:b1d0bb3b15d5f3e9930ba3"
+};
+if(!firebase.apps.length){firebase.initializeApp(firebaseConfig);}
 const db=firebase.firestore();
 try{db.settings({experimentalForceLongPolling:true,merge:true});}catch(e){}
 
@@ -151,7 +162,7 @@ const D_ITENS=["AGUA MINERAL S/ GAS 500ML","AGUA MINERAL C/ GAS 500ML","ALGODAO 
 const D_BALAS=[{cat:"Gigantes",itens:["Banana GG 500G","Garrafa de cola GG 1KG","Golfinho GG 1KG","Morango GG 1KG","Ovo GG 1KG","Rã brilho GG 1KG","Urso GG 1KG"]},{cat:"Gelatinas Nacionais",itens:["Amora 500G","Aro de morango 500G","Banana 500G","Beijo de morango 500G","Caveira Recheada","Dentadura 500G","Dentadura da bruxa 500G","Finiburguer 500G","Frutiê frutas sortidas 200G","Frutiê frutas vermelhas 200G","Frutiê sobremesas 200G","Gomos tangerina 500G","Minhoca brilho 500G","Minhoca cítrica 500G","Mix surpresa","Oceanitos 500G","Ovo frito pequeno 500G","Polvo pequeno 500G","Rato 500G","Regaliz terror","Sapo pequeno 500G","Sorvetinho 80G","Ursinho brilho 500G"]},{cat:"Gelatinas Exclusivas",itens:["ALUBIAS","AROS SURTIDOS","Amora azul 250UN","Amora multicolor 250UN","Bananas recheadas 1KG","Beijos twisty morango 1KG","Boca de morango 250UN","CEREJA BRILHO","Cereja drageada","Coração de pêssego 1KG","Coração recheados 1KG","Coração tricolor 1KG","EURO DE MORANGO","Fatias melancia recheadas 1KG","Fruta gourmet","Garrafa de cola cítrica 1KG","Lagrimas 1KG","Limões grandes 1KG","Maças 1KG","Melancia fatiada 1KG","Morango brilho 1KG","Morango cítrico 1KG","Morangos açucarados","Morangos recheados 1KG","Orca 1KG","Pimenta picante 1KG","Polvo cítrico 1KG","SORTIDO TERROR","Tortugas 1KG","Tropical jelly 1KG","Tubarão 1KG","zapatilha"]},{cat:"Tubes Nacionais",itens:["TUBES DESENROLA E ESTICA FRAM.","Tubes de Iogurte","Tubes pinta lingua","Tubes morango 240G/80G","Tubes morango cítrico 240G/80G","Tubes sabores sortidos 80G","Tubes tropical 80G","Tubes tutti fruti 240G/80G","Tubes twister 240G/80G","Tubes twister cítrico 80G","Tubes uva 80g","Tubes uva cítrico 80g"]},{cat:"Tubes Exclusivos",itens:["Chewy chips 1KG","Corda de cereja PT 30UN","Espagueti fresa PT 200UN","Espagueti multifuti PT 200UN","Finipalo morango PT 30UN","Jumbo colorido 30UN","Jumbo melancia citrico 30UN","Jumbo melancia 30UN","Jumbo morango citrico PT 30UN","Jumbo morango PT 30UN","Jumbo morango com nata 30UN","Jumbo tijolinho morango 30UN","Jumbo torcida morango PT 30UN","Jumbo torcida roja PT 30UN","Jumbo torcido sorvete 30UN","Jumbo tornado brilho PT 30UN","Jumbo tornado pica PT 30UN","LÍNGUA DE COLA","Língua de framboesa PT 200UN","Língua de maça verde PT 200UN","Língua de melancia PT 200UN","Língua de morango PT 200UN","Língua multifruti PT 200UN","Linhas de framboesa PT 200UN","Linhas de morango PT 200UN","Maxi morango citrico 70UN","Maxi morango recheado 70UN","Mix regaliz brilho 1KG","Spiro morango 200UN","Taco relleno negro 1KG","Tacote morango 1KG","Tacote negro 1KG","Tijolinho morango 250UN","Tijolinho colorido cítrico 1KG","Tijolinho nata-morango 250UN","Tornado recheado cítrico 200UN","Tornado recheado 70UN","Tubes manga 200UN","Tubes morango nata-baunilha 200UN"]},{cat:"Chicles",itens:["Chicle bola de tenis GG 75UN","Chicle bolos pequenos 1KG","Chicle clássicos 500G","Chicle finiburguer 200UN","Chicle fúria ácida 140G","Chicle melancia 500G","Chicle morango 500G","Chicle ovo de dinossauro 500G","Chicle salada de frutas 500G"]},{cat:"Marsh's",itens:["Marsh morango com nata 200UN","Marsh torção recheado colorido 200G","Marsh torção recheado azul 200G","Marsh torção recheado rosa 200G","Marsh vulcão azul 200G","Marsh vulcão rosa 200G","Marsh vulcão sortidos 150UN"]}];
 const D_ESC=[{nome:"Daphne",hora:"9:40",cor:"#d8442e"},{nome:"Weslayne",hora:"14:00",cor:"#e8a23a"},{nome:"Leticia",hora:"14:00",cor:"#3f8f5f"}];
 const H_SEMANA=["9:40","14:00","14:00"];
-const H_DOM_FER=["11:00","15:00"];
+const H_DOM_FER=["11:00","15:00",""];
 const D_CON=["Jeanny","Ana Clara","Leidiane","Marcelo","Igor"];
 const CORES=["#d8442e","#e8a23a","#3f8f5f","#3a6ea5","#9c27b0","#ff6d00","#00838f","#558b2f","#c62828","#e91e63"];
 const MOTIVOS=["Vencimento","Avaria","Queda/Acidente","Consumo interno","Erro de pesagem","Outro"];
@@ -171,22 +182,78 @@ const diMes=(a,m)=>new Date(a,m+1,0).getDate();
 const isoDia=(a,m,d)=>`${a}-${pad(m+1)}-${pad(d)}`;
 const fmtD=iso=>iso?iso.split("-").reverse().join("/"):"—";
 
+function traduzErroFirebase(e,acao="acessar"){
+  const code=e?.code||"erro-desconhecido";
+  const msg=e?.message||"Sem detalhe técnico.";
+  if(String(code).includes("permission-denied")){
+    return {titulo:"Sem permissão no Firestore",detalhe:`O Firebase recusou ${acao}. Código: ${code}. Normalmente isso é regra do Firestore bloqueando leitura/gravação nas coleções fini_*.`};
+  }
+  if(String(code).includes("unavailable")||String(msg).toLowerCase().includes("network")){
+    return {titulo:"Falha de conexão",detalhe:`Não consegui falar com o Firestore. Código: ${code}. Verifique internet, bloqueio do navegador ou instabilidade.`};
+  }
+  if(String(code).includes("failed-precondition")){
+    return {titulo:"Configuração pendente no Firestore",detalhe:`O Firestore retornou ${code}. Pode haver índice/regra/configuração pendente no Firebase.`};
+  }
+  if(String(code).includes("invalid-argument")||String(msg).toLowerCase().includes("unsupported field value")||String(msg).toLowerCase().includes("synthetic")){
+    return {titulo:"Erro interno no botão Salvar",detalhe:`O sistema tentou enviar um dado inválido para o Firestore. Corrigido nesta versão para salvar somente os dados da tela, sem enviar o evento do clique.`};
+  }
+  return {titulo:"Erro no Firebase",detalhe:`Código: ${code}. ${msg}`};
+}
+
 /* useFireDoc */
 function useFireDoc(col,id,init){
   const [data,setData]=useState(()=>JSON.parse(JSON.stringify(init)));
   const [status,setStatus]=useState("load");
   const [dirty,setDirty]=useState(false);
-  const reload=useCallback(async()=>{setStatus("load");try{const s=await db.collection(col).doc(id).get();setData(s.exists?{...JSON.parse(JSON.stringify(init)),...s.data()}:JSON.parse(JSON.stringify(init)));setDirty(false);setStatus("ok");}catch(e){console.error(e);setStatus("err");}},[col,id]);
+  const [erro,setErro]=useState(null);
+  const reload=useCallback(async()=>{setStatus("load");setErro(null);try{const s=await db.collection(col).doc(id).get();setData(s.exists?{...JSON.parse(JSON.stringify(init)),...s.data()}:JSON.parse(JSON.stringify(init)));setDirty(false);setStatus("ok");}catch(e){console.error("Firebase read error",col,id,e);setErro(traduzErroFirebase(e,"ler os dados"));setStatus("err");}},[col,id]);
   useEffect(()=>{reload();},[reload]);
-  const save=async(d2)=>{setStatus("load");try{const p=d2||data;await db.collection(col).doc(id).set({...p,atualizadoEm:new Date().toISOString()});if(d2)setData(d2);setDirty(false);setStatus("ok");}catch(e){console.error(e);setStatus("err");}};
+  const save=async(d2)=>{
+    // Quando usado direto em onClick, o React envia o evento do clique como parâmetro.
+    // Se esse evento for gravado no Firestore, a gravação falha.
+    // Por isso, aqui ignoramos qualquer evento de clique/formulário e salvamos o estado atual.
+    const recebeuEvento=d2&&(d2.nativeEvent||d2.preventDefault||d2.target||d2.currentTarget);
+    const payload=(!d2||recebeuEvento)?data:d2;
+    setStatus("load");
+    setErro(null);
+    try{
+      await db.collection(col).doc(id).set({...payload,atualizadoEm:new Date().toISOString()},{merge:true});
+      if(d2&&!recebeuEvento)setData(d2);
+      setDirty(false);
+      setStatus("ok");
+      return true;
+    }catch(e){
+      console.error("Firebase save error",col,id,e);
+      setErro(traduzErroFirebase(e,"salvar os dados"));
+      setStatus("err");
+      return false;
+    }
+  };
+  const deleteDoc=async()=>{
+    setStatus("load");
+    setErro(null);
+    try{
+      await db.collection(col).doc(id).delete();
+      setData(JSON.parse(JSON.stringify(init)));
+      setDirty(false);
+      setStatus("ok");
+      return true;
+    }catch(e){
+      console.error("Firebase delete error",col,id,e);
+      setErro(traduzErroFirebase(e,"excluir a contagem"));
+      setStatus("err");
+      return false;
+    }
+  };
   const update=p=>{setData(d=>({...d,...(typeof p==="function"?p(d):p)}));setDirty(true);};
-  return{data,update,status,save,reload,dirty};
+  const clearLocal=(blank)=>{setData(JSON.parse(JSON.stringify(blank||init)));setDirty(false);setErro(null);setStatus("ok");};
+  return{data,update,status,save,reload,deleteDoc,clearLocal,dirty,erro};
 }
 
 /* Shared UI */
-function Status({status,dirty}){return <div className="status"><span className={"sdot "+(status==="ok"?"ok":status==="load"?"load":"err")}></span>{status==="load"?"Sincronizando…":status==="err"?"Erro de conexão":dirty?"Não salvo":"Tudo salvo"}</div>;}
+function Status({status,dirty,erro}){return <div className="status"><span className={"sdot "+(status==="ok"?"ok":status==="load"?"load":"err")}></span>{status==="load"?"Sincronizando…":status==="err"?(erro?.titulo||"Erro técnico") :dirty?"Não salvo":"Tudo salvo"}</div>;}
 function MonthNav({ano,mes,setAno,setMes,dirty}){const mv=d=>{if(dirty&&!confirm("Alterações não salvas. Continuar?"))return;let m=mes+d,a=ano;if(m<0){m=11;a--;}if(m>11){m=0;a++;}setMes(m);setAno(a);};return<div className="tl"><button className="arrow" onClick={()=>mv(-1)}>‹</button><div className="mesatual">{MESES[mes]} {ano}</div><button className="arrow" onClick={()=>mv(1)}>›</button></div>;}
-function ErrBox({status}){return status==="err"?<div className="errmsg">Não foi possível conectar ao Firebase. Verifique a internet e as regras do Firestore para as coleções <b>fini_*</b>.</div>:null;}
+function ErrBox({status,erro}){return status==="err"?<div className="errmsg"><b>{erro?.titulo||"Erro técnico capturado no Firebase"}</b><br/>{erro?.detalhe||"Esta versão não usa mais a mensagem antiga. Se você ainda vê a frase antiga, o arquivo aberto não é o index.html atualizado."}<br/><span style={{fontSize:11,opacity:.75}}>Versão: {FINI_BUILD}</span></div>:null;}
 
 /* ══ MODAL: Itens ══ */
 function ModalItens({itens,onSave,onClose}){
@@ -285,7 +352,7 @@ function ModalFuncCon({funcs,onSave,onClose}){
 const listaFuncionarias=arr=>(arr||[]).map((f,i)=>typeof f==="string"?{nome:f,cor:CORES[i%CORES.length]}:{nome:f.nome||"",cor:f.cor||CORES[i%CORES.length]}).filter(f=>f.nome.trim());
 const corFunc=(funcs,nome)=>funcs.find(f=>f.nome===nome)?.cor||"#d8c1ca";
 const horariosPadrao=especial=>especial?H_DOM_FER:H_SEMANA;
-const escalaBase=(especial,funcs)=>({folga:"",slots:horariosPadrao(especial).map((h,i)=>({hora:h,nome:funcs[i]?.nome||""}))});
+const escalaBase=(especial,funcs)=>({folga:"",slots:horariosPadrao(especial).map(h=>({hora:h,nome:""}))});
 function normalizarEscalaDia(raw,especial,funcs){
   const base=escalaBase(especial,funcs);
   if(!raw)return base;
@@ -307,7 +374,6 @@ function conflitosEscalaDia(esc){
   if(esc.folga&&nomes.includes(esc.folga))avisos.push(`${esc.folga} está em folga e também escalada`);
   const rep=nomes.filter((n,i)=>nomes.indexOf(n)!==i);
   if(rep.length)avisos.push(`Funcionária repetida no mesmo dia: ${[...new Set(rep)].join(", ")}`);
-  if(esc.slots.some(s=>!s.nome))avisos.push("Existe horário sem funcionária definida");
   return avisos;
 }
 
@@ -321,7 +387,7 @@ function EscalaSlot({slot,idx,funcs,onChange,alerta}){
       <span className="ce-tag hora">{idx+1}</span>
       {editH
         ?<input className="ce-hora-inp" value={tmpH} onChange={e=>setTmpH(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==="Enter")commit();if(e.key==="Escape")setEditH(false);}} autoFocus/>
-        :<span className="ce-hora" onClick={()=>{setTmpH(slot.hora);setEditH(true);}} title="Clique para editar o horário">{slot.hora}</span>
+        :<span className="ce-hora" onClick={()=>{setTmpH(slot.hora);setEditH(true);}} title="Clique para editar o horário">{slot.hora||"aberto"}</span>
       }
       <select className="ce-select" value={slot.nome||""} onChange={e=>onChange({...slot,nome:e.target.value})} title="Escolher funcionária do horário">
         <option value="">Escolher…</option>
@@ -359,23 +425,36 @@ function Estoque({itens,onSaveItens}){
   const set=(n,v)=>doc.update(d=>({itens:{...d.itens,[n]:v}}));
   const startRename=n=>{setEditKey(n);setEditVal(n);};
   const confirmRename=()=>{if(editKey&&editVal.trim()&&editVal.trim()!==editKey)onSaveItens(itens.map(x=>x===editKey?editVal.trim().toUpperCase():x));setEditKey(null);};
+  const excluirContagem=async()=>{
+    const temDados=itens.some(n=>num(doc.data.itens?.[n])>0);
+    const aviso=temDados?`Excluir a contagem de ${fmtD(data)}? Os números preenchidos desta data serão apagados do Firebase.`:`Não há valores preenchidos na tela. Mesmo assim deseja apagar qualquer contagem salva em ${fmtD(data)}?`;
+    if(!confirm(aviso))return;
+    await doc.deleteDoc();
+  };
+  const salvarELimpar=async()=>{
+    const ok=await doc.save();
+    if(ok){
+      const zerados=Object.fromEntries(itens.map(n=>[n,"0"]));
+      doc.clearLocal({data,itens:zerados});
+    }
+  };
   return <>
-    <div className="htop"><div><h1>Itens do Quiosque</h1><div className="hsub">Contagem unitária · {itens.length} itens · <span style={{color:"var(--fini)"}}>duplo clique no nome para renomear</span></div></div><Status {...doc}/></div>
-    <ErrBox status={doc.status}/>
+    <div className="htop"><div><h1>Itens do Quiosque</h1><div className="hsub">Contagem unitária · {itens.length} itens · <span style={{color:"var(--fini)"}}>duplo clique na linha para renomear</span></div></div><Status {...doc}/></div>
+    <ErrBox {...doc}/>
     <div className="toolbar">
       <div className="tl">
         <div className="field"><label>Data da contagem</label><input className="inp" type="date" value={data} onChange={e=>setData(e.target.value)}/></div>
         <div className="field search"><label>Buscar item</label><input className="inp" placeholder="parte do nome…" value={busca} onChange={e=>setBusca(e.target.value)}/></div>
       </div>
-      <div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Gerir Catálogo</button><button className="btn primary" onClick={doc.save} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar contagem</button></div>
+      <div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Gerir Catálogo</button><button className="btn ghost sm danger" onClick={excluirContagem} disabled={doc.status==="load"}>🗑️ Excluir contagem</button><button className="btn primary" onClick={salvarELimpar} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar contagem</button></div>
     </div>
     <div className="totbar"><div className="tt"><span>Itens preenchidos</span><b>{preench}/{itens.length}</b></div><div className="tt"><span>Total unidades</span><b className="hl">{totalUn.toLocaleString("pt-BR")}</b></div></div>
     <div className="panel">
       {filtro.map(n=>(
-        <div className="irow" key={n}>
+        <div className="irow" key={n} onDoubleClick={e=>{if(e.target.closest("input,select,button"))return;startRename(n);}} title="Duplo clique na linha para renomear">
           {editKey===n
             ?<input className="nm-inp" value={editVal} onChange={e=>setEditVal(e.target.value)} onBlur={confirmRename} onKeyDown={e=>{e.key==="Enter"&&confirmRename();e.key==="Escape"&&setEditKey(null);}} autoFocus/>
-            :<span className="nm editable" onDoubleClick={()=>startRename(n)} title="Duplo clique para renomear">{n}</span>
+            :<span className="nm editable" title="Duplo clique na linha para renomear">{n}</span>
           }
           <input className="inp num" style={{width:90}} type="number" min="0" step="1" value={doc.data.itens?.[n]??""} placeholder="0" onChange={e=>set(n,e.target.value)}/>
           <span className="un">un</span>
@@ -383,7 +462,7 @@ function Estoque({itens,onSaveItens}){
       ))}
       {!filtro.length&&<div className="irow"><span className="nm" style={{color:"var(--ink-faint)"}}>Nenhum item encontrado.</span></div>}
     </div>
-    <div className="foot">Salvo em <b>fini_estoque_quiosque/{data}</b>. Duplo clique no nome do item para renomear diretamente na lista.</div>
+    <div className="foot">Salvo em <b>fini_estoque_quiosque/{data}</b>. Após salvar, a tela zera para a próxima contagem. Use “Excluir contagem” para apagar somente a contagem da data selecionada.</div>
     {showM&&<ModalItens itens={itens} onSave={l=>{onSaveItens(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}
   </>;
 }
@@ -402,15 +481,29 @@ function Balas({balas,onSaveBalas}){
   const setPct=(n,v)=>doc.update(d=>({pacotes:{...d.pacotes,[n]:v}}));
   const startRename=(cat,name)=>{setEditKey({cat,name});setEditVal(name);};
   const confirmRename=()=>{if(editKey&&editVal.trim()&&editVal.trim()!==editKey.name)onSaveBalas(balas.map(c=>c.cat===editKey.cat?{...c,itens:c.itens.map(x=>x===editKey.name?editVal.trim():x)}:c));setEditKey(null);};
+  const excluirContagem=async()=>{
+    const temDados=balas.some(c=>c.itens.some(n=>num(doc.data.pesos?.[n])>0||num(doc.data.pacotes?.[n])>0));
+    const aviso=temDados?`Excluir a contagem de balas de ${fmtD(data)}? Os pesos e pacotes desta data serão apagados do Firebase.`:`Não há valores preenchidos na tela. Mesmo assim deseja apagar qualquer contagem de balas salva em ${fmtD(data)}?`;
+    if(!confirm(aviso))return;
+    await doc.deleteDoc();
+  };
+  const salvarELimpar=async()=>{
+    const ok=await doc.save();
+    if(ok){
+      const pesos={},pacotes={};
+      balas.forEach(c=>c.itens.forEach(n=>{pesos[n]="0";pacotes[n]="0";}));
+      doc.clearLocal({data,pesos,pacotes});
+    }
+  };
   return <>
-    <div className="htop"><div><h1>Balas a Granel (Kg)</h1><div className="hsub">Peso + pacotes · {balas.reduce((s,c)=>s+c.itens.length,0)} itens · <span style={{color:"var(--fini)"}}>duplo clique no nome para renomear</span></div></div><Status {...doc}/></div>
-    <ErrBox status={doc.status}/>
+    <div className="htop"><div><h1>Balas a Granel (Kg)</h1><div className="hsub">Peso + pacotes · {balas.reduce((s,c)=>s+c.itens.length,0)} itens · <span style={{color:"var(--fini)"}}>duplo clique na linha para renomear</span></div></div><Status {...doc}/></div>
+    <ErrBox {...doc}/>
     <div className="toolbar">
       <div className="tl">
         <div className="field"><label>Data da contagem</label><input className="inp" type="date" value={data} onChange={e=>setData(e.target.value)}/></div>
         <div className="field search"><label>Buscar bala</label><input className="inp" placeholder="parte do nome…" value={busca} onChange={e=>setBusca(e.target.value)}/></div>
       </div>
-      <div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Gerir Catálogo</button><button className="btn primary" onClick={doc.save} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar contagem</button></div>
+      <div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Gerir Catálogo</button><button className="btn ghost sm danger" onClick={excluirContagem} disabled={doc.status==="load"}>🗑️ Excluir contagem</button><button className="btn primary" onClick={salvarELimpar} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar contagem</button></div>
     </div>
     <div className="totbar"><div className="tt"><span>Total em KG</span><b className="hl">{kgF(totalKg)}</b></div><div className="tt"><span>Total Pacotes</span><b>{totalPct.toLocaleString("pt-BR")}</b></div></div>
     <div className="panel">
@@ -423,10 +516,10 @@ function Balas({balas,onSaveBalas}){
           <div className="cat"><span>{c.cat}</span><span className="ct">{kgF(skKg)} · {skPct} pct</span></div>
           {its.map(n=>{
             const isEdit=editKey&&editKey.cat===c.cat&&editKey.name===n;
-            return <div className="irow" key={n}>
+            return <div className="irow" key={n} onDoubleClick={e=>{if(e.target.closest("input,select,button"))return;startRename(c.cat,n);}} title="Duplo clique na linha para renomear">
               {isEdit
                 ?<input className="nm-inp" value={editVal} onChange={e=>setEditVal(e.target.value)} onBlur={confirmRename} onKeyDown={e=>{e.key==="Enter"&&confirmRename();e.key==="Escape"&&setEditKey(null);}} autoFocus/>
-                :<span className="nm editable" onDoubleClick={()=>startRename(c.cat,n)} title="Duplo clique para renomear">{n}</span>
+                :<span className="nm editable" title="Duplo clique na linha para renomear">{n}</span>
               }
               <input className="inp num" style={{width:95}} type="number" min="0" step="0.001" value={doc.data.pesos?.[n]??""} placeholder="0,000" onChange={e=>setKg(n,e.target.value)}/>
               <span className="un">kg</span>
@@ -437,7 +530,7 @@ function Balas({balas,onSaveBalas}){
         </React.Fragment>;
       })}
     </div>
-    <div className="foot">Salvo em <b>fini_balas_kg/{data}</b>. Duplo clique no nome para renomear diretamente na lista.</div>
+    <div className="foot">Salvo em <b>fini_balas_kg/{data}</b>. Após salvar, a tela zera para a próxima contagem. Use “Excluir contagem” para apagar somente a contagem da data selecionada.</div>
     {showM&&<ModalBalas balas={balas} onSave={n=>{onSaveBalas(n);setShowM(false);}} onClose={()=>setShowM(false)}/>}
   </>;
 }
@@ -494,8 +587,8 @@ function Desperdicio(){
   const del=i=>doc.update(d=>({entradas:d.entradas.filter((_,j)=>j!==i)}));
   return <>
     <div className="htop"><div><h1>Desperdício</h1><div className="hsub">Registro de perdas por produto</div></div><Status {...doc}/></div>
-    <ErrBox status={doc.status}/>
-    <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><button className="btn ghost" onClick={add}>＋ Registrar Perda</button><button className="btn primary" onClick={doc.save} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
+    <ErrBox {...doc}/>
+    <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><button className="btn ghost" onClick={add}>＋ Registrar Perda</button><button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
     <div className="totbar"><div className="tt"><span>Hoje</span><b className="hl">{ents.filter(e=>e.data===HOJE).length}</b></div><div className="tt"><span>Total no mês</span><b>{ents.length}</b></div></div>
     <div className="panel"><table><thead><tr><th style={{width:130}}>Data</th><th>Produto</th><th style={{width:90}}>Qtd</th><th style={{width:70}}>Un.</th><th style={{width:155}}>Motivo</th><th>Responsável</th><th style={{width:34}}></th></tr></thead>
     <tbody>{ents.map((e,i)=><tr key={i}><td><input type="date" value={e.data||HOJE} onChange={ev=>upd(i,"data",ev.target.value)}/></td><td><input value={e.produto||""} placeholder="produto" onChange={ev=>upd(i,"produto",ev.target.value)}/></td><td><input className="num" type="number" step="0.001" value={e.quantidade||""} placeholder="0" onChange={ev=>upd(i,"quantidade",ev.target.value)}/></td><td><select value={e.unidade||"UN"} onChange={ev=>upd(i,"unidade",ev.target.value)}><option>UN</option><option>KG</option><option>L</option><option>PCT</option></select></td><td><select value={e.motivo||MOTIVOS[0]} onChange={ev=>upd(i,"motivo",ev.target.value)}>{MOTIVOS.map(m=><option key={m}>{m}</option>)}</select></td><td><input value={e.responsavel||""} placeholder="funcionário" onChange={ev=>upd(i,"responsavel",ev.target.value)}/></td><td><button className="rm" onClick={()=>del(i)}>✕</button></td></tr>)}
@@ -517,8 +610,8 @@ function Caixa(){
   const tF=linhas.length?linhas[linhas.length-1].total:0,tE=linhas.reduce((s,l)=>s+num(l.entrada),0),tS=linhas.reduce((s,l)=>s+num(l.saida),0);
   return <>
     <div className="htop"><div><h1>Caixa · Troco</h1><div className="hsub">Total = inicial + entrada − saída</div></div><Status {...doc}/></div>
-    <ErrBox status={doc.status}/>
-    <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><div className="field"><label>Inicial do mês</label><input className="inp num" type="number" step="0.01" style={{width:115}} value={doc.data.inicialMes??""} placeholder="0,00" onChange={e=>doc.update({inicialMes:e.target.value})}/></div><button className="btn primary" onClick={doc.save} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
+    <ErrBox {...doc}/>
+    <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><div className="field"><label>Inicial do mês</label><input className="inp num" type="number" step="0.01" style={{width:115}} value={doc.data.inicialMes??""} placeholder="0,00" onChange={e=>doc.update({inicialMes:e.target.value})}/></div><button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
     <div className="totbar"><div className="tt"><span>Entradas</span><b style={{color:"var(--green)"}}>{brl(tE)}</b></div><div className="tt"><span>Saídas</span><b style={{color:"var(--fini)"}}>{brl(tS)}</b></div><div className="tt"><span>Saldo final</span><b className="hl">{brl(tF)}</b></div></div>
     <div className="panel"><table><thead><tr><th style={{width:115}}>Data</th><th style={{width:110}}>Inicial</th><th style={{width:110}}>Entrada</th><th style={{width:110}}>Saída</th><th style={{width:140}}>Forma Pgto.</th><th>Obs</th><th style={{width:115}}>Total</th></tr></thead>
     <tbody>{linhas.map(l=>{const dt=new Date(ano,mes,Number(l.dd)),dow=dt.getDay(),isHj=`${ano}-${pad(mes+1)}-${l.dd}`===HOJE;return <tr key={l.dd} className={(isHj?"hojerow ":"")+"wd-"+["dom","seg","ter","qua","qui","sex","sab"][dow]}><td className="num">{l.dd}/{pad(mes+1)} · {WD[dow]}</td><td><input className="num" type="number" step="0.01" value={l.inicialRaw??""} placeholder={l.ini.toFixed(2)} onChange={e=>set(l.dd,"inicial",e.target.value)}/></td><td><input className="num" type="number" step="0.01" value={l.entrada??""} placeholder="0,00" onChange={e=>set(l.dd,"entrada",e.target.value)}/></td><td><input className="num" type="number" step="0.01" value={l.saida??""} placeholder="0,00" onChange={e=>set(l.dd,"saida",e.target.value)}/></td><td><select value={l.forma||""} onChange={e=>set(l.dd,"forma",e.target.value)}><option value="">—</option>{FORMAS.map(f=><option key={f}>{f}</option>)}</select></td><td><input value={l.obs??""} placeholder="—" onChange={e=>set(l.dd,"obs",e.target.value)}/></td><td className="num"><b className={l.total<0?"neg":""}>{brl(l.total)}</b></td></tr>;})}
@@ -540,8 +633,8 @@ function Consumo({funcCon,onSaveFuncCon}){
   const pF=funcCon.map(f=>({f,peso:ents.filter(e=>e.func===f).reduce((s,e)=>s+num(e.peso),0)}));
   return <>
     <div className="htop"><div><h1>Consumo por Funcionária</h1><div className="hsub">Registro mensal de consumo interno</div></div><Status {...doc}/></div>
-    <ErrBox status={doc.status}/>
-    <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button><button className="btn ghost" onClick={add}>＋ Lançamento</button><button className="btn primary" onClick={doc.save} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
+    <ErrBox {...doc}/>
+    <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button><button className="btn ghost" onClick={add}>＋ Lançamento</button><button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
     <div className="totbar">{pF.map(p=><div className="tt" key={p.f}><span>{p.f}</span><b>{kgF(p.peso)}</b></div>)}<div className="tt"><span>Total geral</span><b className="hl">{kgF(ents.reduce((s,e)=>s+num(e.peso),0))}</b></div></div>
     <div className="panel"><table><thead><tr><th>Funcionária</th><th>Data</th><th>Produto</th><th style={{width:110}}>Peso (kg)</th><th style={{width:80}}>Qtd</th><th style={{width:34}}></th></tr></thead>
     <tbody>{ents.map((e,i)=><tr key={i}><td><select value={e.func||""} onChange={ev=>upd(i,"func",ev.target.value)} style={{width:"100%"}}>{funcCon.map(f=><option key={f}>{f}</option>)}</select></td><td><input type="date" value={e.data||HOJE} onChange={ev=>upd(i,"data",ev.target.value)}/></td><td><input value={e.produto||""} placeholder="produto" onChange={ev=>upd(i,"produto",ev.target.value)}/></td><td><input className="num" type="number" step="0.001" value={e.peso||""} placeholder="0,000" onChange={ev=>upd(i,"peso",ev.target.value)}/></td><td><input className="num" type="number" step="1" value={e.qtd||""} placeholder="0" onChange={ev=>upd(i,"qtd",ev.target.value)}/></td><td><button className="rm" onClick={()=>del(i)}>✕</button></td></tr>)}
@@ -569,6 +662,35 @@ function Escala({funcEsc,onSaveFuncEsc}){
   const updateFolga=(dd,date,iso,nome)=>setDia(dd,{...getEscala(dd,date,iso),folga:nome});
   const updateSlot=(dd,date,iso,idx,slot)=>{const base=getEscala(dd,date,iso);const slots=[...base.slots];slots[idx]=slot;setDia(dd,{...base,slots});};
   const toggleFer=iso=>doc.update(d=>{const n={...d.feriados};if(n[iso])delete n[iso];else n[iso]=true;return{feriados:n};});
+
+  const limparNomesTodosMeses=async()=>{
+    if(!confirm("Apagar os nomes/folgas salvos dentro dos dias de TODOS os meses da escala? Os horários, feriados e anotações serão mantidos."))return;
+    try{
+      const snap=await db.collection("fini_escala").get();
+      const batch=db.batch();
+      snap.docs.forEach(docSnap=>{
+        const data=docSnap.data()||{};
+        const diasOrig=data.dias||{};
+        const diasLimpos={};
+        Object.entries(diasOrig).forEach(([dd,raw])=>{
+          if(Array.isArray(raw)){
+            diasLimpos[dd]={folga:"",slots:raw.filter(e=>e&&!e.folga).map(e=>({hora:e.hora||"",nome:""}))};
+          }else if(raw&&typeof raw==="object"){
+            diasLimpos[dd]={...raw,folga:"",folgaNome:"",slots:Array.isArray(raw.slots)?raw.slots.map(s=>({...s,nome:""})):[]};
+          }else{
+            diasLimpos[dd]=raw;
+          }
+        });
+        batch.set(docSnap.ref,{dias:diasLimpos,atualizadoEm:new Date().toISOString()},{merge:true});
+      });
+      await batch.commit();
+      await doc.reload();
+      alert("Nomes apagados dos dias em todos os meses da escala. Horários e feriados foram mantidos.");
+    }catch(e){
+      console.error(e);
+      alert("Não foi possível limpar todos os meses. Verifique a conexão e as permissões do Firebase.");
+    }
+  };
 
   const resumo=useMemo(()=>{
     const nd=diMes(ano,mes);
@@ -604,25 +726,26 @@ function Escala({funcEsc,onSaveFuncEsc}){
   },[ano,mes,dias,fer,funcs]);
 
   return <>
-    <div className="htop"><div><h1>Escala de Trabalho</h1><div className="hsub">Folga em primeiro lugar · horários editáveis · escolha da funcionária por horário</div></div><Status {...doc}/></div>
-    <ErrBox status={doc.status}/>
+    <div className="htop"><div><h1>Escala de Trabalho</h1><div className="hsub">Folga em primeiro lugar · horários editáveis · escolha da funcionária por horário · brancos permitidos</div></div><Status {...doc}/></div>
+    <ErrBox {...doc}/>
     <div className="toolbar">
       <MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/>
       <div className="tl">
         <button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button>
+        <button className="btn ghost sm" onClick={limparNomesTodosMeses}>🧹 Limpar nomes salvos</button>
         <button className="btn ghost sm" onClick={()=>window.print()}>🖨 Imprimir</button>
-        <button className="btn primary" onClick={doc.save} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button>
+        <button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button>
       </div>
     </div>
 
     <div className="es-help">
-      <b>Regra aplicada:</b> a primeira linha de cada dia é sempre a <b>Folga</b> e fica em destaque quando preenchida. Dias de semana abrem com <b>9:40 / 14:00 / 14:00</b>. Domingo e feriado abrem com <b>11:00 / 15:00</b>. Clique no horário para editar e use a lista ao lado para escolher a funcionária.
+      <b>Regra aplicada:</b> a primeira linha de cada dia é sempre a <b>Folga</b> e fica em destaque quando preenchida. Dias de semana abrem com <b>9:40 / 14:00 / 14:00</b>. Domingo e feriado abrem com <b>11:00 / 15:00 / horário aberto</b>. Clique no horário para editar e use a lista ao lado para escolher a funcionária. Horário sem funcionária pode ficar em branco quando houver folga.
     </div>
 
     <div className="totbar">
       <div className="tt"><span>Funcionárias cadastradas</span><b>{funcs.length}</b></div>
       <div className="tt"><span>Modelo dias de semana</span><b>{H_SEMANA.join(" · ")}</b></div>
-      <div className="tt"><span>Modelo dom./feriado</span><b>{H_DOM_FER.join(" · ")}</b></div>
+      <div className="tt"><span>Modelo dom./feriado</span><b>{H_DOM_FER.map(h=>h||"aberto").join(" · ")}</b></div>
       <div className="tt"><span>Alertas no mês</span><b className={totalAlertas?"hl":""}>{totalAlertas}</b></div>
     </div>
 
@@ -636,7 +759,7 @@ function Escala({funcEsc,onSaveFuncEsc}){
         const avisos=conflitosEscalaDia(esc);
         const folgaAlerta=esc.folga&&esc.slots.some(s=>s.nome===esc.folga)?`${esc.folga} também está escalada em horário`:null;
         const slotAlert=(s)=>{
-          if(!s.nome)return "Horário sem funcionária definida";
+          if(!s.nome)return null;
           if(esc.folga&&s.nome===esc.folga)return `${s.nome} está em folga`;
           const repetida=esc.slots.filter(x=>x.nome&&x.nome===s.nome).length>1;
           return repetida?`${s.nome} aparece mais de uma vez no dia`:null;
@@ -654,7 +777,7 @@ function Escala({funcEsc,onSaveFuncEsc}){
               <EscalaFolgaRow nome={esc.folga} funcs={funcs} onChange={nome=>updateFolga(dd,c.date,c.iso,nome)} alerta={folgaAlerta}/>
               {esc.slots.map((s,i)=><EscalaSlot key={i} slot={s} idx={i} funcs={funcs} alerta={slotAlert(s)} onChange={slot=>updateSlot(dd,c.date,c.iso,i,slot)}/>)}
             </div>
-            {especial(c.date,c.iso)&&<div className="es-mini"><b>Dom/Feriado:</b> 2 horários</div>}
+            {especial(c.date,c.iso)&&<div className="es-mini"><b>Dom/Feriado:</b> 3 horários</div>}
           </div>
         );
       })}
@@ -723,9 +846,10 @@ function App(){
       <div className="subtt">Sistema de Gestão</div>
       {MODS.map(m=><button key={m.id} className={"navb"+(aba===m.id?" on":"")} onClick={()=>setAba(m.id)}><span className="ic">{m.ic}</span>{m.lbl}</button>)}
       <div className="sp"></div>
-      <div className="fb">Firebase: ficha-tecnica-burger<br/>coleções: fini_*</div>
+      <div className="fb">Versão: {APP_VERSION}<br/>Firebase: ficha-tecnica-burger<br/>coleções: fini_*<br/>origem: {window.location.protocol==="file:"?"arquivo local":"site publicado"}</div>
     </nav>
     <main className="main">
+      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V8 SALVAR CONTAGEM CORRIGIDO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
       {aba==="estoque"&&<Estoque itens={itens} onSaveItens={saveItens}/>}
       {aba==="balas"&&<Balas balas={balas} onSaveBalas={saveBalas}/>}
       {aba==="comp"&&<Comparativo itens={itens} balas={balas}/>}
@@ -738,5 +862,6 @@ function App(){
 }
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
+<!-- Versao V6 2026-05-26: salva payload limpo e permite excluir contagem por data em Itens/Balas -->
 </body>
 </html>
