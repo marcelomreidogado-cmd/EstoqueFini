@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · V5 Firebase OK</title>
+<title>FINI Petrópolis · V10 Ponto Soma Tara</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -132,6 +132,28 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 .es-mini b{color:var(--fini)}
 /* COMPARATIVO */
 .d-pos{color:var(--green);font-weight:700}.d-neg{color:var(--blue);font-weight:700}.d-z{color:var(--ink-faint)}
+
+/* FOLHA DE PONTO */
+.ponto-help{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 15px;margin-bottom:14px;font-size:12.5px;line-height:1.55;color:var(--ink-soft)}
+.ponto-help b{color:var(--ink)}
+.ponto-scroll{overflow:auto;max-height:66vh}
+.ponto-table{min-width:1260px;font-size:12.5px}
+.ponto-table th{white-space:nowrap;top:0}
+.ponto-table td{padding:5px 8px;white-space:nowrap}
+.ponto-table td input,.ponto-table td select{font-size:12.5px;padding:5px 7px;min-width:0}
+.ponto-table .pdate{font-family:'DM Mono';font-weight:600;color:var(--ink-soft);width:86px}
+.ponto-table .pdom{color:var(--fini);font-weight:700}
+.ponto-table .pfer{background:#fff9dc}
+.ponto-table .pfolga{background:#eef9f2}
+.ponto-table .palert{background:#fff5e7}
+.pmini{font-size:10.5px;color:var(--ink-faint);line-height:1.35;margin-top:3px}
+.psaldo-pos{color:var(--blue)!important}.psaldo-neg{color:#d72638!important}.psaldo-zero{color:var(--ink-faint)!important}
+.pchip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;border:1px solid var(--line);background:#fff;font-size:11px;color:var(--ink-soft);font-weight:700}
+.pchip.on{background:#fff1f6;color:var(--fini);border-color:#f3b7c9}
+.pinput-mini{width:78px!important;font-family:'DM Mono'!important;text-align:center!important}
+.pobs{min-width:170px!important}
+@media(max-width:820px){.ponto-scroll{max-height:none}.ponto-table{min-width:1120px}}
+
 @media print{.side,.toolbar,.status,.foot,.btn{display:none}.app{grid-template-columns:1fr}.main{padding:0}}
 @media(max-width:820px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:5px}.side .logo,.side .subtt,.side .sp,.side .fb{width:100%}.main{padding:18px 12px 60px}}
 </style>
@@ -140,9 +162,9 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useCallback,useMemo,useRef}=React;
-const FINI_BUILD="02/06/2026 18:55 - V8_SALVAR_CONTAGEM_CORRIGIDO";
+const FINI_BUILD="02/06/2026 22:40 - V10_PONTO_SOMA_TARA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION="26/05/2026 01:45 · V6_EXCLUIR_CONTAGEM";
+const APP_VERSION="02/06/2026 22:40 · V10_PONTO_SOMA_TARA";
 
 /* Firebase */
 const firebaseConfig = {
@@ -169,6 +191,24 @@ const MOTIVOS=["Vencimento","Avaria","Queda/Acidente","Consumo interno","Erro de
 const FORMAS=["Dinheiro","PIX","Débito","Crédito","Vale Refeição"];
 const MESES=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const WD=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const PONTO_TIPOS_SEMANA=["Normal 9:40-18:00","Normal 14:00-22:20","Normal 7h","Feriado 11-17","Feriado 15-21","Folga compensatória","Folga bonificada","Falta","Atestado"];
+const PONTO_TIPOS_DOMINGO=["Domingo 11-17","Domingo 15-21","Folga compensatória","Folga bonificada","Falta","Atestado"];
+const PONTO_TIPOS_FERIADO=["Feriado 11-17","Feriado 15-21","Folga compensatória","Folga bonificada","Falta","Atestado"];
+const PONTO_TIPO_CONFIG={
+  "Normal 9:40-18:00":{entrada:"09:40",saidaAlmoco:"13:00",retornoAlmoco:"14:00",saida:"18:00",intervalo:"01:00",jornada:"07:20"},
+  "Normal 14:00-22:20":{entrada:"14:00",saidaAlmoco:"18:00",retornoAlmoco:"19:00",saida:"22:20",intervalo:"01:00",jornada:"07:20"},
+  "Normal 7h":{entrada:"09:40",saidaAlmoco:"13:00",retornoAlmoco:"14:00",saida:"17:40",intervalo:"01:00",jornada:"07:00"},
+  "Domingo 11-17":{entrada:"11:00",saidaAlmoco:"",retornoAlmoco:"",saida:"17:00",intervalo:"00:00",jornada:"06:00"},
+  "Domingo 15-21":{entrada:"15:00",saidaAlmoco:"",retornoAlmoco:"",saida:"21:00",intervalo:"00:00",jornada:"06:00"},
+  "Feriado 11-17":{entrada:"11:00",saidaAlmoco:"",retornoAlmoco:"",saida:"17:00",intervalo:"00:00",jornada:"06:00"},
+  "Feriado 15-21":{entrada:"15:00",saidaAlmoco:"",retornoAlmoco:"",saida:"21:00",intervalo:"00:00",jornada:"06:00"},
+  "Folga compensatória":{entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"00:00",jornada:"07:20"},
+  "Folga bonificada":{entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"00:00",jornada:"00:00"},
+  "Falta":{entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"00:00",jornada:"07:20"},
+  "Atestado":{entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"00:00",jornada:"00:00"}
+};
+const TARA_ACRILICO_PADRAO=0.732;
+
 
 /* Helpers */
 const pad=n=>String(n).padStart(2,"0");
@@ -178,6 +218,35 @@ const HOJE=`${hjD.getFullYear()}-${pad(hjD.getMonth()+1)}-${pad(hjD.getDate())}`
 const brl=v=>(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const kgF=v=>(Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:3,maximumFractionDigits:3})+" kg";
 const num=v=>{const n=parseFloat(String(v||"").replace(",","."));return isNaN(n)?0:n;};
+function somaExpressao(v){
+  const raw=String(v??"").trim();
+  if(!raw)return {ok:true,total:0,termos:[]};
+  const s=raw.replace(/\s/g,"").replace(/,/g,".").replace(/−/g,"-");
+  if(!/^[+-]?\d*\.?\d+(?:[+-]\d*\.?\d+)*$/.test(s))return {ok:false,total:num(raw),termos:[]};
+  const termos=(s.match(/[+-]?\d*\.?\d+/g)||[]).map(Number).filter(n=>!isNaN(n));
+  return {ok:true,total:termos.reduce((a,n)=>a+n,0),termos};
+}
+function fmtCalcValor(v,dec=3,fixo=false){
+  const n=Number(v)||0;
+  let s=n.toFixed(dec).replace(".",",");
+  if(!fixo&&s.includes(","))s=s.replace(/0+$/," ").replace(/,\s$/," ").trim();
+  return s;
+}
+function normalizaSomaCampo(v,dec=0){
+  const r=somaExpressao(v);
+  if(!r.ok)return String(v??"");
+  return fmtCalcValor(r.total,dec,dec>0);
+}
+function normalizaKgCampo(v,tara=TARA_ACRILICO_PADRAO,descontar=true){
+  const r=somaExpressao(v);
+  if(!r.ok)return String(v??"");
+  let total=r.total;
+  if(descontar){
+    const qtdTara=r.termos.filter(n=>n>tara).length;
+    total=Math.max(0,total-(qtdTara*tara));
+  }
+  return fmtCalcValor(total,3,true);
+}
 const diMes=(a,m)=>new Date(a,m+1,0).getDate();
 const isoDia=(a,m,d)=>`${a}-${pad(m+1)}-${pad(d)}`;
 const fmtD=iso=>iso?iso.split("-").reverse().join("/"):"—";
@@ -456,7 +525,7 @@ function Estoque({itens,onSaveItens}){
             ?<input className="nm-inp" value={editVal} onChange={e=>setEditVal(e.target.value)} onBlur={confirmRename} onKeyDown={e=>{e.key==="Enter"&&confirmRename();e.key==="Escape"&&setEditKey(null);}} autoFocus/>
             :<span className="nm editable" title="Duplo clique na linha para renomear">{n}</span>
           }
-          <input className="inp num" style={{width:90}} type="number" min="0" step="1" value={doc.data.itens?.[n]??""} placeholder="0" onChange={e=>set(n,e.target.value)}/>
+          <input className="inp num" style={{width:90}} type="text" inputMode="decimal" value={doc.data.itens?.[n]??""} placeholder="0" onChange={e=>set(n,e.target.value)} onBlur={e=>set(n,normalizaSomaCampo(e.target.value,0))} title="Pode digitar soma: 1+1"/>
           <span className="un">un</span>
         </div>
       ))}
@@ -472,6 +541,8 @@ function Balas({balas,onSaveBalas}){
   const [data,setData]=useState(HOJE);
   const [busca,setBusca]=useState("");
   const [showM,setShowM]=useState(false);
+  const [descontarTara,setDescontarTara]=useState(true);
+  const [taraAcrilico,setTaraAcrilico]=useState("0,732");
   const [editKey,setEditKey]=useState(null); // {cat, name}
   const [editVal,setEditVal]=useState("");
   const doc=useFireDoc("fini_balas_kg",data,{data,pesos:{},pacotes:{}});
@@ -505,7 +576,8 @@ function Balas({balas,onSaveBalas}){
       </div>
       <div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Gerir Catálogo</button><button className="btn ghost sm danger" onClick={excluirContagem} disabled={doc.status==="load"}>🗑️ Excluir contagem</button><button className="btn primary" onClick={salvarELimpar} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar contagem</button></div>
     </div>
-    <div className="totbar"><div className="tt"><span>Total em KG</span><b className="hl">{kgF(totalKg)}</b></div><div className="tt"><span>Total Pacotes</span><b>{totalPct.toLocaleString("pt-BR")}</b></div></div>
+    <div className="totbar"><div className="tt"><span>Total em KG</span><b className="hl">{kgF(totalKg)}</b></div><div className="tt"><span>Total Pacotes</span><b>{totalPct.toLocaleString("pt-BR")}</b></div><div className="tt"><span>Tara acrílico</span><div style={{display:"flex",gap:8,alignItems:"center",marginTop:4}}><label style={{display:"flex",gap:5,alignItems:"center",fontSize:12,color:"var(--ink-soft)",fontWeight:700}}><input type="checkbox" checked={descontarTara} onChange={e=>setDescontarTara(e.target.checked)}/> descontar</label><input className="inp pinput-mini" style={{width:78}} value={taraAcrilico} onChange={e=>setTaraAcrilico(e.target.value)} title="Peso do acrílico em kg"/></div></div></div>
+    <div className="ponto-help" style={{marginTop:-4}}>No campo <b>KG</b>, pode digitar soma como <b>1,450+0,098</b>. Com “descontar tara” ativo, o sistema desconta <b>0,732 kg</b> de cada pesagem maior que a tara, para registrar o peso líquido da bala.</div>
     <div className="panel">
       <div className="cat"><span>Produto</span><div style={{display:"flex",gap:18,fontSize:10,color:"var(--ink-faint)",fontWeight:700,letterSpacing:".06em",textTransform:"uppercase"}}><span style={{width:95,textAlign:"right"}}>KG</span><span style={{width:78,textAlign:"right"}}>Pacotes</span></div></div>
       {balas.map(c=>{
@@ -521,9 +593,9 @@ function Balas({balas,onSaveBalas}){
                 ?<input className="nm-inp" value={editVal} onChange={e=>setEditVal(e.target.value)} onBlur={confirmRename} onKeyDown={e=>{e.key==="Enter"&&confirmRename();e.key==="Escape"&&setEditKey(null);}} autoFocus/>
                 :<span className="nm editable" title="Duplo clique na linha para renomear">{n}</span>
               }
-              <input className="inp num" style={{width:95}} type="number" min="0" step="0.001" value={doc.data.pesos?.[n]??""} placeholder="0,000" onChange={e=>setKg(n,e.target.value)}/>
+              <input className="inp num" style={{width:95}} type="text" inputMode="decimal" value={doc.data.pesos?.[n]??""} placeholder="0,000" onChange={e=>setKg(n,e.target.value)} onFocus={e=>{e.currentTarget.dataset.original=e.currentTarget.value;}} onBlur={e=>{if(e.currentTarget.value!==e.currentTarget.dataset.original)setKg(n,normalizaKgCampo(e.target.value,num(taraAcrilico)||TARA_ACRILICO_PADRAO,descontarTara));}} title="Pode digitar soma: 1,450+0,098. Desconta a tara do acrílico se ativo."/>
               <span className="un">kg</span>
-              <input className="inp num" style={{width:78}} type="number" min="0" step="1" value={doc.data.pacotes?.[n]??""} placeholder="0" onChange={e=>setPct(n,e.target.value)}/>
+              <input className="inp num" style={{width:78}} type="text" inputMode="decimal" value={doc.data.pacotes?.[n]??""} placeholder="0" onChange={e=>setPct(n,e.target.value)} onBlur={e=>setPct(n,normalizaSomaCampo(e.target.value,0))} title="Pode digitar soma: 1+1"/>
               <span className="un">pct</span>
             </div>;
           })}
@@ -827,8 +899,205 @@ function Escala({funcEsc,onSaveFuncEsc}){
   </>;
 }
 
+
+/* ══ FOLHA DE PONTO / BANCO DE HORAS ══ */
+const absMin=m=>Math.abs(Math.round(m||0));
+function durToMin(v){
+  if(v===undefined||v===null||v==="")return 0;
+  let s=String(v).trim().toLowerCase().replace("h",":").replace(",",":");
+  let sign=1;if(s.startsWith("-")){sign=-1;s=s.slice(1);} 
+  const p=s.split(":");
+  const h=parseInt(p[0]||"0",10)||0;
+  const mi=parseInt(p[1]||"0",10)||0;
+  return sign*(h*60+mi);
+}
+function minToDur(m){
+  m=Math.round(m||0);const sign=m<0?"-":"";m=Math.abs(m);
+  return sign+pad(Math.floor(m/60))+":"+pad(m%60);
+}
+function horaToMin(v){
+  if(!v)return null;
+  let s=String(v).trim().toLowerCase().replace("h",":");
+  if(!s)return null;
+  if(!s.includes(":"))s=s+":00";
+  const [h,m="0"]=s.split(":");
+  const hh=parseInt(h,10),mm=parseInt(m,10);
+  if(isNaN(hh)||isNaN(mm))return null;
+  return hh*60+mm;
+}
+function diffHora(a,b){
+  const ia=horaToMin(a),ib=horaToMin(b);
+  if(ia===null||ib===null)return 0;
+  let d=ib-ia;if(d<0)d+=1440;
+  return d;
+}
+function isNormalTipo(tipo){return ["Normal 9:40-18:00","Normal 14:00-22:20","Normal 7h","Normal 7h20"].includes(tipo);}
+function isDomingoTipo(tipo){return ["Domingo 11-17","Domingo 15-21","Domingo 6h"].includes(tipo);}
+function isFeriadoTipo(tipo){return ["Feriado 11-17","Feriado 15-21","Feriado 6h"].includes(tipo);}
+function jornadaPadraoPonto(tipo,dt){
+  if(tipo==="Normal 7h")return "07:00";
+  if(isDomingoTipo(tipo)||isFeriadoTipo(tipo))return "06:00";
+  if(tipo==="Folga bonificada"||tipo==="Atestado")return "00:00";
+  if(tipo==="Folga compensatória"||tipo==="Falta")return "07:20";
+  return "07:20";
+}
+function intervaloPadraoPonto(tipo){
+  if(isNormalTipo(tipo))return "01:00";
+  if(isDomingoTipo(tipo)||isFeriadoTipo(tipo))return "00:00";
+  return "00:00";
+}
+function tipoDefaultPonto(ano,mes,dd){
+  const dt=new Date(ano,mes,Number(dd));
+  return dt.getDay()===0?"Domingo 11-17":"Normal 9:40-18:00";
+}
+function aplicarTipoPonto(row,tipo){
+  if(!tipo)return {...row,tipo:"",modelo:"",entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"",jornada:""};
+  const cfg=PONTO_TIPO_CONFIG[tipo];
+  if(cfg)return {...row,tipo,modelo:"",...cfg};
+  return {...row,tipo,modelo:"",jornada:jornadaPadraoPonto(tipo),intervalo:intervaloPadraoPonto(tipo)};
+}
+function opcoesTipoPonto(row,dt){
+  let ops=dt.getDay()===0?PONTO_TIPOS_DOMINGO:PONTO_TIPOS_SEMANA;
+  if(row.tipo&&!ops.includes(row.tipo))ops=[row.tipo,...ops];
+  return ops;
+}
+function defaultPontoRow(ano,mes,dd){
+  return {tipo:"",modelo:"",entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"",jornada:"",ajuste:"",obs:""};
+}
+function aplicarModeloPonto(row,modeloId){
+  return row;
+}
+function rowAtivaPonto(row){
+  const tipo=String(row.tipo||"");
+  return Boolean(row.entrada||row.saidaAlmoco||row.retornoAlmoco||row.saida||row.ajuste||row.obs||tipo.includes("Folga")||tipo==="Falta"||tipo==="Atestado"||isFeriadoTipo(tipo));
+}
+function calcPonto(row){
+  const ativa=rowAtivaPonto(row);
+  const prevista=durToMin(row.jornada||jornadaPadraoPonto(row.tipo));
+  const intervalo=(row.saidaAlmoco&&row.retornoAlmoco)?diffHora(row.saidaAlmoco,row.retornoAlmoco):durToMin(row.intervalo);
+  let trabalhada=0;
+  if(row.entrada&&row.saida){trabalhada=Math.max(0,diffHora(row.entrada,row.saida)-intervalo);}
+  const ajuste=durToMin(row.ajuste);
+  let banco=0,extra=0,devida=0;
+  if(!ativa){return {ativa:false,prevista:0,trabalhada:0,intervalo:0,extra:0,devida:0,banco:0,credito:0,debito:0};}
+  if(row.tipo==="Folga compensatória") banco=-durToMin("07:20")+ajuste;
+  else if(row.tipo==="Folga bonificada"||row.tipo==="Atestado") banco=0+ajuste;
+  else if(row.tipo==="Falta") banco=-(prevista||durToMin("07:20"))+ajuste;
+  else if(isFeriadoTipo(row.tipo)) banco=(trabalhada*2)+ajuste;
+  else banco=(trabalhada-prevista)+ajuste;
+  if(isNormalTipo(row.tipo)||isDomingoTipo(row.tipo)){
+    extra=Math.max(0,trabalhada-prevista);
+    devida=Math.max(0,prevista-trabalhada);
+  }else if(row.tipo==="Falta"||row.tipo==="Folga compensatória"){
+    devida=Math.max(0,-banco);
+  }else if(isFeriadoTipo(row.tipo)){
+    extra=Math.max(0,banco);
+  }
+  return {ativa,prevista,trabalhada,intervalo,extra,devida,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
+}
+function corSaldo(m){return m>0?"psaldo-pos":m<0?"psaldo-neg":"psaldo-zero";}
+
+function FolhaPonto({funcEsc,onSaveFuncEsc}){
+  const [ano,setAno]=useState(hjD.getFullYear());
+  const [mes,setMes]=useState(hjD.getMonth());
+  const [funcNome,setFuncNome]=useState("");
+  const [showM,setShowM]=useState(false);
+  const doc=useFireDoc("fini_folha_ponto",keyMes(ano,mes),{funcionarias:{},anotacoes:"",status:"Aberto"});
+  const funcs=useMemo(()=>listaFuncionarias(funcEsc),[funcEsc]);
+  const nomesDoc=Object.keys(doc.data.funcionarias||{});
+  const nomes=useMemo(()=>[...new Set([...funcs.map(f=>f.nome),...nomesDoc])].filter(Boolean),[funcs,nomesDoc.join("|")]);
+  useEffect(()=>{if(!funcNome&&nomes.length)setFuncNome(nomes[0]);},[nomes.join("|"),funcNome]);
+  const dadosFunc=(doc.data.funcionarias||{})[funcNome]||{saldoInicial:"",dias:{}};
+  const dias=dadosFunc.dias||{};
+  const nd=diMes(ano,mes);
+  const getRow=dd=>({...defaultPontoRow(ano,mes,dd),...(dias[dd]||{})});
+  const setFuncPatch=patch=>doc.update(d=>({funcionarias:{...(d.funcionarias||{}),[funcNome]:{...((d.funcionarias||{})[funcNome]||{dias:{}}),...patch}}}));
+  const setDia=(dd,k,v)=>doc.update(d=>{
+    const all=d.funcionarias||{};
+    const fd=all[funcNome]||{saldoInicial:"",dias:{}};
+    const base={...defaultPontoRow(ano,mes,dd),...(fd.dias?.[dd]||{})};
+    let row={...base,[k]:v};
+    if(k==="tipo")row=aplicarTipoPonto(base,v);
+    return {funcionarias:{...all,[funcNome]:{...fd,dias:{...(fd.dias||{}),[dd]:row}}}};
+  });
+  const limparDia=dd=>doc.update(d=>{
+    const all=d.funcionarias||{};const fd=all[funcNome]||{saldoInicial:"",dias:{}};const ndias={...(fd.dias||{})};delete ndias[dd];
+    return {funcionarias:{...all,[funcNome]:{...fd,dias:ndias}}};
+  });
+  const resumo=useMemo(()=>{
+    let trab=0,prev=0,extra=0,devida=0,cred=0,deb=0,ativos=0;
+    for(let i=1;i<=nd;i++){
+      const c=calcPonto(getRow(pad(i)));
+      if(c.ativa)ativos++;
+      trab+=c.trabalhada;prev+=c.prevista;extra+=c.extra;devida+=c.devida;cred+=c.credito;deb+=c.debito;
+    }
+    const saldoInicial=durToMin(dadosFunc.saldoInicial);
+    const saldo=saldoInicial+cred-deb;
+    return {ativos,trab,prev,extra,devida,cred,deb,saldoInicial,saldo};
+  },[JSON.stringify(dias),dadosFunc.saldoInicial,ano,mes,nd]);
+  const salvar=async()=>{const ok=await doc.save();if(ok)alert("Folha de ponto salva com sucesso.");};
+  return <>
+    <div className="htop"><div><h1>Folha de Ponto</h1><div className="hsub">Controle de jornada · banco de horas · folha mensal editável por funcionária</div></div><Status {...doc}/></div>
+    <ErrBox {...doc}/>
+    <div className="toolbar">
+      <MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/>
+      <div className="tl">
+        <div className="field"><label>Funcionária</label><select className="inp" value={funcNome} onChange={e=>setFuncNome(e.target.value)}>{nomes.map(n=><option key={n}>{n}</option>)}</select></div>
+        <button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button>
+        <button className="btn ghost sm" onClick={()=>window.print()}>🖨 Imprimir</button>
+        <button className="btn primary" onClick={salvar} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button>
+      </div>
+    </div>
+    <div className="ponto-help">
+      <b>Regra configurada:</b> escolha o <b>Tipo</b> do dia e o sistema preenche a base de horário automaticamente; depois qualquer horário pode ser editado. Dias de segunda a sábado mostram horários normais/feriado/folga/atestado/falta; domingos mostram somente domingo/folga/atestado/falta. Feriado trabalhado gera crédito em dobro das horas trabalhadas: 6h trabalhadas = <b>12h no banco</b>. Folga compensatória desconta <b>7h20</b>. Folga bonificada aparece separada e não desconta banco.
+      <div className="pmini">Observação: no domingo/feriado o lanche de 15min fica registrado de forma editável. Por padrão ele não é descontado do cálculo; se quiser descontar, preencha o intervalo como 00:15 ou informe saída/retorno do lanche.</div>
+    </div>
+    <div className="totbar">
+      <div className="tt"><span>Saldo inicial</span><input className="inp pinput-mini" value={dadosFunc.saldoInicial||""} placeholder="00:00" onChange={e=>setFuncPatch({saldoInicial:e.target.value})}/></div>
+      <div className="tt"><span>Dias lançados</span><b>{resumo.ativos}</b></div>
+      <div className="tt"><span>Horas trabalhadas</span><b>{minToDur(resumo.trab)}</b></div>
+      <div className="tt"><span>Horas previstas</span><b>{minToDur(resumo.prev)}</b></div>
+      <div className="tt"><span>Extras</span><b className="psaldo-pos">{minToDur(resumo.extra)}</b></div>
+      <div className="tt"><span>Horas devidas</span><b className="psaldo-neg">{minToDur(resumo.devida)}</b></div>
+      <div className="tt"><span>Crédito banco</span><b className="psaldo-pos">{minToDur(resumo.cred)}</b></div>
+      <div className="tt"><span>Débito banco</span><b className="psaldo-neg">{minToDur(resumo.deb)}</b></div>
+      <div className="tt"><span>Saldo final</span><b className={corSaldo(resumo.saldo)}>{minToDur(resumo.saldo)}</b></div>
+    </div>
+    <div className="panel ponto-scroll">
+      <table className="ponto-table"><thead><tr><th>Data</th><th>Tipo</th><th>Entrada</th><th>Saída almoço</th><th>Retorno</th><th>Saída</th><th>Intervalo</th><th>Prevista</th><th>Trab.</th><th>Extra</th><th>Devida</th><th>Ajuste</th><th>Banco dia</th><th>Obs</th><th></th></tr></thead>
+      <tbody>{Array.from({length:nd},(_,i)=>i+1).map(i=>{
+        const dd=pad(i),dt=new Date(ano,mes,i),row=getRow(dd),calc=calcPonto(row),isDom=dt.getDay()===0,isFer=isFeriadoTipo(row.tipo),isFolga=String(row.tipo||"").includes("Folga"),cls=(isFer?" pfer":"")+(isFolga?" pfolga":"")+(calc.banco<0?" palert":"");
+        return <tr key={dd} className={cls}>
+          <td className={(isDom?"pdate pdom":"pdate")}>{dd}/{pad(mes+1)}<div className="pmini">{WD[dt.getDay()]}</div></td>
+          <td><select value={row.tipo} onChange={e=>setDia(dd,"tipo",e.target.value)}><option value="">Selecionar…</option>{opcoesTipoPonto(row,dt).map(t=><option key={t}>{t}</option>)}</select></td>
+          <td><input className="pinput-mini" value={row.entrada||""} placeholder="--:--" onChange={e=>setDia(dd,"entrada",e.target.value)}/></td>
+          <td><input className="pinput-mini" value={row.saidaAlmoco||""} placeholder="--:--" onChange={e=>setDia(dd,"saidaAlmoco",e.target.value)}/></td>
+          <td><input className="pinput-mini" value={row.retornoAlmoco||""} placeholder="--:--" onChange={e=>setDia(dd,"retornoAlmoco",e.target.value)}/></td>
+          <td><input className="pinput-mini" value={row.saida||""} placeholder="--:--" onChange={e=>setDia(dd,"saida",e.target.value)}/></td>
+          <td><input className="pinput-mini" value={row.intervalo||""} placeholder="00:00" onChange={e=>setDia(dd,"intervalo",e.target.value)}/></td>
+          <td><input className="pinput-mini" value={row.jornada||""} placeholder="07:20" onChange={e=>setDia(dd,"jornada",e.target.value)}/></td>
+          <td className="num"><b>{calc.ativa?minToDur(calc.trabalhada):"—"}</b></td>
+          <td className="num psaldo-pos">{calc.extra?minToDur(calc.extra):"—"}</td>
+          <td className="num psaldo-neg">{calc.devida?minToDur(calc.devida):"—"}</td>
+          <td><input className="pinput-mini" value={row.ajuste||""} placeholder="00:00" onChange={e=>setDia(dd,"ajuste",e.target.value)} title="Ajuste manual: use 01:00 ou -01:00"/></td>
+          <td className={"num "+corSaldo(calc.banco)}><b>{calc.ativa?minToDur(calc.banco):"—"}</b></td>
+          <td><input className="pobs" value={row.obs||""} placeholder="observação" onChange={e=>setDia(dd,"obs",e.target.value)}/></td>
+          <td><button className="rm" title="Limpar dia" onClick={()=>limparDia(dd)}>🧹</button></td>
+        </tr>;
+      })}</tbody></table>
+    </div>
+    <div className="totbar" style={{marginTop:14}}>
+      <div className="tt" style={{flex:1}}><span>Anotações gerais da folha</span><textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} placeholder="Acordos, compensações, folgas bonificadas, justificativas…" onChange={e=>doc.update({anotacoes:e.target.value})}/></div>
+      <div className="tt"><span>Status</span><select className="inp" value={doc.data.status||"Aberto"} onChange={e=>doc.update({status:e.target.value})}><option>Aberto</option><option>Conferido</option><option>Fechado</option><option>Compensado/Pago</option></select></div>
+    </div>
+    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. O saldo do mês considera saldo inicial + créditos − débitos. Horários e jornadas são editáveis para ajustar trocas de turno e ocorrências reais.</div>
+    {showM&&<ModalFuncEsc funcs={funcs} onSave={l=>{onSaveFuncEsc(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}  
+  </>;
+}
+
+
 /* ══ APP ══ */
-const MODS=[{id:"estoque",ic:"📦",lbl:"Itens Quiosque"},{id:"balas",ic:"🍬",lbl:"Balas (Kg)"},{id:"comp",ic:"📊",lbl:"Comparativo"},{id:"desp",ic:"⚠️",lbl:"Desperdício"},{id:"caixa",ic:"💵",lbl:"Caixa / Troco"},{id:"consumo",ic:"🥤",lbl:"Consumo"},{id:"escala",ic:"📅",lbl:"Escala"}];
+const MODS=[{id:"estoque",ic:"📦",lbl:"Itens Quiosque"},{id:"balas",ic:"🍬",lbl:"Balas (Kg)"},{id:"comp",ic:"📊",lbl:"Comparativo"},{id:"desp",ic:"⚠️",lbl:"Desperdício"},{id:"caixa",ic:"💵",lbl:"Caixa / Troco"},{id:"consumo",ic:"🥤",lbl:"Consumo"},{id:"escala",ic:"📅",lbl:"Escala"},{id:"ponto",ic:"🕒",lbl:"Folha de Ponto"}];
 
 function App(){
   const [aba,setAba]=useState("estoque");
@@ -849,7 +1118,7 @@ function App(){
       <div className="fb">Versão: {APP_VERSION}<br/>Firebase: ficha-tecnica-burger<br/>coleções: fini_*<br/>origem: {window.location.protocol==="file:"?"arquivo local":"site publicado"}</div>
     </nav>
     <main className="main">
-      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V8 SALVAR CONTAGEM CORRIGIDO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
+      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V10 PONTO + SOMA + TARA · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
       {aba==="estoque"&&<Estoque itens={itens} onSaveItens={saveItens}/>}
       {aba==="balas"&&<Balas balas={balas} onSaveBalas={saveBalas}/>}
       {aba==="comp"&&<Comparativo itens={itens} balas={balas}/>}
@@ -857,11 +1126,12 @@ function App(){
       {aba==="caixa"&&<Caixa/>}
       {aba==="consumo"&&<Consumo funcCon={funcCon} onSaveFuncCon={saveFuncCon}/>}
       {aba==="escala"&&<Escala funcEsc={funcEsc} onSaveFuncEsc={saveFuncEsc}/>}
+      {aba==="ponto"&&<FolhaPonto funcEsc={funcEsc} onSaveFuncEsc={saveFuncEsc}/>}
     </main>
   </div>;
 }
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
-<!-- Versao V6 2026-05-26: salva payload limpo e permite excluir contagem por data em Itens/Balas -->
+<!-- Versao V10 2026-06-02: folha de ponto simplificada, soma em celulas e tara do acrilico -->
 </body>
 </html>
