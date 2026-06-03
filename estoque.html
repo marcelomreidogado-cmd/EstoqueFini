@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · V11 Ponto Simples</title>
+<title>FINI Petrópolis · V18 Folga Escala no Ponto</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -151,6 +151,7 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 .pchip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;border:1px solid var(--line);background:#fff;font-size:11px;color:var(--ink-soft);font-weight:700}
 .pchip.on{background:#fff1f6;color:var(--fini);border-color:#f3b7c9}
 .pinput-mini{width:78px!important;font-family:'DM Mono'!important;text-align:center!important}
+.pinput-mini[readonly]{background:#fffafc!important;color:var(--ink-soft)!important;cursor:not-allowed!important}
 .pobs{min-width:170px!important}
 @media(max-width:820px){.ponto-scroll{max-height:none}.ponto-table{min-width:1080px}}
 
@@ -162,9 +163,9 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useCallback,useMemo,useRef}=React;
-const FINI_BUILD="03/06/2026 00:50 - V11_PONTO_SIMPLES";
+const FINI_BUILD="03/06/2026 03:42 - V18_FOLGA_ESCALA_NO_PONTO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION="03/06/2026 01:20 · V13_BANCO_FERIADO_COMPENSADO";
+const APP_VERSION="03/06/2026 03:42 · V18_FOLGA_ESCALA_NO_PONTO";
 
 /* Firebase */
 const firebaseConfig = {
@@ -182,7 +183,7 @@ try{db.settings({experimentalForceLongPolling:true,merge:true});}catch(e){}
 /* Defaults */
 const D_ITENS=["AGUA MINERAL S/ GAS 500ML","AGUA MINERAL C/ GAS 500ML","ALGODAO DOCE CLASSICO 35G","ALGODAO DOCE FRAMBOESA 35G","ALGODAO DOCE MORANGO 35G","ALGODAO DOCE T FRUTTI 35G","ALGODAO DOCE UVA 35G","BALA MEGA XXL COLA 900G","BALEIRO AMARELO C/ ROSA","BEM ESTAR DIET","BEM ESTAR COLAGENO","CAIXA FINI","CH. FÚRIA ÁCIDA 14G","CH. BOLA DE TENIS 200UN","CH. DESTROIER","CH. KLETS MORA-FRAM S/A 200UN","CH. KLETS SANDIA S/AZ 200UN","CH. KLETS TROPICAL S/A 200UN","CH. KLETS WHITE S/AZ 200UN","CH. NUCLEAR GUM GIG 50UN","CHICLE BANANA SPLIT","CHICLE FINIBURGUER 200UN","CHICLE GARRAFAS COLA 200UN","CHICLE KLÉTS MORANGO 30G","CHICLE KLÉTS TUTTI FRUTTI 30G","CHICLE MELAO 200UN","CHICLE PANNAFRAGOLA 200UN","COPO BANANA","COPO DENTADURA","COPO MARSH","COPO TUBES","DESENROLA&ESTIKA FRAMBOESA 27G","DESENROLA&ESTIKA TUTTI-FRUTTI 27G","EMBALAGEM PRESENTEAVEL P. AZUL","FINI BOX","FINI ZUMBIE 200UN","PIRULITO FINIPOP CHERRY+GUM 100UN","PIRULITO FINIPOP VAMPIRO GUM 100UN","SACOLA MEDIA LOJA","SACOLA PEQUENA LOJA","SAQUINHO FINI FRANQUIA C/ZIP","TUBES PINTA LINGUE 15G","TUBES DE IOGURTE 27G","TUBES DE MORANGO 27G","TUBES MORANGO CITR 27G","TUBES TWISTER 27G","TUBES BOO 27G"];
 const D_BALAS=[{cat:"Gigantes",itens:["Banana GG 500G","Garrafa de cola GG 1KG","Golfinho GG 1KG","Morango GG 1KG","Ovo GG 1KG","Rã brilho GG 1KG","Urso GG 1KG"]},{cat:"Gelatinas Nacionais",itens:["Amora 500G","Aro de morango 500G","Banana 500G","Beijo de morango 500G","Caveira Recheada","Dentadura 500G","Dentadura da bruxa 500G","Finiburguer 500G","Frutiê frutas sortidas 200G","Frutiê frutas vermelhas 200G","Frutiê sobremesas 200G","Gomos tangerina 500G","Minhoca brilho 500G","Minhoca cítrica 500G","Mix surpresa","Oceanitos 500G","Ovo frito pequeno 500G","Polvo pequeno 500G","Rato 500G","Regaliz terror","Sapo pequeno 500G","Sorvetinho 80G","Ursinho brilho 500G"]},{cat:"Gelatinas Exclusivas",itens:["ALUBIAS","AROS SURTIDOS","Amora azul 250UN","Amora multicolor 250UN","Bananas recheadas 1KG","Beijos twisty morango 1KG","Boca de morango 250UN","CEREJA BRILHO","Cereja drageada","Coração de pêssego 1KG","Coração recheados 1KG","Coração tricolor 1KG","EURO DE MORANGO","Fatias melancia recheadas 1KG","Fruta gourmet","Garrafa de cola cítrica 1KG","Lagrimas 1KG","Limões grandes 1KG","Maças 1KG","Melancia fatiada 1KG","Morango brilho 1KG","Morango cítrico 1KG","Morangos açucarados","Morangos recheados 1KG","Orca 1KG","Pimenta picante 1KG","Polvo cítrico 1KG","SORTIDO TERROR","Tortugas 1KG","Tropical jelly 1KG","Tubarão 1KG","zapatilha"]},{cat:"Tubes Nacionais",itens:["TUBES DESENROLA E ESTICA FRAM.","Tubes de Iogurte","Tubes pinta lingua","Tubes morango 240G/80G","Tubes morango cítrico 240G/80G","Tubes sabores sortidos 80G","Tubes tropical 80G","Tubes tutti fruti 240G/80G","Tubes twister 240G/80G","Tubes twister cítrico 80G","Tubes uva 80g","Tubes uva cítrico 80g"]},{cat:"Tubes Exclusivos",itens:["Chewy chips 1KG","Corda de cereja PT 30UN","Espagueti fresa PT 200UN","Espagueti multifuti PT 200UN","Finipalo morango PT 30UN","Jumbo colorido 30UN","Jumbo melancia citrico 30UN","Jumbo melancia 30UN","Jumbo morango citrico PT 30UN","Jumbo morango PT 30UN","Jumbo morango com nata 30UN","Jumbo tijolinho morango 30UN","Jumbo torcida morango PT 30UN","Jumbo torcida roja PT 30UN","Jumbo torcido sorvete 30UN","Jumbo tornado brilho PT 30UN","Jumbo tornado pica PT 30UN","LÍNGUA DE COLA","Língua de framboesa PT 200UN","Língua de maça verde PT 200UN","Língua de melancia PT 200UN","Língua de morango PT 200UN","Língua multifruti PT 200UN","Linhas de framboesa PT 200UN","Linhas de morango PT 200UN","Maxi morango citrico 70UN","Maxi morango recheado 70UN","Mix regaliz brilho 1KG","Spiro morango 200UN","Taco relleno negro 1KG","Tacote morango 1KG","Tacote negro 1KG","Tijolinho morango 250UN","Tijolinho colorido cítrico 1KG","Tijolinho nata-morango 250UN","Tornado recheado cítrico 200UN","Tornado recheado 70UN","Tubes manga 200UN","Tubes morango nata-baunilha 200UN"]},{cat:"Chicles",itens:["Chicle bola de tenis GG 75UN","Chicle bolos pequenos 1KG","Chicle clássicos 500G","Chicle finiburguer 200UN","Chicle fúria ácida 140G","Chicle melancia 500G","Chicle morango 500G","Chicle ovo de dinossauro 500G","Chicle salada de frutas 500G"]},{cat:"Marsh's",itens:["Marsh morango com nata 200UN","Marsh torção recheado colorido 200G","Marsh torção recheado azul 200G","Marsh torção recheado rosa 200G","Marsh vulcão azul 200G","Marsh vulcão rosa 200G","Marsh vulcão sortidos 150UN"]}];
-const D_ESC=[{nome:"Daphne",hora:"9:40",cor:"#d8442e",jornada:"7:20h",regime:"6x1"},{nome:"Weslayne",hora:"14:00",cor:"#e8a23a",jornada:"7:20h",regime:"6x1"},{nome:"Leticia",hora:"14:00",cor:"#3f8f5f",jornada:"7:20h",regime:"6x1"}];
+const D_ESC=[{id:"101",nome:"Daphne",hora:"9:40",cor:"#d8442e",jornada:"7:20h",regime:"6x1"},{id:"102",nome:"Weslayne",hora:"14:00",cor:"#e8a23a",jornada:"7:20h",regime:"6x1"},{id:"103",nome:"Leticia",hora:"14:00",cor:"#3f8f5f",jornada:"7:20h",regime:"6x1"}];
 const H_SEMANA=["9:40","14:00","14:00"];
 const H_DOM_FER=["11:00","15:00",""];
 const D_CON=["Jeanny","Ana Clara","Leidiane","Marcelo","Igor"];
@@ -302,8 +303,15 @@ function useFireDoc(col,id,init){
     }
   };
   const update=p=>{setData(d=>({...d,...(typeof p==="function"?p(d):p)}));setDirty(true);};
+  const updateAndSave=async(p)=>{
+    const patch=typeof p==="function"?p(data):p;
+    const next={...data,...patch};
+    setData(next);
+    setDirty(true);
+    return await save(next);
+  };
   const clearLocal=(blank)=>{setData(JSON.parse(JSON.stringify(blank||init)));setDirty(false);setErro(null);setStatus("ok");};
-  return{data,update,status,save,reload,deleteDoc,clearLocal,dirty,erro};
+  return{data,update,updateAndSave,status,save,reload,deleteDoc,clearLocal,dirty,erro};
 }
 
 /* Shared UI */
@@ -361,32 +369,37 @@ function ModalBalas({balas,onSave,onClose}){
 /* ══ MODAL: Func Escala ══ */
 function ModalFuncEsc({funcs,onSave,onClose}){
   const normaliza=(arr)=>arr.map((f,i)=>typeof f==="string"
-    ?{nome:f,cor:CORES[i%CORES.length],jornada:"7:20h",regime:"6x1"}
-    :{nome:f.nome||"",cor:f.cor||CORES[i%CORES.length],jornada:f.jornada||"7:20h",regime:f.regime||"6x1"}
+    ?{id:String(101+i),nome:f,cor:CORES[i%CORES.length],jornada:"7:20h",regime:"6x1"}
+    :{id:String(f.id||f.codigo||f.pin||String(101+i)),nome:f.nome||"",cor:f.cor||CORES[i%CORES.length],jornada:f.jornada||"7:20h",regime:f.regime||"6x1"}
   ).filter(f=>f.nome.trim());
   const [lista,setLista]=useState(()=>normaliza(funcs));
-  const [novo,setNovo]=useState({nome:"",cor:CORES[0],jornada:"7:20h",regime:"6x1"});
+  const nextId=()=>{
+    const nums=lista.map(f=>parseInt(String(f.id||"").replace(/\D/g,""),10)).filter(n=>!isNaN(n));
+    return String(nums.length?Math.max(...nums)+1:101);
+  };
+  const [novo,setNovo]=useState({id:"",nome:"",cor:CORES[0],jornada:"7:20h",regime:"6x1"});
   const upd=(i,k,v)=>setLista(l=>{const n=[...l];n[i]={...n[i],[k]:v};return n;});
-  const add=()=>{if(!novo.nome.trim())return;setLista(l=>[...l,{nome:novo.nome.trim(),cor:novo.cor,jornada:novo.jornada||"7:20h",regime:novo.regime||"6x1"}]);setNovo({nome:"",cor:CORES[0],jornada:"7:20h",regime:"6x1"});};
-  const salvar=()=>onSave(lista.filter(f=>f.nome.trim()).map(f=>({nome:f.nome.trim(),cor:f.cor||CORES[0],jornada:f.jornada||"7:20h",regime:f.regime||"6x1"})));
+  const add=()=>{if(!novo.nome.trim())return;setLista(l=>[...l,{id:String(novo.id||nextId()).trim(),nome:novo.nome.trim(),cor:novo.cor,jornada:novo.jornada||"7:20h",regime:novo.regime||"6x1"}]);setNovo({id:"",nome:"",cor:CORES[0],jornada:"7:20h",regime:"6x1"});};
+  const salvar=()=>{
+    const limpos=lista.filter(f=>f.nome.trim()).map((f,i)=>({id:String(f.id||String(101+i)).trim(),nome:f.nome.trim(),cor:f.cor||CORES[0],jornada:f.jornada||"7:20h",regime:f.regime||"6x1"}));
+    const ids=limpos.map(f=>f.id).filter(Boolean);
+    if(new Set(ids).size!==ids.length){alert("Existe ID repetido. Cada funcionária precisa ter um ID único.");return;}
+    onSave(limpos);
+  };
   return <div className="ov" onClick={e=>e.target===e.currentTarget&&onClose()}>
-    <div className="mbox" style={{maxWidth:760}}>
-      <h2>👩 Funcionárias · Escala</h2>
-      <div style={{fontSize:12,color:"var(--ink-soft)",lineHeight:1.5}}>
-        Cadastre a jornada e o regime de cada funcionária. A folha usa a jornada automaticamente; na folha você marca somente feriado, folga, folga extra ou atestado.
-      </div>
+    <div className="mbox" style={{maxWidth:820}}>
+      <h2>👩 Funcionárias · Escala e Ponto</h2>
+      <div style={{fontSize:12,color:"var(--ink-soft)",lineHeight:1.5}}>Cadastre o ID de ponto de cada funcionária. A marcação da folha será feita digitando esse ID e usando o horário do computador.</div>
       <div className="mscroll">{lista.map((f,i)=><div className="le-row" key={i}>
+        <input className="le-sm" style={{width:76}} value={f.id||""} onChange={e=>upd(i,"id",e.target.value.replace(/\D/g,""))} placeholder="ID" title="ID usado para bater ponto"/>
         <input className="le-inp" value={f.nome} onChange={e=>upd(i,"nome",e.target.value)} placeholder="Nome da funcionária"/>
-        <select className="le-sm" style={{width:96}} value={f.jornada||"7:20h"} onChange={e=>upd(i,"jornada",e.target.value)} title="Jornada padrão da funcionária">
-          {PONTO_JORNADAS.map(j=><option key={j}>{j}</option>)}
-        </select>
-        <select className="le-sm" style={{width:82}} value={f.regime||"6x1"} onChange={e=>upd(i,"regime",e.target.value)} title="Regime de escala">
-          {PONTO_REGIMES.map(r=><option key={r}>{r}</option>)}
-        </select>
+        <select className="le-sm" style={{width:96}} value={f.jornada||"7:20h"} onChange={e=>upd(i,"jornada",e.target.value)} title="Jornada padrão da funcionária">{PONTO_JORNADAS.map(j=><option key={j}>{j}</option>)}</select>
+        <select className="le-sm" style={{width:82}} value={f.regime||"6x1"} onChange={e=>upd(i,"regime",e.target.value)} title="Regime de escala">{PONTO_REGIMES.map(r=><option key={r}>{r}</option>)}</select>
         <div className="cchips">{CORES.map(c=><span key={c} className={"cc"+(f.cor===c?" sel":"")} style={{background:c}} onClick={()=>upd(i,"cor",c)}/>)}</div>
         <button className="rm" onClick={()=>setLista(l=>l.filter((_,j)=>j!==i))}>🗑️</button>
       </div>)}</div>
       <div className="add-row">
+        <input placeholder="ID" value={novo.id} onChange={e=>setNovo(p=>({...p,id:e.target.value.replace(/\D/g,"")}))} style={{width:80}}/>
         <input placeholder="Nova funcionária…" value={novo.nome} onChange={e=>setNovo(p=>({...p,nome:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&add()} style={{flex:1,minWidth:150}}/>
         <select value={novo.jornada||"7:20h"} onChange={e=>setNovo(p=>({...p,jornada:e.target.value}))} style={{width:110}}>{PONTO_JORNADAS.map(j=><option key={j}>{j}</option>)}</select>
         <select value={novo.regime||"6x1"} onChange={e=>setNovo(p=>({...p,regime:e.target.value}))} style={{width:90}}>{PONTO_REGIMES.map(r=><option key={r}>{r}</option>)}</select>
@@ -416,7 +429,7 @@ function ModalFuncCon({funcs,onSave,onClose}){
 }
 
 /* ══ ESCALA: Componentes ══ */
-const listaFuncionarias=arr=>(arr||[]).map((f,i)=>typeof f==="string"?{nome:f,cor:CORES[i%CORES.length],jornada:"7:20h",regime:"6x1"}:{nome:f.nome||"",cor:f.cor||CORES[i%CORES.length],jornada:f.jornada||"7:20h",regime:f.regime||"6x1"}).filter(f=>f.nome.trim());
+const listaFuncionarias=arr=>(arr||[]).map((f,i)=>typeof f==="string"?{id:String(101+i),nome:f,cor:CORES[i%CORES.length],jornada:"7:20h",regime:"6x1"}:{id:String(f.id||f.codigo||f.pin||String(101+i)),nome:f.nome||"",cor:f.cor||CORES[i%CORES.length],jornada:f.jornada||"7:20h",regime:f.regime||"6x1"}).filter(f=>f.nome.trim());
 const corFunc=(funcs,nome)=>funcs.find(f=>f.nome===nome)?.cor||"#d8c1ca";
 const horariosPadrao=especial=>especial?H_DOM_FER:H_SEMANA;
 const escalaBase=(especial,funcs)=>({folga:"",slots:horariosPadrao(especial).map(h=>({hora:h,nome:""}))});
@@ -928,7 +941,7 @@ function diffHora(a,b){
 }
 function normalizeTipoPonto(tipo){
   const t=String(tipo||"").trim();
-  if(["Normal 7h","7h","Normal 9:40-18:00","Normal 14:00-22:20","Normal 7h20","7:20h","Trabalho","Domingo 11-17","Domingo 15-21","Domingo 6h","Domingo"].includes(t))return "";
+  if(["Normal 7h","7h","Normal 9:40-18:00","Normal 14:00-22:20","Normal 7h20","7:20h","Trabalho","Domingo 11-17","Domingo 15-21","Domingo 6h","Domingo","Normal"].includes(t))return "";
   if(["Feriado 11-17","Feriado 15-21","Feriado 6h","Feriado"].includes(t))return "Feriado";
   if(["Folga compensatória","Folga"].includes(t))return "Folga";
   if(["Folga bonificada","Folga extra"].includes(t))return "Folga extra";
@@ -941,7 +954,7 @@ function isFolgaTipo(tipo){return ["Folga","Folga extra"].includes(normalizeTipo
 function isFeriadoTipo(tipo){return normalizeTipoPonto(tipo)==="Feriado";}
 function isAtestadoTipo(tipo){return normalizeTipoPonto(tipo)==="Atestado";}
 function isDomingoData(ano,mes,dd){return new Date(ano,mes,Number(dd)).getDay()===0;}
-function horarioBasePonto(ano,mes,dd,func,tipo){
+function escalaSugeridaPonto(ano,mes,dd,func,tipo){
   const tp=normalizeTipoPonto(tipo);
   if(tp==="Folga"||tp==="Folga extra"||tp==="Atestado")return {entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"00:00",jornada:"00:00"};
   if(tp==="Feriado"||isDomingoData(ano,mes,dd))return {entrada:"11:00",saidaAlmoco:"",retornoAlmoco:"",saida:"17:00",intervalo:"00:00",jornada:"06:00"};
@@ -949,18 +962,17 @@ function horarioBasePonto(ano,mes,dd,func,tipo){
   if(jorn==="7h")return {entrada:"09:40",saidaAlmoco:"13:00",retornoAlmoco:"14:00",saida:"17:40",intervalo:"01:00",jornada:"07:00"};
   return {entrada:"09:40",saidaAlmoco:"13:00",retornoAlmoco:"14:00",saida:"18:00",intervalo:"01:00",jornada:"07:20"};
 }
-function defaultPontoRow(ano,mes,dd,func){
-  return {tipo:"",ajuste:"",obs:"",...horarioBasePonto(ano,mes,dd,func,"")};
+function horarioBasePonto(ano,mes,dd,func,tipo){
+  const sug=escalaSugeridaPonto(ano,mes,dd,func,tipo);
+  return {entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:sug.intervalo,jornada:sug.jornada};
 }
-function aplicarTipoPonto(row,tipo,ano,mes,dd,func){
-  const tp=normalizeTipoPonto(tipo);
-  return {...row,tipo:tp,...horarioBasePonto(ano,mes,dd,func,tp)};
-}
+function defaultPontoRow(ano,mes,dd,func){return {tipo:"",ajuste:"",obs:"",registrosPonto:[],...horarioBasePonto(ano,mes,dd,func,"")};}
+function aplicarTipoPonto(row,tipo,ano,mes,dd,func){const tp=normalizeTipoPonto(tipo);return {...row,tipo:tp,...horarioBasePonto(ano,mes,dd,func,tp)};}
 function opcoesTipoPonto(){return PONTO_OCORRENCIAS;}
 function rowAtivaPonto(row,ano,mes,dd){
   const tp=normalizeTipoPonto(row.tipo);
-  if(tp==="Folga"||tp==="Folga extra"||tp==="Atestado")return true;
-  return Boolean(row.entrada||row.saidaAlmoco||row.retornoAlmoco||row.saida||row.ajuste||row.obs||tp==="Feriado"||isDomingoData(ano,mes,dd));
+  if(tp==="Folga"||tp==="Folga extra"||tp==="Atestado"||tp==="Feriado")return true;
+  return Boolean(row.entrada||row.saidaAlmoco||row.retornoAlmoco||row.saida||row.ajuste||row.obs);
 }
 function calcPonto(row,ano,mes,dd,func){
   const ativa=rowAtivaPonto(row,ano,mes,dd);
@@ -968,22 +980,19 @@ function calcPonto(row,ano,mes,dd,func){
   const ajuste=durToMin(row.ajuste);
   if(!ativa){return {ativa:false,prevista:0,trabalhada:0,intervalo:0,extra:0,devida:0,banco:0,credito:0,debito:0};}
   if(tp==="Folga"||tp==="Atestado"){
-    // Folga semanal/normal e atestado não geram hora devida nem desconto no banco.
     const banco=ajuste;
     return {ativa:true,prevista:0,trabalhada:0,intervalo:0,extra:Math.max(0,banco),devida:0,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
   }
   if(tp==="Folga extra"){
-    // Folga extra = folga para compensar banco de horas. Desconta a jornada padrão da funcionária.
     const banco=-(jornadaMinFunc(func))+ajuste;
     return {ativa:true,prevista:0,trabalhada:0,intervalo:0,extra:0,devida:0,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
   }
-  const prevista=durToMin(row.jornada||jornadaStrFunc(func)||"07:20");
+  const prevista=durToMin(row.jornada||escalaSugeridaPonto(ano,mes,dd,func,tp).jornada||jornadaStrFunc(func)||"07:20");
   const intervalo=(row.saidaAlmoco&&row.retornoAlmoco)?diffHora(row.saidaAlmoco,row.retornoAlmoco):durToMin(row.intervalo);
   let trabalhada=0;
   if(row.entrada&&row.saida){trabalhada=Math.max(0,diffHora(row.entrada,row.saida)-intervalo);}
   let banco=0,extra=0,devida=0;
   if(tp==="Feriado"){
-    // Feriado trabalhado entra no banco em dobro das horas trabalhadas. Ex.: 6h trabalhadas = 12h de crédito.
     banco=(trabalhada*2)+ajuste;
     extra=Math.max(0,banco);
   }else{
@@ -994,14 +1003,22 @@ function calcPonto(row,ano,mes,dd,func){
   return {ativa,prevista,trabalhada,intervalo,extra,devida,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
 }
 function corSaldo(m){return m>0?"psaldo-pos":m<0?"psaldo-neg":"psaldo-zero";}
-
+function agoraHHMM(){const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes());}
+const CAMPOS_PONTO=["entrada","saidaAlmoco","retornoAlmoco","saida"];
+const ROTULOS_PONTO={entrada:"Entrada",saidaAlmoco:"Saída almoço",retornoAlmoco:"Volta almoço",saida:"Saída"};
+const SENHA_ADMIN_PONTO="2231";
 
 function FolhaPonto({funcEsc,onSaveFuncEsc}){
   const [ano,setAno]=useState(hjD.getFullYear());
   const [mes,setMes]=useState(hjD.getMonth());
   const [funcNome,setFuncNome]=useState("");
   const [showM,setShowM]=useState(false);
+  const [pontoId,setPontoId]=useState("");
+  const [pontoMsg,setPontoMsg]=useState("");
+  const [adminPin,setAdminPin]=useState("");
+  const [adminOn,setAdminOn]=useState(false);
   const doc=useFireDoc("fini_folha_ponto",keyMes(ano,mes),{funcionarias:{},anotacoes:"",status:"Aberto"});
+  const escalaDoc=useFireDoc("fini_escala",keyMes(ano,mes),{dias:{},anotacoes:"",feriados:{}});
   const funcs=useMemo(()=>listaFuncionarias(funcEsc),[funcEsc]);
   const nomesDoc=Object.keys(doc.data.funcionarias||{});
   const nomes=useMemo(()=>[...new Set([...funcs.map(f=>f.nome),...nomesDoc])].filter(Boolean),[funcs,nomesDoc.join("|")]);
@@ -1009,30 +1026,59 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
   const funcAtual=funcs.find(f=>f.nome===funcNome)||{nome:funcNome,jornada:"7:20h",cor:CORES[0]};
   const dadosFunc=(doc.data.funcionarias||{})[funcNome]||{saldoInicial:"",dias:{}};
   const dias=dadosFunc.dias||{};
+  const escalaMes=escalaDoc.data||{dias:{},feriados:{}};
+  const diasEscala=escalaMes.dias||{};
+  const ferEscala=escalaMes.feriados||{};
   const nd=diMes(ano,mes);
+  const tipoAutoEscala=(dd,func=funcAtual)=>{
+    const dt=new Date(ano,mes,Number(dd));
+    const iso=isoDia(ano,mes,Number(dd));
+    const esc=normalizarEscalaDia(diasEscala[dd],dt.getDay()===0||!!ferEscala[iso],funcs);
+    return esc.folga&&esc.folga===func.nome?"Folga":"";
+  };
+  const temRegistroPonto=raw=>Boolean(raw.entrada||raw.saidaAlmoco||raw.retornoAlmoco||raw.saida||raw.ajuste||raw.obs||(raw.registrosPonto||[]).length);
+  const devePuxarTipoEscala=raw=>!raw.tipoManual&&!raw.tipo&&!temRegistroPonto(raw);
   const getRow=dd=>{
     const raw={...(dias[dd]||{})};
     const tp=normalizeTipoPonto(raw.tipo);
     const base=defaultPontoRow(ano,mes,dd,funcAtual);
-    const row={...base,...raw,tipo:tp};
-    if(!raw.tipo){row.tipo="";}
+    const autoTipo=devePuxarTipoEscala(raw)?tipoAutoEscala(dd):"";
+    const row={...base,...raw,tipo:tp||autoTipo};
+    if(autoTipo&&!raw.tipo){row.tipoAutoEscala=true;}
+    if(!raw.tipo&&!autoTipo){row.tipo="";}
     // Se era um tipo antigo salvo, normaliza para a nova lógica e mantém horários editados, se existirem.
     if(raw.tipo&&tp!==raw.tipo){row.tipo=tp;}
     return row;
   };
-  const setFuncPatch=patch=>doc.update(d=>({funcionarias:{...(d.funcionarias||{}),[funcNome]:{...((d.funcionarias||{})[funcNome]||{dias:{}}),...patch}}}));
-  const setDia=(dd,k,v)=>doc.update(d=>{
-    const all=d.funcionarias||{};
-    const fd=all[funcNome]||{saldoInicial:"",dias:{}};
-    const base={...defaultPontoRow(ano,mes,dd,funcAtual),...(fd.dias?.[dd]||{})};
-    let row={...base,[k]:v};
-    if(k==="tipo")row=aplicarTipoPonto(base,v,ano,mes,dd,funcAtual);
-    return {funcionarias:{...all,[funcNome]:{...fd,dias:{...(fd.dias||{}),[dd]:row}}}};
-  });
-  const limparDia=dd=>doc.update(d=>{
+  const liberarAdmin=()=>{
+    if(adminOn){setAdminOn(false);setAdminPin("");setPontoMsg("Edição administrativa bloqueada.");return;}
+    if(String(adminPin||"").trim()===SENHA_ADMIN_PONTO){setAdminOn(true);setAdminPin("");setPontoMsg("✅ Edição administrativa liberada.");}
+    else{setPontoMsg("Senha administrativa inválida.");}
+  };
+  const exigirAdmin=()=>{if(adminOn)return true;setPontoMsg("Digite a senha administrativa para alterar horários, limpar dia, saldo ou observações. A coluna Tipo é livre.");return false;};
+  const setFuncPatch=patch=>{if(!exigirAdmin())return;doc.updateAndSave(d=>({funcionarias:{...(d.funcionarias||{}),[funcNome]:{...((d.funcionarias||{})[funcNome]||{dias:{}}),...patch,alteradoManualEm:new Date().toISOString(),alteradoManualPor:"ADMIN"}}}));};
+  const setDia=(dd,k,v)=>{
+    const isTipoLivre=k==="tipo";
+    if(!isTipoLivre&&!exigirAdmin())return;
+    doc.updateAndSave(d=>{
+      const all=d.funcionarias||{};
+      const fd=all[funcNome]||{saldoInicial:"",dias:{}};
+      const base={...defaultPontoRow(ano,mes,dd,funcAtual),...(fd.dias?.[dd]||{})};
+      let row={...base,[k]:v};
+      if(isTipoLivre)row={...aplicarTipoPonto(base,v,ano,mes,dd,funcAtual),tipoManual:true,tipoAutoEscala:false};
+      row={
+        ...row,
+        alteradoManualEm:new Date().toISOString(),
+        alteradoManualPor:isTipoLivre&&!adminOn?"TIPO_LIVRE":"ADMIN"
+      };
+      return {funcionarias:{...all,[funcNome]:{...fd,dias:{...(fd.dias||{}),[dd]:row}}}};
+    });
+    if(isTipoLivre&&!adminOn)setPontoMsg("✅ Tipo do dia salvo. Horários continuam bloqueados para registro somente por ID.");
+  };
+  const limparDia=dd=>{if(!exigirAdmin())return;if(!confirm("Limpar os registros deste dia?"))return;doc.updateAndSave(d=>{
     const all=d.funcionarias||{};const fd=all[funcNome]||{saldoInicial:"",dias:{}};const ndias={...(fd.dias||{})};delete ndias[dd];
-    return {funcionarias:{...all,[funcNome]:{...fd,dias:ndias}}};
-  });
+    return {funcionarias:{...all,[funcNome]:{...fd,dias:ndias,alteradoManualEm:new Date().toISOString(),alteradoManualPor:"ADMIN"}}};
+  });};
   const resumo=useMemo(()=>{
     let trab=0,prev=0,extra=0,devida=0,cred=0,deb=0,ativos=0,feriados=0,folgas=0,folgasExtra=0,atestados=0;
     for(let i=1;i<=nd;i++){
@@ -1051,23 +1097,73 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     const saldo=saldoInicial+cred-deb;
     return {ativos,trab,prev,extra,devida,cred,deb,saldoInicial,saldo,feriados,folgas,folgasExtra,atestados};
   },[JSON.stringify(dias),dadosFunc.saldoInicial,ano,mes,nd,funcAtual.jornada,funcAtual.regime]);
+  const registrarPonto=async()=>{
+    const id=String(pontoId||"").trim();
+    if(!id){setPontoMsg("Digite o ID da funcionária.");return;}
+    const hoje=new Date();
+    if(ano!==hoje.getFullYear()||mes!==hoje.getMonth()){
+      setAno(hoje.getFullYear());setMes(hoje.getMonth());
+      setPontoMsg("Mudei para o mês atual. Digite o ID novamente para registrar.");
+      return;
+    }
+    const f=funcs.find(x=>String(x.id||"").trim()===id);
+    if(!f){setPontoMsg("ID não encontrado. Confira em ⚙️ Funcionárias.");return;}
+    const dd=pad(hoje.getDate());
+    let baseDoc=doc.data;
+    try{
+      const snap=await db.collection("fini_folha_ponto").doc(keyMes(ano,mes)).get();
+      if(snap.exists)baseDoc={...baseDoc,...snap.data()};
+    }catch(e){setPontoMsg("Não consegui conferir o ponto atual no Firebase. Tente novamente.");return;}
+    const all=baseDoc.funcionarias||{};
+    const fd=all[f.nome]||{saldoInicial:"",dias:{}};
+    const raw=fd.dias?.[dd]||{};
+    const autoTipo=devePuxarTipoEscala(raw)?tipoAutoEscala(dd,f):"";
+    let row={...defaultPontoRow(ano,mes,dd,f),...raw,tipo:normalizeTipoPonto(raw.tipo)||autoTipo};
+    if(["Folga","Folga extra","Atestado"].includes(normalizeTipoPonto(row.tipo))){setPontoMsg(`Hoje está marcado como ${row.tipo} para ${f.nome}. Remova o tipo antes de registrar ponto.`);return;}
+    const campo=CAMPOS_PONTO.find(c=>!row[c]);
+    if(!campo){setPontoMsg(`${f.nome} já tem os 4 registros do dia. Use o botão limpar dia se precisar refazer.`);return;}
+    const hora=agoraHHMM();
+    const novoRegistro={campo,hora,registradoEm:new Date().toISOString(),id:f.id,nome:f.nome,origem:"ID_FUNCIONARIA"};
+    row={...row,[campo]:hora,registrosPonto:[...(row.registrosPonto||[]),novoRegistro]};
+    const novoDoc={funcionarias:{[f.nome]:{...fd,dias:{...(fd.dias||{}),[dd]:row}}},atualizadoEm:new Date().toISOString()};
+    setPontoMsg("Salvando registro no Firebase...");
+    try{
+      await db.collection("fini_folha_ponto").doc(keyMes(ano,mes)).set(novoDoc,{merge:true});
+      await doc.reload();
+      setFuncNome(f.nome);
+      setPontoId("");
+      setPontoMsg(`✅ ${ROTULOS_PONTO[campo]} registrada e salva para ${f.nome} às ${hora}.`);
+    }catch(e){
+      console.error("Erro ao registrar ponto",e);
+      setPontoMsg("Não foi possível salvar o registro. Confira a conexão e tente novamente.");
+    }
+  };
   const salvar=async()=>{const ok=await doc.save();if(ok)alert("Folha de ponto salva com sucesso.");};
   return <>
-    <div className="htop"><div><h1>Folha de Ponto</h1><div className="hsub">Jornada padrão por funcionária · marcação simples de exceções</div></div><Status {...doc}/></div>
+    <div className="htop"><div><h1>Folha de Ponto</h1><div className="hsub">Registro por ID · folgas puxadas automaticamente da Escala salva</div></div><Status {...doc}/></div>
     <ErrBox {...doc}/>
     <div className="toolbar">
       <MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/>
       <div className="tl">
         <div className="field"><label>Funcionária</label><select className="inp" value={funcNome} onChange={e=>setFuncNome(e.target.value)}>{nomes.map(n=><option key={n}>{n}</option>)}</select></div>
+        <div className="field"><label>ID ponto</label><input className="inp" style={{width:72}} value={funcAtual.id||""} readOnly title="Altere em ⚙️ Funcionárias"/></div>
         <div className="field"><label>Jornada padrão</label><input className="inp" style={{width:92}} value={funcAtual.jornada||"7:20h"} readOnly title="Altere em ⚙️ Funcionárias"/></div>
         <div className="field"><label>Regime</label><input className="inp" style={{width:72}} value={funcAtual.regime||"6x1"} readOnly title="Altere em ⚙️ Funcionárias"/></div>
-        <button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button>
+        <button className="btn ghost sm" onClick={()=>adminOn?setShowM(true):exigirAdmin()} title="Precisa da senha administrativa">⚙️ Funcionárias</button>
         <button className="btn ghost sm" onClick={()=>window.print()}>🖨 Imprimir</button>
-        <button className="btn primary" onClick={salvar} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button>
+        <button className="btn primary" onClick={salvar} disabled={!adminOn||!doc.dirty||doc.status==="load"} title={!adminOn?"Libere a edição administrativa para salvar ajustes manuais":"Salvar mês"}>💾 Salvar mês</button>
       </div>
     </div>
+    <div style={{background:"var(--card)",border:"1px solid var(--line)",borderRadius:16,padding:"14px 16px",marginBottom:14,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",boxShadow:"var(--shadow)"}}>
+      <div className="field"><label>Registrar ponto por ID</label><input className="inp" style={{width:135,fontSize:18,fontWeight:700,textAlign:"center"}} value={pontoId} onChange={e=>setPontoId(e.target.value.replace(/\D/g,""))} onKeyDown={e=>e.key==="Enter"&&registrarPonto()} placeholder="ID" autoComplete="off"/></div>
+      <button className="btn primary" onClick={registrarPonto}>🕒 Registrar próximo ponto</button>
+      <div className="field"><label>Senha admin</label><input className="inp" style={{width:96,textAlign:"center"}} type="password" value={adminPin} onChange={e=>setAdminPin(e.target.value.replace(/\D/g,""))} onKeyDown={e=>e.key==="Enter"&&liberarAdmin()} placeholder="••••" autoComplete="off"/></div>
+      <button className={"btn sm "+(adminOn?"primary":"ghost")} onClick={liberarAdmin}>{adminOn?"🔓 Admin liberado":"🔐 Liberar edição"}</button>
+      <div style={{fontSize:12,color:"var(--ink-soft)",lineHeight:1.45,flex:"1 1 260px"}}>Sequência automática: <b>Entrada</b> → <b>Saída almoço</b> → <b>Volta almoço</b> → <b>Saída</b>. O horário gravado é o do computador.</div>
+      {pontoMsg&&<div style={{width:"100%",fontSize:13,fontWeight:700,color:pontoMsg.startsWith("✅")?"var(--green)":"var(--fini)"}}>{pontoMsg}</div>}
+    </div>
     <div className="totbar">
-      <div className="tt"><span>Saldo inicial</span><input className="inp pinput-mini" value={dadosFunc.saldoInicial||""} placeholder="00:00" onChange={e=>setFuncPatch({saldoInicial:e.target.value})}/></div>
+      <div className="tt"><span>Saldo inicial</span><input className="inp pinput-mini" value={dadosFunc.saldoInicial||""} placeholder="00:00" disabled={!adminOn} onChange={e=>setFuncPatch({saldoInicial:e.target.value})}/></div>
       <div className="tt"><span>Dias lançados</span><b>{resumo.ativos}</b></div>
       <div className="tt"><span>Feriados</span><b>{resumo.feriados}</b></div>
       <div className="tt"><span>Folgas extras</span><b className="psaldo-neg">{resumo.folgasExtra}</b></div>
@@ -1082,31 +1178,31 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     <div className="panel ponto-scroll">
       <table className="ponto-table"><thead><tr><th>Data</th><th>Tipo</th><th>Entrada</th><th>Saída almoço</th><th>Retorno</th><th>Saída</th><th>Intervalo</th><th>Trab.</th><th>Extra</th><th>Devida</th><th>Ajuste</th><th>Banco dia</th><th>Obs</th><th></th></tr></thead>
       <tbody>{Array.from({length:nd},(_,i)=>i+1).map(i=>{
-        const dd=pad(i),dt=new Date(ano,mes,i),row=getRow(dd),calc=calcPonto(row,ano,mes,dd,funcAtual),isDom=dt.getDay()===0,isFer=isFeriadoTipo(row.tipo),isFolga=isFolgaTipo(row.tipo),cls=(isFer?" pfer":"")+(isFolga?" pfolga":"")+(calc.banco<0?" palert":"");
+        const dd=pad(i),dt=new Date(ano,mes,i),row=getRow(dd),calc=calcPonto(row,ano,mes,dd,funcAtual),sug=escalaSugeridaPonto(ano,mes,dd,funcAtual,row.tipo),isDom=dt.getDay()===0,isFer=isFeriadoTipo(row.tipo),isFolga=isFolgaTipo(row.tipo),cls=(isFer?" pfer":"")+(isFolga?" pfolga":"")+(calc.banco<0?" palert":"");
         return <tr key={dd} className={cls}>
           <td className={(isDom?"pdate pdom":"pdate")}>{dd}/{pad(mes+1)}<div className="pmini">{WD[dt.getDay()]}</div></td>
-          <td className="ptype"><select value={row.tipo||""} onChange={e=>setDia(dd,"tipo",e.target.value)}><option value="">Normal</option>{opcoesTipoPonto().map(t=><option key={t}>{t}</option>)}</select></td>
-          <td><input className="pinput-mini" value={row.entrada||""} placeholder="--:--" onChange={e=>setDia(dd,"entrada",e.target.value)}/></td>
-          <td><input className="pinput-mini" value={row.saidaAlmoco||""} placeholder="--:--" onChange={e=>setDia(dd,"saidaAlmoco",e.target.value)}/></td>
-          <td><input className="pinput-mini" value={row.retornoAlmoco||""} placeholder="--:--" onChange={e=>setDia(dd,"retornoAlmoco",e.target.value)}/></td>
-          <td><input className="pinput-mini" value={row.saida||""} placeholder="--:--" onChange={e=>setDia(dd,"saida",e.target.value)}/></td>
-          <td><input className="pinput-mini" value={row.intervalo||""} placeholder="00:00" onChange={e=>setDia(dd,"intervalo",e.target.value)}/></td>
+          <td className="ptype"><select value={row.tipo||""} onChange={e=>setDia(dd,"tipo",e.target.value)}><option value="">Normal</option>{opcoesTipoPonto().map(t=><option key={t}>{t}</option>)}</select>{row.tipoAutoEscala&&<div className="pmini">Puxado da escala</div>}</td>
+          <td><input className="pinput-mini" value={row.entrada||""} placeholder={sug.entrada||"--:--"} readOnly={!adminOn} onChange={e=>setDia(dd,"entrada",e.target.value)} title={adminOn?"Edição manual liberada":"Registro automático por ID"}/></td>
+          <td><input className="pinput-mini" value={row.saidaAlmoco||""} placeholder={sug.saidaAlmoco||"--:--"} readOnly={!adminOn} onChange={e=>setDia(dd,"saidaAlmoco",e.target.value)} title={adminOn?"Edição manual liberada":"Registro automático por ID"}/></td>
+          <td><input className="pinput-mini" value={row.retornoAlmoco||""} placeholder={sug.retornoAlmoco||"--:--"} readOnly={!adminOn} onChange={e=>setDia(dd,"retornoAlmoco",e.target.value)} title={adminOn?"Edição manual liberada":"Registro automático por ID"}/></td>
+          <td><input className="pinput-mini" value={row.saida||""} placeholder={sug.saida||"--:--"} readOnly={!adminOn} onChange={e=>setDia(dd,"saida",e.target.value)} title={adminOn?"Edição manual liberada":"Registro automático por ID"}/></td>
+          <td><input className="pinput-mini" value={row.intervalo||""} placeholder="00:00" disabled={!adminOn} onChange={e=>setDia(dd,"intervalo",e.target.value)}/></td>
           <td className="num"><b>{calc.ativa?minToDur(calc.trabalhada):"—"}</b></td>
           <td className="num psaldo-pos">{calc.extra?minToDur(calc.extra):"—"}</td>
           <td className="num psaldo-neg">{calc.devida?minToDur(calc.devida):"—"}</td>
-          <td><input className="pinput-mini" value={row.ajuste||""} placeholder="00:00" onChange={e=>setDia(dd,"ajuste",e.target.value)} title="Ajuste manual: use 01:00 ou -01:00"/></td>
+          <td><input className="pinput-mini" value={row.ajuste||""} placeholder="00:00" disabled={!adminOn} onChange={e=>setDia(dd,"ajuste",e.target.value)} title="Ajuste manual: use 01:00 ou -01:00"/></td>
           <td className={"num "+corSaldo(calc.banco)}><b>{calc.ativa?minToDur(calc.banco):"—"}</b></td>
-          <td><input className="pobs" value={row.obs||""} placeholder="observação" onChange={e=>setDia(dd,"obs",e.target.value)}/></td>
-          <td><button className="rm" title="Limpar dia" onClick={()=>limparDia(dd)}>🧹</button></td>
+          <td><input className="pobs" value={row.obs||""} placeholder="observação" disabled={!adminOn} onChange={e=>setDia(dd,"obs",e.target.value)}/></td>
+          <td><button className="rm" title={adminOn?"Limpar dia":"Precisa da senha administrativa"} disabled={!adminOn} onClick={()=>limparDia(dd)}>🧹</button></td>
         </tr>;
       })}</tbody></table>
     </div>
     <div className="totbar" style={{marginTop:14}}>
-      <div className="tt" style={{flex:1}}><span>Anotações gerais da folha</span><textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} placeholder="Acordos, compensações, folgas bonificadas, justificativas…" onChange={e=>doc.update({anotacoes:e.target.value})}/></div>
-      <div className="tt"><span>Status</span><select className="inp" value={doc.data.status||"Aberto"} onChange={e=>doc.update({status:e.target.value})}><option>Aberto</option><option>Conferido</option><option>Fechado</option><option>Compensado/Pago</option></select></div>
+      <div className="tt" style={{flex:1}}><span>Anotações gerais da folha</span><textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} disabled={!adminOn} placeholder="Acordos, compensações, folgas bonificadas, justificativas…" onChange={e=>adminOn&&doc.updateAndSave({anotacoes:e.target.value})}/></div>
+      <div className="tt"><span>Status</span><select className="inp" value={doc.data.status||"Aberto"} disabled={!adminOn} onChange={e=>adminOn&&doc.updateAndSave({status:e.target.value})}><option>Aberto</option><option>Conferido</option><option>Fechado</option><option>Compensado/Pago</option></select></div>
     </div>
-    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. A jornada normal vem do cadastro da funcionária. Na folha, use o campo Tipo apenas para feriado, folga, folga extra ou atestado. Feriado trabalhado entra como crédito em dobro; Folga extra desconta a jornada padrão da funcionária do banco de horas.</div>
-    {showM&&<ModalFuncEsc funcs={funcs} onSave={l=>{onSaveFuncEsc(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}  
+    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. A jornada normal vem do cadastro da funcionária. Os horários de entrada, almoço, retorno e saída são gravados pelo ID da funcionária com o horário do computador. Para as funcionárias, o ponto só registra por ID com o horário do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a funcionária estiver marcada como folga na aba Escala salva, a Folha de Ponto puxa Folga automaticamente e zera hora devida; horários, limpeza, saldo inicial e anotações continuam bloqueados pela senha administrativa e são salvos automaticamente no Firebase. Cadastro de funcionárias continua sendo salvo no botão do próprio cadastro.</div>
+    {showM&&adminOn&&<ModalFuncEsc funcs={funcs} onSave={l=>{onSaveFuncEsc(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}  
   </>;
 }
 
@@ -1132,7 +1228,7 @@ function App(){
       <div className="fb">Versão: {APP_VERSION}<br/>Firebase: ficha-tecnica-burger<br/>coleções: fini_*<br/>origem: {window.location.protocol==="file:"?"arquivo local":"site publicado"}</div>
     </nav>
     <main className="main">
-      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V13 BANCO DE HORAS COM FERIADO COMPENSADO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
+      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V18 FOLGA DA ESCALA NA FOLHA DE PONTO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
       {aba==="estoque"&&<Estoque itens={itens} onSaveItens={saveItens}/>}
       {aba==="balas"&&<Balas balas={balas} onSaveBalas={saveBalas}/>}
       {aba==="comp"&&<Comparativo itens={itens} balas={balas}/>}
