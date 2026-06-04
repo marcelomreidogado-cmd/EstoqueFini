@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · V18 Folga Escala no Ponto</title>
+<title>FINI Petrópolis · V19 Ajustes Ponto Consumo Caixa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -150,6 +150,17 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 .psaldo-pos{color:var(--blue)!important}.psaldo-neg{color:#d72638!important}.psaldo-zero{color:var(--ink-faint)!important}
 .pchip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;border:1px solid var(--line);background:#fff;font-size:11px;color:var(--ink-soft);font-weight:700}
 .pchip.on{background:#fff1f6;color:var(--fini);border-color:#f3b7c9}
+.func-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.func-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font-family:'DM Sans';font-size:13px;font-weight:800;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.func-chip:hover{border-color:var(--fini);color:var(--fini)}
+.func-chip.on{background:var(--fini);border-color:var(--fini);color:#fff;box-shadow:0 8px 18px -12px rgba(232,38,110,.8)}
+.troco-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;padding:14px}
+.troco-cell{border:1px solid var(--line-soft);background:#fff;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:5px}
+.troco-cell .den{font-family:'DM Mono';font-weight:800;font-size:13px;color:var(--ink)}
+.troco-cell .ttl{font-family:'DM Mono';font-size:12px;color:var(--fini);text-align:right}
+.troco-cell input{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:'DM Mono';font-size:13px;text-align:right;outline:none}
+.troco-cell input:focus{border-color:var(--fini);box-shadow:0 0 0 3px rgba(232,38,110,.10)}
+.caixa-obs{width:120px!important;min-width:120px!important}
 .pinput-mini{width:78px!important;font-family:'DM Mono'!important;text-align:center!important}
 .pinput-mini[readonly]{background:#fffafc!important;color:var(--ink-soft)!important;cursor:not-allowed!important}
 .pobs{min-width:170px!important}
@@ -163,9 +174,9 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useCallback,useMemo,useRef}=React;
-const FINI_BUILD="03/06/2026 03:42 - V18_FOLGA_ESCALA_NO_PONTO";
+const FINI_BUILD="04/06/2026 14:30 - V19_PONTO_CONSUMO_CAIXA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION="03/06/2026 03:42 · V18_FOLGA_ESCALA_NO_PONTO";
+const APP_VERSION="04/06/2026 14:30 · V19_PONTO_CONSUMO_CAIXA";
 
 /* Firebase */
 const firebaseConfig = {
@@ -190,6 +201,8 @@ const D_CON=["Jeanny","Ana Clara","Leidiane","Marcelo","Igor"];
 const CORES=["#d8442e","#e8a23a","#3f8f5f","#3a6ea5","#9c27b0","#ff6d00","#00838f","#558b2f","#c62828","#e91e63"];
 const MOTIVOS=["Vencimento","Avaria","Queda/Acidente","Consumo interno","Erro de pesagem","Outro"];
 const FORMAS=["Dinheiro","PIX","Débito","Crédito","Vale Refeição"];
+const DENOMS_TROCO=[100,50,20,10,5,2,1,0.50,0.25,0.10,0.05];
+const PRECO_CONSUMO_KG=75.90;
 const MESES=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const WD=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 const PONTO_OCORRENCIAS=["Feriado","Folga","Folga extra","Atestado"];
@@ -685,21 +698,41 @@ function Desperdicio(){
 function Caixa(){
   const [ano,setAno]=useState(hjD.getFullYear());
   const [mes,setMes]=useState(hjD.getMonth());
+  const diaInicial=(ano===hjD.getFullYear()&&mes===hjD.getMonth())?pad(hjD.getDate()):"01";
+  const [diaTroco,setDiaTroco]=useState(diaInicial);
   const doc=useFireDoc("fini_caixa",keyMes(ano,mes),{dias:{},inicialMes:""});
   const nd=diMes(ano,mes),dias=doc.data.dias||{};
+  useEffect(()=>{const max=diMes(ano,mes);if(Number(diaTroco)>max)setDiaTroco(pad(max));},[ano,mes]);
   const linhas=[];let prev=num(doc.data.inicialMes);
   for(let i=1;i<=nd;i++){const dd=pad(i),d=dias[dd]||{};const ini=d.inicial!==undefined&&d.inicial!==""?num(d.inicial):prev;const total=ini+num(d.entrada)-num(d.saida);linhas.push({dd,ini,entrada:d.entrada,saida:d.saida,obs:d.obs,forma:d.forma,total,inicialRaw:d.inicial});prev=total;}
   const set=(dd,k,v)=>doc.update(d=>({dias:{...d.dias,[dd]:{...d.dias?.[dd],[k]:v}}}));
+  const setTroco=(den,v)=>doc.update(d=>{const dia=d.dias?.[diaTroco]||{};return{dias:{...d.dias,[diaTroco]:{...dia,troco:{...(dia.troco||{}),[String(den)]:v}}}};});
+  const trocoDia=(dias[diaTroco]||{}).troco||{};
+  const totalTroco=DENOMS_TROCO.reduce((s,den)=>s+(num(trocoDia[String(den)])*den),0);
   const tF=linhas.length?linhas[linhas.length-1].total:0,tE=linhas.reduce((s,l)=>s+num(l.entrada),0),tS=linhas.reduce((s,l)=>s+num(l.saida),0);
   return <>
-    <div className="htop"><div><h1>Caixa · Troco</h1><div className="hsub">Total = inicial + entrada − saída</div></div><Status {...doc}/></div>
+    <div className="htop"><div><h1>Caixa · Troco</h1><div className="hsub">Total = inicial + entrada − saída · conferência de troco por notas e moedas</div></div><Status {...doc}/></div>
     <ErrBox {...doc}/>
     <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><div className="field"><label>Inicial do mês</label><input className="inp num" type="number" step="0.01" style={{width:115}} value={doc.data.inicialMes??""} placeholder="0,00" onChange={e=>doc.update({inicialMes:e.target.value})}/></div><button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
-    <div className="totbar"><div className="tt"><span>Entradas</span><b style={{color:"var(--green)"}}>{brl(tE)}</b></div><div className="tt"><span>Saídas</span><b style={{color:"var(--fini)"}}>{brl(tS)}</b></div><div className="tt"><span>Saldo final</span><b className="hl">{brl(tF)}</b></div></div>
-    <div className="panel"><table><thead><tr><th style={{width:115}}>Data</th><th style={{width:110}}>Inicial</th><th style={{width:110}}>Entrada</th><th style={{width:110}}>Saída</th><th style={{width:140}}>Forma Pgto.</th><th>Obs</th><th style={{width:115}}>Total</th></tr></thead>
-    <tbody>{linhas.map(l=>{const dt=new Date(ano,mes,Number(l.dd)),dow=dt.getDay(),isHj=`${ano}-${pad(mes+1)}-${l.dd}`===HOJE;return <tr key={l.dd} className={(isHj?"hojerow ":"")+"wd-"+["dom","seg","ter","qua","qui","sex","sab"][dow]}><td className="num">{l.dd}/{pad(mes+1)} · {WD[dow]}</td><td><input className="num" type="number" step="0.01" value={l.inicialRaw??""} placeholder={l.ini.toFixed(2)} onChange={e=>set(l.dd,"inicial",e.target.value)}/></td><td><input className="num" type="number" step="0.01" value={l.entrada??""} placeholder="0,00" onChange={e=>set(l.dd,"entrada",e.target.value)}/></td><td><input className="num" type="number" step="0.01" value={l.saida??""} placeholder="0,00" onChange={e=>set(l.dd,"saida",e.target.value)}/></td><td><select value={l.forma||""} onChange={e=>set(l.dd,"forma",e.target.value)}><option value="">—</option>{FORMAS.map(f=><option key={f}>{f}</option>)}</select></td><td><input value={l.obs??""} placeholder="—" onChange={e=>set(l.dd,"obs",e.target.value)}/></td><td className="num"><b className={l.total<0?"neg":""}>{brl(l.total)}</b></td></tr>;})}
+    <div className="totbar"><div className="tt"><span>Entradas</span><b style={{color:"var(--green)"}}>{brl(tE)}</b></div><div className="tt"><span>Saídas</span><b style={{color:"var(--fini)"}}>{brl(tS)}</b></div><div className="tt"><span>Saldo final</span><b className="hl">{brl(tF)}</b></div><div className="tt"><span>Troco conferido</span><b>{brl(totalTroco)}</b></div></div>
+    <div className="panel" style={{marginBottom:16}}>
+      <div className="cat"><span>Conferência de Troco</span><span className="ct">{diaTroco}/{pad(mes+1)} · {brl(totalTroco)}</span></div>
+      <div style={{padding:"12px 14px 0",display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+        <div className="field"><label>Dia da conferência</label><select className="inp" value={diaTroco} onChange={e=>setDiaTroco(e.target.value)}>{Array.from({length:nd},(_,i)=>pad(i+1)).map(dd=><option key={dd} value={dd}>{dd}/{pad(mes+1)} · {WD[new Date(ano,mes,Number(dd)).getDay()]}</option>)}</select></div>
+        <div style={{fontSize:12,color:"var(--ink-soft)",lineHeight:1.4}}>Informe a quantidade de cada moeda/nota existente na loja. O total é calculado automaticamente.</div>
+      </div>
+      <div className="troco-grid">
+        {DENOMS_TROCO.map(den=>{const qtd=trocoDia[String(den)]??"";const tot=num(qtd)*den;return <div className="troco-cell" key={den}>
+          <div className="den">{brl(den)}</div>
+          <input type="number" min="0" step="1" value={qtd} placeholder="Qtd" onChange={e=>setTroco(den,e.target.value)}/>
+          <div className="ttl">{brl(tot)}</div>
+        </div>;})}
+      </div>
+    </div>
+    <div className="panel"><table><thead><tr><th style={{width:115}}>Data</th><th style={{width:110}}>Inicial</th><th style={{width:110}}>Entrada</th><th style={{width:110}}>Saída</th><th style={{width:140}}>Forma Pgto.</th><th style={{width:130}}>Obs</th><th style={{width:115}}>Total</th></tr></thead>
+    <tbody>{linhas.map(l=>{const dt=new Date(ano,mes,Number(l.dd)),dow=dt.getDay(),isHj=`${ano}-${pad(mes+1)}-${l.dd}`===HOJE;return <tr key={l.dd} className={(isHj?"hojerow ":"")+"wd-"+["dom","seg","ter","qua","qui","sex","sab"][dow]}><td className="num">{l.dd}/{pad(mes+1)} · {WD[dow]}</td><td><input className="num" type="number" step="0.01" value={l.inicialRaw??""} placeholder={l.ini.toFixed(2)} onChange={e=>set(l.dd,"inicial",e.target.value)}/></td><td><input className="num" type="number" step="0.01" value={l.entrada??""} placeholder="0,00" onChange={e=>set(l.dd,"entrada",e.target.value)}/></td><td><input className="num" type="number" step="0.01" value={l.saida??""} placeholder="0,00" onChange={e=>set(l.dd,"saida",e.target.value)}/></td><td><select value={l.forma||""} onChange={e=>set(l.dd,"forma",e.target.value)}><option value="">—</option>{FORMAS.map(f=><option key={f}>{f}</option>)}</select></td><td><input className="caixa-obs" value={l.obs??""} placeholder="—" onChange={e=>set(l.dd,"obs",e.target.value)}/></td><td className="num"><b className={l.total<0?"neg":""}>{brl(l.total)}</b></td></tr>;})}
     </tbody></table></div>
-    <div className="foot">Salvo em <b>fini_caixa/{keyMes(ano,mes)}</b>. Inicial em branco = puxa total do dia anterior.</div>
+    <div className="foot">Salvo em <b>fini_caixa/{keyMes(ano,mes)}</b>. Inicial em branco = puxa total do dia anterior. A conferência de troco fica salva dentro do dia selecionado.</div>
   </>;
 }
 
@@ -713,18 +746,20 @@ function Consumo({funcCon,onSaveFuncCon}){
   const add=()=>doc.update(d=>({entradas:[...(d.entradas||[]),{func:funcCon[0]||"",data:HOJE,produto:"",peso:"",qtd:""}]}));
   const upd=(i,k,v)=>doc.update(d=>{const e=[...d.entradas];e[i]={...e[i],[k]:v};return{entradas:e};});
   const del=i=>doc.update(d=>({entradas:d.entradas.filter((_,j)=>j!==i)}));
-  const pF=funcCon.map(f=>({f,peso:ents.filter(e=>e.func===f).reduce((s,e)=>s+num(e.peso),0)}));
+  const pF=funcCon.map(f=>{const peso=ents.filter(e=>e.func===f).reduce((s,e)=>s+num(e.peso),0);return{f,peso,valor:peso*PRECO_CONSUMO_KG};});
+  const totalPeso=ents.reduce((s,e)=>s+num(e.peso),0);
+  const totalValor=totalPeso*PRECO_CONSUMO_KG;
   return <>
-    <div className="htop"><div><h1>Consumo por Funcionária</h1><div className="hsub">Registro mensal de consumo interno</div></div><Status {...doc}/></div>
+    <div className="htop"><div><h1>Consumo por Funcionária</h1><div className="hsub">Registro mensal de consumo interno · valor referência {brl(PRECO_CONSUMO_KG)}/kg</div></div><Status {...doc}/></div>
     <ErrBox {...doc}/>
     <div className="toolbar"><MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/><div className="tl"><button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button><button className="btn ghost" onClick={add}>＋ Lançamento</button><button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button></div></div>
-    <div className="totbar">{pF.map(p=><div className="tt" key={p.f}><span>{p.f}</span><b>{kgF(p.peso)}</b></div>)}<div className="tt"><span>Total geral</span><b className="hl">{kgF(ents.reduce((s,e)=>s+num(e.peso),0))}</b></div></div>
-    <div className="panel"><table><thead><tr><th>Funcionária</th><th>Data</th><th>Produto</th><th style={{width:110}}>Peso (kg)</th><th style={{width:80}}>Qtd</th><th style={{width:34}}></th></tr></thead>
-    <tbody>{ents.map((e,i)=><tr key={i}><td><select value={e.func||""} onChange={ev=>upd(i,"func",ev.target.value)} style={{width:"100%"}}>{funcCon.map(f=><option key={f}>{f}</option>)}</select></td><td><input type="date" value={e.data||HOJE} onChange={ev=>upd(i,"data",ev.target.value)}/></td><td><input value={e.produto||""} placeholder="produto" onChange={ev=>upd(i,"produto",ev.target.value)}/></td><td><input className="num" type="number" step="0.001" value={e.peso||""} placeholder="0,000" onChange={ev=>upd(i,"peso",ev.target.value)}/></td><td><input className="num" type="number" step="1" value={e.qtd||""} placeholder="0" onChange={ev=>upd(i,"qtd",ev.target.value)}/></td><td><button className="rm" onClick={()=>del(i)}>✕</button></td></tr>)}
-    {!ents.length&&<tr><td colSpan="6" style={{textAlign:"center",padding:24,color:"var(--ink-faint)"}}>Nenhum lançamento.</td></tr>}
+    <div className="totbar">{pF.map(p=><div className="tt" key={p.f}><span>{p.f}</span><b>{kgF(p.peso)}</b><b className="hl" style={{fontSize:16}}>{brl(p.valor)}</b></div>)}<div className="tt"><span>Total geral</span><b>{kgF(totalPeso)}</b><b className="hl" style={{fontSize:16}}>{brl(totalValor)}</b></div></div>
+    <div className="panel"><table><thead><tr><th>Funcionária</th><th>Data</th><th>Produto</th><th style={{width:110}}>Peso (kg)</th><th style={{width:100}}>Valor</th><th style={{width:80}}>Qtd</th><th style={{width:34}}></th></tr></thead>
+    <tbody>{ents.map((e,i)=><tr key={i}><td><select value={e.func||""} onChange={ev=>upd(i,"func",ev.target.value)} style={{width:"100%"}}>{funcCon.map(f=><option key={f}>{f}</option>)}</select></td><td><input type="date" value={e.data||HOJE} onChange={ev=>upd(i,"data",ev.target.value)}/></td><td><input value={e.produto||""} placeholder="produto" onChange={ev=>upd(i,"produto",ev.target.value)}/></td><td><input className="num" type="number" step="0.001" value={e.peso||""} placeholder="0,000" onChange={ev=>upd(i,"peso",ev.target.value)}/></td><td className="num"><b>{brl(num(e.peso)*PRECO_CONSUMO_KG)}</b></td><td><input className="num" type="number" step="1" value={e.qtd||""} placeholder="0" onChange={ev=>upd(i,"qtd",ev.target.value)}/></td><td><button className="rm" onClick={()=>del(i)}>✕</button></td></tr>)}
+    {!ents.length&&<tr><td colSpan="7" style={{textAlign:"center",padding:24,color:"var(--ink-faint)"}}>Nenhum lançamento.</td></tr>}
     </tbody></table></div>
-    <div className="foot">Salvo em <b>fini_consumo/{keyMes(ano,mes)}</b>.</div>
-    {showM&&<ModalFuncCon funcs={funcCon} onSave={l=>{onSaveFuncCon(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}
+    <div className="foot">Salvo em <b>fini_consumo/{keyMes(ano,mes)}</b>. O valor é calculado por {brl(PRECO_CONSUMO_KG)} por kg.</div>
+    {showM&&<ModalFuncCon funcs={funcCon} onSave={l=>{onSaveFuncCon(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}  
   </>;
 }
 
@@ -1033,7 +1068,9 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
   const tipoAutoEscala=(dd,func=funcAtual)=>{
     const dt=new Date(ano,mes,Number(dd));
     const iso=isoDia(ano,mes,Number(dd));
-    const esc=normalizarEscalaDia(diasEscala[dd],dt.getDay()===0||!!ferEscala[iso],funcs);
+    const ehFeriado=!!ferEscala[iso];
+    const esc=normalizarEscalaDia(diasEscala[dd],dt.getDay()===0||ehFeriado,funcs);
+    if(ehFeriado)return "Feriado";
     return esc.folga&&esc.folga===func.nome?"Folga":"";
   };
   const temRegistroPonto=raw=>Boolean(raw.entrada||raw.saidaAlmoco||raw.retornoAlmoco||raw.saida||raw.ajuste||raw.obs||(raw.registrosPonto||[]).length);
@@ -1042,7 +1079,8 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     const raw={...(dias[dd]||{})};
     const tp=normalizeTipoPonto(raw.tipo);
     const base=defaultPontoRow(ano,mes,dd,funcAtual);
-    const autoTipo=devePuxarTipoEscala(raw)?tipoAutoEscala(dd):"";
+    const autoEscala=tipoAutoEscala(dd);
+    const autoTipo=(!raw.tipoManual&&autoEscala)?autoEscala:(devePuxarTipoEscala(raw)?autoEscala:"");
     const row={...base,...raw,tipo:tp||autoTipo};
     if(autoTipo&&!raw.tipo){row.tipoAutoEscala=true;}
     if(!raw.tipo&&!autoTipo){row.tipo="";}
@@ -1117,7 +1155,8 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     const all=baseDoc.funcionarias||{};
     const fd=all[f.nome]||{saldoInicial:"",dias:{}};
     const raw=fd.dias?.[dd]||{};
-    const autoTipo=devePuxarTipoEscala(raw)?tipoAutoEscala(dd,f):"";
+    const autoEscala=tipoAutoEscala(dd,f);
+    const autoTipo=(!raw.tipoManual&&autoEscala)?autoEscala:(devePuxarTipoEscala(raw)?autoEscala:"");
     let row={...defaultPontoRow(ano,mes,dd,f),...raw,tipo:normalizeTipoPonto(raw.tipo)||autoTipo};
     if(["Folga","Folga extra","Atestado"].includes(normalizeTipoPonto(row.tipo))){setPontoMsg(`Hoje está marcado como ${row.tipo} para ${f.nome}. Remova o tipo antes de registrar ponto.`);return;}
     const campo=CAMPOS_PONTO.find(c=>!row[c]);
@@ -1140,12 +1179,12 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
   };
   const salvar=async()=>{const ok=await doc.save();if(ok)alert("Folha de ponto salva com sucesso.");};
   return <>
-    <div className="htop"><div><h1>Folha de Ponto</h1><div className="hsub">Registro por ID · folgas puxadas automaticamente da Escala salva</div></div><Status {...doc}/></div>
+    <div className="htop"><div><h1>Folha de Ponto</h1><div className="hsub">Registro por ID · folgas e feriados puxados automaticamente da Escala salva</div></div><Status {...doc}/></div>
     <ErrBox {...doc}/>
     <div className="toolbar">
       <MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/>
       <div className="tl">
-        <div className="field"><label>Funcionária</label><select className="inp" value={funcNome} onChange={e=>setFuncNome(e.target.value)}>{nomes.map(n=><option key={n}>{n}</option>)}</select></div>
+        <div className="field" style={{minWidth:260,flex:"1 1 260px"}}><label>Funcionária</label><div className="func-chips">{nomes.map(n=><button key={n} type="button" className={"func-chip"+(funcNome===n?" on":"")} onClick={()=>setFuncNome(n)}>{n}</button>)}</div></div>
         <div className="field"><label>ID ponto</label><input className="inp" style={{width:72}} value={funcAtual.id||""} readOnly title="Altere em ⚙️ Funcionárias"/></div>
         <div className="field"><label>Jornada padrão</label><input className="inp" style={{width:92}} value={funcAtual.jornada||"7:20h"} readOnly title="Altere em ⚙️ Funcionárias"/></div>
         <div className="field"><label>Regime</label><input className="inp" style={{width:72}} value={funcAtual.regime||"6x1"} readOnly title="Altere em ⚙️ Funcionárias"/></div>
@@ -1201,7 +1240,7 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
       <div className="tt" style={{flex:1}}><span>Anotações gerais da folha</span><textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} disabled={!adminOn} placeholder="Acordos, compensações, folgas bonificadas, justificativas…" onChange={e=>adminOn&&doc.updateAndSave({anotacoes:e.target.value})}/></div>
       <div className="tt"><span>Status</span><select className="inp" value={doc.data.status||"Aberto"} disabled={!adminOn} onChange={e=>adminOn&&doc.updateAndSave({status:e.target.value})}><option>Aberto</option><option>Conferido</option><option>Fechado</option><option>Compensado/Pago</option></select></div>
     </div>
-    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. A jornada normal vem do cadastro da funcionária. Os horários de entrada, almoço, retorno e saída são gravados pelo ID da funcionária com o horário do computador. Para as funcionárias, o ponto só registra por ID com o horário do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a funcionária estiver marcada como folga na aba Escala salva, a Folha de Ponto puxa Folga automaticamente e zera hora devida; horários, limpeza, saldo inicial e anotações continuam bloqueados pela senha administrativa e são salvos automaticamente no Firebase. Cadastro de funcionárias continua sendo salvo no botão do próprio cadastro.</div>
+    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. A jornada normal vem do cadastro da funcionária. Os horários de entrada, almoço, retorno e saída são gravados pelo ID da funcionária com o horário do computador. Para as funcionárias, o ponto só registra por ID com o horário do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a aba Escala salva tiver feriado, a Folha de Ponto puxa Feriado automaticamente; quando a funcionária estiver marcada como folga, puxa Folga e zera hora devida; horários, limpeza, saldo inicial e anotações continuam bloqueados pela senha administrativa e são salvos automaticamente no Firebase. Cadastro de funcionárias continua sendo salvo no botão do próprio cadastro.</div>
     {showM&&adminOn&&<ModalFuncEsc funcs={funcs} onSave={l=>{onSaveFuncEsc(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}  
   </>;
 }
@@ -1228,7 +1267,7 @@ function App(){
       <div className="fb">Versão: {APP_VERSION}<br/>Firebase: ficha-tecnica-burger<br/>coleções: fini_*<br/>origem: {window.location.protocol==="file:"?"arquivo local":"site publicado"}</div>
     </nav>
     <main className="main">
-      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V18 FOLGA DA ESCALA NA FOLHA DE PONTO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
+      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V19 PONTO + CONSUMO + CAIXA/TROCO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
       {aba==="estoque"&&<Estoque itens={itens} onSaveItens={saveItens}/>}
       {aba==="balas"&&<Balas balas={balas} onSaveBalas={saveBalas}/>}
       {aba==="comp"&&<Comparativo itens={itens} balas={balas}/>}
