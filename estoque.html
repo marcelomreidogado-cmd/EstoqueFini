@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · V19 Ajustes Ponto Consumo Caixa</title>
+<title>FINI Petrópolis · V21 Escala + Ponto Automático</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -174,9 +174,9 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useCallback,useMemo,useRef}=React;
-const FINI_BUILD="04/06/2026 14:30 - V19_PONTO_CONSUMO_CAIXA";
+const FINI_BUILD="04/06/2026 16:40 - V21_ESCALA_PONTO_AUTOMATICO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION="04/06/2026 14:30 · V19_PONTO_CONSUMO_CAIXA";
+const APP_VERSION="04/06/2026 16:40 · V21_ESCALA_PONTO_AUTOMATICO";
 
 /* Firebase */
 const firebaseConfig = {
@@ -776,10 +776,40 @@ function Escala({funcEsc,onSaveFuncEsc}){
   const dias=doc.data.dias||{},fer=doc.data.feriados||{};
   const especial=(date,iso)=>date.getDay()===0||!!fer[iso];
   const getEscala=(dd,date,iso)=>normalizarEscalaDia(dias[dd],especial(date,iso),funcs);
-  const setDia=(dd,next)=>doc.update(d=>({dias:{...d.dias,[dd]:next}}));
+  // Escala com auto-salvamento: assim a Folha de Ponto lê imediatamente folgas/feriados corrigidos.
+  const setDia=(dd,next)=>doc.updateAndSave(d=>({dias:{...(d.dias||{}),[dd]:next}}));
   const updateFolga=(dd,date,iso,nome)=>setDia(dd,{...getEscala(dd,date,iso),folga:nome});
   const updateSlot=(dd,date,iso,idx,slot)=>{const base=getEscala(dd,date,iso);const slots=[...base.slots];slots[idx]=slot;setDia(dd,{...base,slots});};
-  const toggleFer=iso=>doc.update(d=>{const n={...d.feriados};if(n[iso])delete n[iso];else n[iso]=true;return{feriados:n};});
+  const toggleFer=iso=>doc.updateAndSave(d=>{const n={...(d.feriados||{})};if(n[iso])delete n[iso];else n[iso]=true;return{feriados:n};});
+
+  const sugerirEscalaMes=async()=>{
+    if(!funcs.length){alert("Cadastre as funcionárias antes de sugerir a escala.");return;}
+    if(!confirm("Gerar uma sugestão automática para a escala deste mês? Isso vai substituir os nomes dos dias do mês atual, mantendo os feriados marcados."))return;
+    const nd=diMes(ano,mes);
+    const novosDias={};
+    const offset=(ano*12+mes)%Math.max(1,funcs.length);
+    let domingoSeq=0;
+    for(let i=1;i<=nd;i++){
+      const dd=pad(i);
+      const dt=new Date(ano,mes,i);
+      const iso=isoDia(ano,mes,i);
+      const esp=especial(dt,iso);
+      const slots=horariosPadrao(esp).map(h=>({hora:h,nome:""}));
+      let folgaIdx;
+      if(dt.getDay()===0){
+        folgaIdx=(domingoSeq+offset)%funcs.length;
+        domingoSeq++;
+      }else{
+        folgaIdx=(i-1+offset)%funcs.length;
+      }
+      const folga=funcs[folgaIdx]?.nome||"";
+      const disponiveis=funcs.filter(f=>f.nome!==folga).map(f=>f.nome);
+      slots.forEach((s,idx)=>{ if(s.hora&&idx<disponiveis.length)s.nome=disponiveis[idx]; });
+      novosDias[dd]={folga,slots};
+    }
+    const ok=await doc.updateAndSave(d=>({dias:{...(d.dias||{}),...novosDias}}));
+    if(ok)alert("Sugestão de escala gerada e salva. Revise folgas, domingos e feriados antes de usar no ponto.");
+  };
 
   const limparNomesTodosMeses=async()=>{
     if(!confirm("Apagar os nomes/folgas salvos dentro dos dias de TODOS os meses da escala? Os horários, feriados e anotações serão mantidos."))return;
@@ -850,6 +880,7 @@ function Escala({funcEsc,onSaveFuncEsc}){
       <MonthNav {...{ano,mes,setAno,setMes,dirty:doc.dirty}}/>
       <div className="tl">
         <button className="btn ghost sm" onClick={()=>setShowM(true)}>⚙️ Funcionárias</button>
+        <button className="btn ghost sm" onClick={sugerirEscalaMes}>✨ Sugerir escala do mês</button>
         <button className="btn ghost sm" onClick={limparNomesTodosMeses}>🧹 Limpar nomes salvos</button>
         <button className="btn ghost sm" onClick={()=>window.print()}>🖨 Imprimir</button>
         <button className="btn primary" onClick={()=>doc.save()} disabled={!doc.dirty||doc.status==="load"}>💾 Salvar mês</button>
@@ -934,10 +965,10 @@ function Escala({funcEsc,onSaveFuncEsc}){
     <div className="totbar" style={{marginTop:14}}>
       <div className="tt" style={{flex:1}}>
         <span>Anotações do mês</span>
-        <textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} placeholder="Folgas extras, trocas, avisos gerais…" onChange={e=>doc.update({anotacoes:e.target.value})}/>
+        <textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} placeholder="Folgas extras, trocas, avisos gerais…" onChange={e=>doc.updateAndSave({anotacoes:e.target.value})}/>
       </div>
     </div>
-    <div className="foot">Salvo em <b>fini_escala/{keyMes(ano,mes)}</b>. O sistema mantém compatibilidade com escalas antigas e converte a visualização para o novo modelo de folga + horários.</div>
+    <div className="foot">Salvo em <b>fini_escala/{keyMes(ano,mes)}</b>. Alterações de folga, feriado e horários são salvas automaticamente para a Folha de Ponto puxar os dados atualizados.</div>
     {showM&&<ModalFuncEsc funcs={funcs} onSave={l=>{onSaveFuncEsc(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}
   </>;
 }
@@ -992,7 +1023,7 @@ function isDomingoData(ano,mes,dd){return new Date(ano,mes,Number(dd)).getDay()=
 function escalaSugeridaPonto(ano,mes,dd,func,tipo){
   const tp=normalizeTipoPonto(tipo);
   if(tp==="Folga"||tp==="Folga extra"||tp==="Atestado")return {entrada:"",saidaAlmoco:"",retornoAlmoco:"",saida:"",intervalo:"00:00",jornada:"00:00"};
-  if(tp==="Feriado"||isDomingoData(ano,mes,dd))return {entrada:"11:00",saidaAlmoco:"",retornoAlmoco:"",saida:"17:00",intervalo:"00:00",jornada:"06:00"};
+  if(tp==="Feriado"||isDomingoData(ano,mes,dd))return {entrada:"11:00",saidaAlmoco:"14:00",retornoAlmoco:"14:20",saida:"17:20",intervalo:"00:20",jornada:jornadaStrFunc(func)};
   const jorn=String(func?.jornada||"7:20h");
   if(jorn==="7h")return {entrada:"09:40",saidaAlmoco:"13:00",retornoAlmoco:"14:00",saida:"17:40",intervalo:"01:00",jornada:"07:00"};
   return {entrada:"09:40",saidaAlmoco:"13:00",retornoAlmoco:"14:00",saida:"18:00",intervalo:"01:00",jornada:"07:20"};
@@ -1022,14 +1053,27 @@ function calcPonto(row,ano,mes,dd,func){
     const banco=-(jornadaMinFunc(func))+ajuste;
     return {ativa:true,prevista:0,trabalhada:0,intervalo:0,extra:0,devida:0,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
   }
-  const prevista=durToMin(row.jornada||escalaSugeridaPonto(ano,mes,dd,func,tp).jornada||jornadaStrFunc(func)||"07:20");
+  // A jornada prevista sempre vem do cadastro atual da funcionária.
+  // Assim, se alterar de 7h para 7:20h no cadastro, a folha recalcula automaticamente.
+  const prevista=jornadaMinFunc(func);
   const intervalo=(row.saidaAlmoco&&row.retornoAlmoco)?diffHora(row.saidaAlmoco,row.retornoAlmoco):durToMin(row.intervalo);
   let trabalhada=0;
   if(row.entrada&&row.saida){trabalhada=Math.max(0,diffHora(row.entrada,row.saida)-intervalo);}
   let banco=0,extra=0,devida=0;
   if(tp==="Feriado"){
-    banco=(trabalhada*2)+ajuste;
+    // Feriado compensado: se não houve marcação de ponto, mostra feriado sem gerar débito.
+    // Se trabalhou, crédito bruto = horas trabalhadas em dobro menos a jornada padrão atual.
+    const previstaPadrao=jornadaMinFunc(func);
+    if(!row.entrada||!row.saida){
+      banco=ajuste;
+      extra=Math.max(0,banco);
+      devida=0;
+      return {ativa,prevista:0,trabalhada,intervalo,extra,devida,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
+    }
+    banco=(trabalhada*2)-previstaPadrao+ajuste;
     extra=Math.max(0,banco);
+    devida=Math.max(0,-banco);
+    return {ativa,prevista:previstaPadrao,trabalhada,intervalo,extra,devida,banco,credito:Math.max(0,banco),debito:Math.max(0,-banco)};
   }else{
     banco=(trabalhada-prevista)+ajuste;
     extra=Math.max(0,trabalhada-prevista);
@@ -1070,10 +1114,14 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     const iso=isoDia(ano,mes,Number(dd));
     const ehFeriado=!!ferEscala[iso];
     const esc=normalizarEscalaDia(diasEscala[dd],dt.getDay()===0||ehFeriado,funcs);
+    // Folga individual da escala tem prioridade sobre feriado, para não gerar débito se a pessoa não trabalhou.
+    if(esc.folga&&esc.folga===func.nome)return "Folga";
     if(ehFeriado)return "Feriado";
-    return esc.folga&&esc.folga===func.nome?"Folga":"";
+    return "";
   };
   const temRegistroPonto=raw=>Boolean(raw.entrada||raw.saidaAlmoco||raw.retornoAlmoco||raw.saida||raw.ajuste||raw.obs||(raw.registrosPonto||[]).length);
+  // Folga/Feriado vindos da escala são calculados dinamicamente.
+  // Se marcar errado na Escala e depois desmarcar, a Folha muda junto sem precisar limpar manualmente.
   const devePuxarTipoEscala=raw=>!raw.tipoManual&&!raw.tipo&&!temRegistroPonto(raw);
   const getRow=dd=>{
     const raw={...(dias[dd]||{})};
@@ -1086,6 +1134,11 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     if(!raw.tipo&&!autoTipo){row.tipo="";}
     // Se era um tipo antigo salvo, normaliza para a nova lógica e mantém horários editados, se existirem.
     if(raw.tipo&&tp!==raw.tipo){row.tipo=tp;}
+    // Domingos e feriados têm intervalo padrão de 20min. Registros antigos com 15min são corrigidos na tela,
+    // exceto se o intervalo tiver sido alterado manualmente pelo admin nesta versão.
+    if((normalizeTipoPonto(row.tipo)==="Feriado"||isDomingoData(ano,mes,dd))&&!raw.intervaloManual){row.intervalo="00:20";}
+    // A jornada da linha acompanha o cadastro atual da funcionária para recalcular automaticamente.
+    if(!isFolgaTipo(row.tipo)&&!isAtestadoTipo(row.tipo)){row.jornada=jornadaStrFunc(funcAtual);}
     return row;
   };
   const liberarAdmin=()=>{
@@ -1106,6 +1159,7 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
       if(isTipoLivre)row={...aplicarTipoPonto(base,v,ano,mes,dd,funcAtual),tipoManual:true,tipoAutoEscala:false};
       row={
         ...row,
+        ...(k==="intervalo"?{intervaloManual:true}:{}),
         alteradoManualEm:new Date().toISOString(),
         alteradoManualPor:isTipoLivre&&!adminOn?"TIPO_LIVRE":"ADMIN"
       };
@@ -1134,7 +1188,7 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
     const saldoInicial=durToMin(dadosFunc.saldoInicial);
     const saldo=saldoInicial+cred-deb;
     return {ativos,trab,prev,extra,devida,cred,deb,saldoInicial,saldo,feriados,folgas,folgasExtra,atestados};
-  },[JSON.stringify(dias),dadosFunc.saldoInicial,ano,mes,nd,funcAtual.jornada,funcAtual.regime]);
+  },[JSON.stringify(dias),dadosFunc.saldoInicial,ano,mes,nd,funcAtual.jornada,funcAtual.regime,JSON.stringify(escalaMes)]);
   const registrarPonto=async()=>{
     const id=String(pontoId||"").trim();
     if(!id){setPontoMsg("Digite o ID da funcionária.");return;}
@@ -1240,7 +1294,7 @@ function FolhaPonto({funcEsc,onSaveFuncEsc}){
       <div className="tt" style={{flex:1}}><span>Anotações gerais da folha</span><textarea className="inp" style={{width:"100%",minHeight:52,resize:"vertical",marginTop:4}} value={doc.data.anotacoes||""} disabled={!adminOn} placeholder="Acordos, compensações, folgas bonificadas, justificativas…" onChange={e=>adminOn&&doc.updateAndSave({anotacoes:e.target.value})}/></div>
       <div className="tt"><span>Status</span><select className="inp" value={doc.data.status||"Aberto"} disabled={!adminOn} onChange={e=>adminOn&&doc.updateAndSave({status:e.target.value})}><option>Aberto</option><option>Conferido</option><option>Fechado</option><option>Compensado/Pago</option></select></div>
     </div>
-    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. A jornada normal vem do cadastro da funcionária. Os horários de entrada, almoço, retorno e saída são gravados pelo ID da funcionária com o horário do computador. Para as funcionárias, o ponto só registra por ID com o horário do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a aba Escala salva tiver feriado, a Folha de Ponto puxa Feriado automaticamente; quando a funcionária estiver marcada como folga, puxa Folga e zera hora devida; horários, limpeza, saldo inicial e anotações continuam bloqueados pela senha administrativa e são salvos automaticamente no Firebase. Cadastro de funcionárias continua sendo salvo no botão do próprio cadastro.</div>
+    <div className="foot">Salvo em <b>fini_folha_ponto/{keyMes(ano,mes)}</b>. A jornada normal vem do cadastro atual da funcionária; se mudar de 7h para 7:20h, a folha recalcula automaticamente. Domingos e feriados usam base de 6h20 de permanência com 20min de intervalo. Folga/Feriado puxam da Escala salva automaticamente; se desmarcar na Escala, sai da Folha sem precisar limpar. Horários manuais, limpeza, saldo inicial e anotações continuam bloqueados pela senha 2231.</div>
     {showM&&adminOn&&<ModalFuncEsc funcs={funcs} onSave={l=>{onSaveFuncEsc(l);setShowM(false);}} onClose={()=>setShowM(false)}/>}  
   </>;
 }
@@ -1267,7 +1321,7 @@ function App(){
       <div className="fb">Versão: {APP_VERSION}<br/>Firebase: ficha-tecnica-burger<br/>coleções: fini_*<br/>origem: {window.location.protocol==="file:"?"arquivo local":"site publicado"}</div>
     </nav>
     <main className="main">
-      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V19 PONTO + CONSUMO + CAIXA/TROCO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
+      <div style={{background:"#e8fff1",border:"2px solid #3f8f5f",borderRadius:14,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#135c35"}}>✅ ARQUIVO CORRETO ABERTO · V21 ESCALA + PONTO AUTOMÁTICO · se você não vê esta faixa verde, ainda está no arquivo antigo.</div>
       {aba==="estoque"&&<Estoque itens={itens} onSaveItens={saveItens}/>}
       {aba==="balas"&&<Balas balas={balas} onSaveBalas={saveBalas}/>}
       {aba==="comp"&&<Comparativo itens={itens} balas={balas}/>}
@@ -1281,6 +1335,6 @@ function App(){
 }
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
-<!-- Versao V13 2026-06-03: banco de horas com feriado em dobro e folga extra compensatoria -->
+<!-- Versao V21 2026-06-04: domingos/feriados com 20min intervalo, jornada atualizada pelo cadastro, escala autosalva e sugestao mensal -->
 </body>
 </html>
