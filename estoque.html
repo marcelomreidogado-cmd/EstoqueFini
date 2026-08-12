@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · V23 Sem Babel</title>
+<title>FINI Petrópolis · V24 Ponto Limpo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -181,9 +181,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "04/06/2026 18:35 - V23_SEM_BABEL_LINK_CORRIGIDO";
+const FINI_BUILD = "12/08/2026 17:06 - V24_PONTO_LIMPO_ESCALA_CORRIGIDA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "04/06/2026 18:35 · V23_SEM_BABEL_LINK_CORRIGIDO";
+const APP_VERSION = "12/08/2026 17:06 · V24_PONTO_LIMPO_ESCALA_CORRIGIDA";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -1168,7 +1168,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
     const cells = useMemo(() => gerarCels(ano, mes), [ano, mes]);
     const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
     const dias = doc.data.dias || {}, fer = doc.data.feriados || {};
-    const especial = (date, iso) => date.getDay() === 0 || !!fer[iso];
+    const especial = (date, iso) => !!fer[iso];
     const getEscala = (dd, date, iso) => normalizarEscalaDia(dias[dd], especial(date, iso), funcs);
     const setDia = (dd, next) => doc.updateAndSave(d => ({ dias: { ...d.dias, [dd]: next } }));
     const updateFolga = (dd, date, iso, nome) => setDia(dd, { ...getEscala(dd, date, iso), folga: nome });
@@ -1210,8 +1210,8 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
         }
     };
     const sugerirEscalaMes = () => {
-        var _a;
-        if (!funcs.length) {
+        const funcsAtivas = funcs.filter(f => f && f.nome);
+        if (!funcsAtivas.length) {
             alert("Cadastre funcionárias antes de sugerir escala.");
             return;
         }
@@ -1219,32 +1219,33 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
             return;
         const nd = diMes(ano, mes);
         const novoDias = {};
+        let domingoIndex = 0;
         for (let i = 1; i <= nd; i++) {
             const dd = pad(i);
             const dt = new Date(ano, mes, i);
             const iso = isoDia(ano, mes, i);
-            const esp = dt.getDay() === 0 || !!fer[iso];
-            const horas = horariosPadrao(esp);
-            const folga = ((_a = funcs[(i - 1) % funcs.length]) === null || _a === void 0 ? void 0 : _a.nome) || "";
-            let ptr = i;
+            const ehFeriado = !!fer[iso];
+            const horas = horariosPadrao(ehFeriado);
+            // Domingo agora segue a escala normal 6x1; a folga de domingo é apenas uma sugestão rotativa.
+            let folgaIdx = (i - 1) % funcsAtivas.length;
+            if (dt.getDay() === 0) {
+                folgaIdx = domingoIndex % funcsAtivas.length;
+                domingoIndex++;
+            }
+            const folga = funcsAtivas[folgaIdx]?.nome || "";
+            const disponiveis = funcsAtivas.filter(f => f.nome !== folga);
+            let ptr = i % Math.max(1, disponiveis.length);
             const slots = horas.map(h => {
-                let nome = "";
-                if (h) {
-                    for (let tentativa = 0; tentativa < funcs.length; tentativa++) {
-                        const f = funcs[(ptr + tentativa) % funcs.length];
-                        if (f && f.nome !== folga) {
-                            nome = f.nome;
-                            ptr = ptr + tentativa + 1;
-                            break;
-                        }
-                    }
-                }
+                if (!h || !disponiveis.length)
+                    return { hora: h, nome: "" };
+                const nome = disponiveis[ptr % disponiveis.length]?.nome || "";
+                ptr++;
                 return { hora: h, nome };
             });
             novoDias[dd] = { folga, slots };
         }
-        doc.updateAndSave(d => ({ dias: novoDias, atualizadoEm: new Date().toISOString() }));
-        alert("Sugestão de escala gerada e salva. Revise folgas, domingos e feriados antes de usar como escala final.");
+        doc.updateAndSave({ dias: novoDias, atualizadoEm: new Date().toISOString() });
+        alert("Sugestão de escala gerada e salva com nomes. Revise folgas, domingos e feriados antes de usar como escala final.");
     };
     const resumo = useMemo(() => {
         const nd = diMes(ano, mes);
@@ -1305,7 +1306,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                 React.createElement("span", null, "Modelo dias de semana"),
                 React.createElement("b", null, H_SEMANA.join(" · "))),
             React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Modelo dom./feriado"),
+                React.createElement("span", null, "Modelo feriado"),
                 React.createElement("b", null, H_DOM_FER.map(h => h || "aberto").join(" · "))),
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Alertas no m\u00EAs"),
@@ -1338,8 +1339,8 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                         React.createElement(EscalaFolgaRow, { nome: esc.folga, funcs: funcs, onChange: nome => updateFolga(dd, c.date, c.iso, nome), alerta: folgaAlerta }),
                         esc.slots.map((s, i) => React.createElement(EscalaSlot, { key: i, slot: s, idx: i, funcs: funcs, alerta: slotAlert(s), onChange: slot => updateSlot(dd, c.date, c.iso, i, slot) }))),
                     especial(c.date, c.iso) && React.createElement("div", { className: "es-mini" },
-                        React.createElement("b", null, "Dom/Feriado:"),
-                        " 3 hor\u00E1rios")));
+                        React.createElement("b", null, "Feriado:"),
+                        " horários especiais")));
             })),
         React.createElement("div", { style: { margin: "16px 0 14px" } },
             React.createElement("div", { style: { fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 16, marginBottom: 10, color: "var(--ink)" } },
@@ -1448,7 +1449,7 @@ function escalaSugeridaPonto(ano, mes, dd, func, tipo) {
     const tp = normalizeTipoPonto(tipo);
     if (tp === "Folga" || tp === "Folga extra" || tp === "Atestado")
         return { entrada: "", saidaAlmoco: "", retornoAlmoco: "", saida: "", intervalo: "00:00", jornada: "00:00" };
-    if (tp === "Feriado" || isDomingoData(ano, mes, dd))
+    if (tp === "Feriado")
         return { entrada: "11:00", saidaAlmoco: "14:00", retornoAlmoco: "14:20", saida: "17:20", intervalo: "00:20", jornada: "06:00" };
     const jorn = String((func === null || func === void 0 ? void 0 : func.jornada) || "7:20h");
     if (jorn === "7h")
@@ -1541,7 +1542,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         const dt = new Date(ano, mes, Number(dd));
         const iso = isoDia(ano, mes, Number(dd));
         const ehFeriado = !!ferEscala[iso];
-        const esc = normalizarEscalaDia(diasEscala[dd], dt.getDay() === 0 || ehFeriado, funcs);
+        const esc = normalizarEscalaDia(diasEscala[dd], ehFeriado, funcs);
         if (ehFeriado)
             return "Feriado";
         return esc.folga && esc.folga === func.nome ? "Folga" : "";
@@ -1584,12 +1585,13 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         }
     };
     const exigirAdmin = () => { if (adminOn)
-        return true; setPontoMsg("Digite a senha administrativa para alterar horários, limpar dia, saldo ou observações. A coluna Tipo é livre."); return false; };
+        return true; setPontoMsg("Digite a senha administrativa para alterar horários, limpar dia ou saldo. Tipo, observação e anotações gerais são livres."); return false; };
     const setFuncPatch = patch => { if (!exigirAdmin())
         return; doc.updateAndSave(d => ({ funcionarias: { ...(d.funcionarias || {}), [funcNome]: { ...((d.funcionarias || {})[funcNome] || { dias: {} }), ...patch, alteradoManualEm: new Date().toISOString(), alteradoManualPor: "ADMIN" } } })); };
     const setDia = (dd, k, v) => {
         const isTipoLivre = k === "tipo";
-        if (!isTipoLivre && !exigirAdmin())
+        const isLivreSemSenha = k === "tipo" || k === "obs";
+        if (!isLivreSemSenha && !exigirAdmin())
             return;
         doc.updateAndSave(d => {
             var _a;
@@ -1602,12 +1604,14 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
             row = {
                 ...row,
                 alteradoManualEm: new Date().toISOString(),
-                alteradoManualPor: isTipoLivre && !adminOn ? "TIPO_LIVRE" : "ADMIN"
+                alteradoManualPor: isLivreSemSenha && !adminOn ? (isTipoLivre ? "TIPO_LIVRE" : "OBS_LIVRE") : "ADMIN"
             };
             return { funcionarias: { ...all, [funcNome]: { ...fd, dias: { ...(fd.dias || {}), [dd]: row } } } };
         });
         if (isTipoLivre && !adminOn)
             setPontoMsg("✅ Tipo do dia salvo. Horários continuam bloqueados para registro somente por ID.");
+        if (k === "obs" && !adminOn)
+            setPontoMsg("✅ Observação salva.");
     };
     const limparDia = dd => {
         if (!exigirAdmin())
@@ -1696,6 +1700,10 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
             return;
         }
         const hora = agoraHHMM();
+        if (!confirm(`Confirmar ponto?\n\nFuncionária: ${f.nome}\nRegistro: ${ROTULOS_PONTO[campo]}\nHorário do computador: ${hora}\n\nClique em OK para gravar.`)) {
+            setPontoMsg("Registro cancelado. Nenhum horário foi gravado.");
+            return;
+        }
         const novoRegistro = { campo, hora, registradoEm: new Date().toISOString(), id: f.id, nome: f.nome, origem: "ID_FUNCIONARIA" };
         row = { ...row, [campo]: hora, registrosPonto: [...(row.registrosPonto || []), novoRegistro] };
         const novoDoc = { funcionarias: { [f.nome]: { ...fd, dias: { ...(fd.dias || {}), [dd]: row } } }, atualizadoEm: new Date().toISOString() };
@@ -1718,7 +1726,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         React.createElement("div", { className: "htop" },
             React.createElement("div", null,
                 React.createElement("h1", null, "Folha de Ponto"),
-                React.createElement("div", { className: "hsub" }, "Registro por ID \u00B7 folgas e feriados puxados automaticamente da Escala salva")),
+                React.createElement("div", { className: "hsub" }, "Registro por ID \u00B7 tipo e observações liberados \u00B7 horários bloqueados para ponto real")),
             React.createElement(Status, { ...doc })),
         React.createElement(ErrBox, { ...doc }),
         React.createElement("div", { className: "toolbar" },
@@ -1727,15 +1735,6 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                 React.createElement("div", { className: "field", style: { minWidth: 260, flex: "1 1 260px" } },
                     React.createElement("label", null, "Funcion\u00E1ria"),
                     React.createElement("div", { className: "func-chips" }, nomes.map(n => React.createElement("button", { key: n, type: "button", className: "func-chip" + (funcNome === n ? " on" : ""), onClick: () => setFuncNome(n) }, n)))),
-                React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "ID ponto"),
-                    React.createElement("input", { className: "inp", style: { width: 72 }, value: funcAtual.id || "", readOnly: true, title: "Altere em \u2699\uFE0F Funcion\u00E1rias" })),
-                React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Jornada padr\u00E3o"),
-                    React.createElement("input", { className: "inp", style: { width: 92 }, value: funcAtual.jornada || "7:20h", readOnly: true, title: "Altere em \u2699\uFE0F Funcion\u00E1rias" })),
-                React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Regime"),
-                    React.createElement("input", { className: "inp", style: { width: 72 }, value: funcAtual.regime || "6x1", readOnly: true, title: "Altere em \u2699\uFE0F Funcion\u00E1rias" })),
                 React.createElement("button", { className: "btn ghost sm", onClick: () => adminOn ? setShowM(true) : exigirAdmin(), title: "Precisa da senha administrativa" }, "\u2699\uFE0F Funcion\u00E1rias"),
                 React.createElement("button", { className: "btn ghost sm", onClick: () => window.print() }, "\uD83D\uDDA8 Imprimir"),
                 React.createElement("button", { className: "btn primary", onClick: salvar, disabled: !adminOn || !doc.dirty || doc.status === "load", title: !adminOn ? "Libere a edição administrativa para salvar ajustes manuais" : "Salvar mês" }, "\uD83D\uDCBE Salvar m\u00EAs"))),
@@ -1748,16 +1747,6 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                 React.createElement("label", null, "Senha admin"),
                 React.createElement("input", { className: "inp", style: { width: 96, textAlign: "center" }, type: "password", value: adminPin, onChange: e => setAdminPin(e.target.value.replace(/\D/g, "")), onKeyDown: e => e.key === "Enter" && liberarAdmin(), placeholder: "\u2022\u2022\u2022\u2022", autoComplete: "off" })),
             React.createElement("button", { className: "btn sm " + (adminOn ? "primary" : "ghost"), onClick: liberarAdmin }, adminOn ? "🔓 Admin liberado" : "🔐 Liberar edição"),
-            React.createElement("div", { style: { fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.45, flex: "1 1 260px" } },
-                "Sequ\u00EAncia autom\u00E1tica: ",
-                React.createElement("b", null, "Entrada"),
-                " \u2192 ",
-                React.createElement("b", null, "Sa\u00EDda almo\u00E7o"),
-                " \u2192 ",
-                React.createElement("b", null, "Volta almo\u00E7o"),
-                " \u2192 ",
-                React.createElement("b", null, "Sa\u00EDda"),
-                ". O hor\u00E1rio gravado \u00E9 o do computador."),
             pontoMsg && React.createElement("div", { style: { width: "100%", fontSize: 13, fontWeight: 700, color: pontoMsg.startsWith("✅") ? "var(--green)" : "var(--fini)" } }, pontoMsg)),
         React.createElement("div", { className: "totbar" },
             React.createElement("div", { className: "tt" },
@@ -1843,14 +1832,14 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                         React.createElement("td", { className: "num " + corSaldo(calc.banco) },
                             React.createElement("b", null, calc.ativa ? minToDur(calc.banco) : "—")),
                         React.createElement("td", null,
-                            React.createElement("input", { className: "pobs", value: row.obs || "", placeholder: "observa\u00E7\u00E3o", disabled: !adminOn, onChange: e => setDia(dd, "obs", e.target.value) })),
+                            React.createElement("input", { className: "pobs", value: row.obs || "", placeholder: "observação", onChange: e => setDia(dd, "obs", e.target.value), title: "Campo livre para observações da funcionária/loja" })),
                         React.createElement("td", null,
                             React.createElement("button", { className: "rm", title: adminOn ? "Limpar dia" : "Precisa da senha administrativa", disabled: !adminOn, onClick: () => limparDia(dd) }, "\uD83E\uDDF9")));
                 })))),
         React.createElement("div", { className: "totbar", style: { marginTop: 14 } },
             React.createElement("div", { className: "tt", style: { flex: 1 } },
                 React.createElement("span", null, "Anota\u00E7\u00F5es gerais da folha"),
-                React.createElement("textarea", { className: "inp", style: { width: "100%", minHeight: 52, resize: "vertical", marginTop: 4 }, value: doc.data.anotacoes || "", disabled: !adminOn, placeholder: "Acordos, compensa\u00E7\u00F5es, folgas bonificadas, justificativas\u2026", onChange: e => adminOn && doc.updateAndSave({ anotacoes: e.target.value }) })),
+                React.createElement("textarea", { className: "inp", style: { width: "100%", minHeight: 52, resize: "vertical", marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Acordos, compensações, folgas bonificadas, justificativas…", onChange: e => doc.updateAndSave({ anotacoes: e.target.value }) })),
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Status"),
                 React.createElement("select", { className: "inp", value: doc.data.status || "Aberto", disabled: !adminOn, onChange: e => adminOn && doc.updateAndSave({ status: e.target.value }) },
@@ -1863,7 +1852,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
             React.createElement("b", null,
                 "fini_folha_ponto/",
                 keyMes(ano, mes)),
-            ". A jornada normal vem do cadastro da funcion\u00E1ria. Os hor\u00E1rios de entrada, almo\u00E7o, retorno e sa\u00EDda s\u00E3o gravados pelo ID da funcion\u00E1ria com o hor\u00E1rio do computador. Para as funcion\u00E1rias, o ponto s\u00F3 registra por ID com o hor\u00E1rio do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a aba Escala salva tiver feriado, a Folha de Ponto puxa Feriado automaticamente; quando a funcion\u00E1ria estiver marcada como folga, puxa Folga e zera hora devida; hor\u00E1rios, limpeza, saldo inicial e anota\u00E7\u00F5es continuam bloqueados pela senha administrativa e s\u00E3o salvos automaticamente no Firebase. Cadastro de funcion\u00E1rias continua sendo salvo no bot\u00E3o do pr\u00F3prio cadastro."),
+            ". A jornada normal vem do cadastro da funcion\u00E1ria. Os hor\u00E1rios de entrada, almo\u00E7o, retorno e sa\u00EDda s\u00E3o gravados pelo ID da funcion\u00E1ria com o hor\u00E1rio do computador. Para as funcion\u00E1rias, o ponto s\u00F3 registra por ID com o hor\u00E1rio do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a aba Escala salva tiver feriado, a Folha de Ponto puxa Feriado automaticamente; quando a funcion\u00E1ria estiver marcada como folga, puxa Folga e zera hora devida; horários, limpeza e saldo inicial continuam bloqueados pela senha administrativa; observações e anotações gerais são livres e s\u00E3o salvos automaticamente no Firebase. Cadastro de funcion\u00E1rias continua sendo salvo no bot\u00E3o do pr\u00F3prio cadastro."),
         showM && adminOn && React.createElement(ModalFuncEsc, { funcs: funcs, onSave: l => { onSaveFuncEsc(l); setShowM(false); }, onClose: () => setShowM(false) }));
 }
 /* ══ APP ══ */
@@ -1899,7 +1888,7 @@ function App() {
                 "origem: ",
                 window.location.protocol === "file:" ? "arquivo local" : "site publicado")),
         React.createElement("main", { className: "main" },
-            React.createElement("div", { style: { background: "#e8fff1", border: "2px solid #3f8f5f", borderRadius: 14, padding: "10px 14px", marginBottom: 14, fontSize: 13, fontWeight: 700, color: "#135c35" } }, "\u2705 ARQUIVO CORRETO ABERTO \u00B7 V23 SEM BABEL + LINK CORRIGIDO \u00B7 se voc\u00EA n\u00E3o v\u00EA esta faixa verde, ainda est\u00E1 no arquivo antigo."),
+            React.createElement("div", { style: { background: "#e8fff1", border: "2px solid #3f8f5f", borderRadius: 14, padding: "10px 14px", marginBottom: 14, fontSize: 13, fontWeight: 700, color: "#135c35" } }, "✅ ARQUIVO CORRETO ABERTO · V24 PONTO LIMPO + ESCALA CORRIGIDA · se você não vê esta faixa verde, ainda está no arquivo antigo."),
             aba === "estoque" && React.createElement(Estoque, { itens: itens, onSaveItens: saveItens }),
             aba === "balas" && React.createElement(Balas, { balas: balas, onSaveBalas: saveBalas }),
             aba === "comp" && React.createElement(Comparativo, { itens: itens, balas: balas }),
@@ -1922,6 +1911,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V23 2026-06-04: precompilado sem Babel para evitar tela rosa/branca; mantém V22 escala/ponto -->
+<!-- Versao V24 2026-08-12: ponto limpo, confirmação de registro, observações livres, domingo normal e escala sugerida corrigida -->
 </body>
 </html>
