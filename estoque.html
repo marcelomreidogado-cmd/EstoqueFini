@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · V24 Ponto Limpo</title>
+<title>FINI Petrópolis · Gestão V27</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -24,13 +24,13 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:radial-gradien
 .navb:hover{background:#2f1020;color:#fff}.navb.on{background:var(--fini);color:#fff}
 .navb .ic{font-size:15px;width:20px;text-align:center}
 .side .sp{flex:1}.side .fb{font-size:10px;color:#7d4f60;line-height:1.6;margin-top:8px}
-.main{padding:30px 32px 80px;max-width:1200px}
+.main{padding:30px 32px 80px;max-width:1200px;min-width:0}
 .htop{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 h1{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(24px,3.5vw,36px);line-height:.98}
 .hsub{color:var(--ink-soft);font-size:13px;margin-top:3px}
 .status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:30px;padding:6px 13px}
 .sdot{width:8px;height:8px;border-radius:50%;background:var(--ink-faint);transition:.3s}
-.sdot.ok{background:var(--green);box-shadow:0 0 8px rgba(63,143,95,.6)}.sdot.load{background:var(--yellow);animation:pulse 1s infinite}.sdot.err{background:var(--fini)}
+.sdot.ok{background:var(--green);box-shadow:0 0 8px rgba(63,143,95,.6)}.sdot.load{background:var(--yellow);animation:pulse 1s infinite}.sdot.offline{background:#e8a23a;box-shadow:0 0 8px rgba(232,162,58,.45)}.sdot.err{background:var(--fini)}
 @keyframes pulse{50%{opacity:.35}}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);margin-bottom:16px}
 .tl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -95,7 +95,7 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 .cc{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.1s;flex-shrink:0}
 .cc.sel{border-color:rgba(0,0,0,.5);transform:scale(1.25)}
 /* ESCALA CALENDAR */
-.egrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.egrid{display:grid;grid-template-columns:repeat(7,minmax(126px,1fr));gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 .ewd{text-align:center;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;padding:5px 0}
 .ewd.dom,.ewd.sab{color:var(--fini)}
 .ecell{background:var(--card);border:1px solid var(--line);border-radius:13px;display:flex;flex-direction:column;overflow:hidden}
@@ -165,8 +165,51 @@ tr.hojerow{background:#fff5f8}.neg{color:var(--fini)}
 .pobs{min-width:170px!important}
 @media(max-width:820px){.ponto-scroll{max-height:none}.ponto-table{min-width:1080px}}
 
-@media print{.side,.toolbar,.status,.foot,.btn{display:none}.app{grid-template-columns:1fr}.main{padding:0}}
-@media(max-width:820px){.app{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:5px}.side .logo,.side .subtt,.side .sp,.side .fb{width:100%}.main{padding:18px 12px 60px}}
+/* V25 - interface gerencial limpa */
+body{font-size:14px}
+.main{width:100%;max-width:1440px;padding:24px 28px 64px}
+.htop{margin-bottom:14px;align-items:center}.htop h1{font-size:clamp(23px,2.8vw,32px);line-height:1.08}.hsub{font-size:12.5px;line-height:1.45}
+.toolbar{padding:10px 12px;border-radius:14px;margin-bottom:12px;box-shadow:0 10px 28px -24px rgba(60,20,40,.42)}
+.totbar{padding:11px 14px;gap:24px;border-radius:13px;margin-bottom:12px}.tt b{font-size:clamp(15px,2vw,19px)}
+.panel{border-radius:13px;box-shadow:0 10px 30px -26px rgba(60,20,40,.45);overflow:auto}
+table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
+.clean-note{font-size:11.5px;color:var(--ink-soft);line-height:1.45}.status.compact{background:transparent;border:0;padding:3px 0}.foot{display:none!important}
+.save-note{display:inline-flex;align-items:center;gap:6px;color:var(--ink-soft);font-size:11px;min-height:18px}
+.save-note.ok{color:var(--green)}.save-note.err{color:var(--fini)}
+.table-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+.sticky-first th:first-child,.sticky-first td:first-child{position:sticky;left:0;z-index:2;background:var(--card)}.sticky-first th:first-child{z-index:3;background:#ffeef5}
+.schedule-table{min-width:760px}.schedule-table th,.schedule-table td{text-align:center}.schedule-table th:first-child,.schedule-table td:first-child{text-align:left;min-width:145px}
+.schedule-table .holiday-row td{background:#fff9dc}.schedule-table .sunday-row td:first-child{color:var(--fini);font-weight:700}
+.schedule-select{min-width:132px!important;text-align:center;font-weight:700}.schedule-select.work{color:var(--green)}.schedule-select.off{color:var(--fini)}
+.holiday-name{display:block;font-size:9.5px;color:#9a6b00;margin-top:2px;white-space:normal;line-height:1.2}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:12px 0}.summary-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.summary-card strong{font-size:13px}.summary-card dl{display:grid;grid-template-columns:1fr auto;gap:3px 10px;margin-top:7px;font-size:11px}.summary-card dt{color:var(--ink-soft)}.summary-card dd{font-family:'DM Mono';font-weight:700}
+.print-area{display:none}.print-title{font-family:Arial,sans-serif;font-size:15pt;font-weight:700;margin-bottom:2mm}.print-subtitle{font-family:Arial,sans-serif;font-size:9pt;margin-bottom:4mm;color:#333}.signature-box{display:grid;grid-template-columns:1fr 1fr;gap:14mm;margin-top:10mm}.signature-line{border-top:1px solid #222;text-align:center;padding-top:2mm;font:9pt Arial}
+.point-table-v25{min-width:960px}.point-table-v25 th,.point-table-v25 td{white-space:nowrap}.point-table-v25 .pobs{min-width:150px!important}.time-input{width:70px!important;font-family:'DM Mono'!important;text-align:center!important}
+.sales-table{min-width:760px}.sales-table td input{min-width:92px}.goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px}.goal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px}.goal-card label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);font-weight:700;margin-bottom:5px}.goal-card input,.goal-card select{width:100%}.progress{height:7px;background:var(--line-soft);border-radius:999px;overflow:hidden;margin-top:7px}.progress>span{display:block;height:100%;background:var(--fini);border-radius:inherit;max-width:100%}
+.draft-pill{display:inline-flex;align-items:center;gap:5px;background:#fff7db;color:#795500;border:1px solid #f0d98b;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:700}
+.confirm-modal .mbox{max-width:420px}.confirm-time{font-family:'DM Mono';font-size:30px;color:var(--fini);text-align:center;padding:10px 0}.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.confirm-grid div{background:#fff;border:1px solid var(--line-soft);border-radius:9px;padding:8px}.confirm-grid span{display:block;color:var(--ink-faint);font-size:9px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.waste-kpi{display:flex;align-items:baseline;gap:6px}.waste-kpi small{color:var(--ink-faint);font-size:10px}
+.view-switch{display:inline-flex;gap:3px;padding:4px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;box-shadow:0 8px 24px -22px rgba(60,20,40,.5)}
+.view-switch button{border:0;background:transparent;color:var(--ink-soft);border-radius:8px;padding:8px 12px;font:700 12px 'DM Sans';cursor:pointer}
+.view-switch button.on{background:var(--fini);color:#fff}
+
+@media(max-width:820px){
+  body{font-size:13px}.app{display:block}.side{position:sticky;top:0;z-index:50;height:auto;padding:10px 10px 8px;display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:5px;border-bottom:1px solid #351522}.side .logo{min-width:max-content;margin:0 8px 0 2px;align-self:center;font-size:17px}.side .subtt,.side .sp,.side .fb{display:none}.navb{width:auto;min-width:max-content;padding:8px 10px;font-size:12px}.navb .ic{width:auto}.main{padding:14px 10px calc(54px + env(safe-area-inset-bottom))}.htop{align-items:flex-start}.toolbar,.tl{width:100%}.toolbar>.tl:last-child{justify-content:flex-start}.field.search{width:100%}.inp,.btn,td input,td select{font-size:16px}.btn.sm{font-size:13px}.mesatual{font-size:17px;min-width:145px}.irow{padding:7px 10px;gap:6px}.irow .nm{font-size:12px;line-height:1.25}.irow .inp{width:76px!important}.totbar{gap:16px}.summary-grid{grid-template-columns:1fr 1fr}.goal-grid{grid-template-columns:1fr 1fr}.status{font-size:10.5px}.confirm-modal .mbox{padding:18px}.signature-box{grid-template-columns:1fr}
+}
+@media(max-width:430px){.summary-grid,.goal-grid{grid-template-columns:1fr}.htop h1{font-size:24px}.btn{padding:9px 12px}.navb{padding:8px 9px}.navb .ic{font-size:14px}}
+
+@page{size:A4 portrait;margin:8mm}
+@page schedule{size:A4 landscape;margin:7mm}
+@page point{size:A4 portrait;margin:8mm}
+@media print{
+  html,body{background:#fff!important;color:#000!important}.app{display:block!important}.side,.main>*{display:none!important}.main{display:block!important;padding:0!important;max-width:none!important}.main>.print-area{display:block!important}.print-area{font-family:Arial,sans-serif;color:#000}.print-area table{width:100%;border-collapse:collapse;font-size:7.6pt;table-layout:fixed}.print-area th,.print-area td{border:1px solid #555;padding:1.25mm 1mm;vertical-align:middle;background:#fff!important;color:#000!important;position:static!important}.print-area th{font-weight:700;text-transform:none;letter-spacing:0}.print-area tr{break-inside:avoid}.print-area .holiday-print{background:#eee!important}.print-area .off-print{font-weight:700}.print-area.point-print table{font-size:7pt}.print-area.point-print th,.print-area.point-print td{padding:1mm .8mm}.print-area textarea,.print-area input{border:0;background:transparent;color:#000}
+  .print-area.schedule-print{page:schedule}.print-area.point-print{page:point}
+  body.print-escala .print-area.schedule-print table{font-size:7.1pt}
+  body.print-escala .print-area.schedule-print th,body.print-escala .print-area.schedule-print td{padding:.62mm .75mm;line-height:1.05}
+  body.print-escala .schedule-print .print-title{font-size:13pt;margin-bottom:1mm}
+  body.print-escala .schedule-print .print-subtitle{font-size:8pt;margin-bottom:2.2mm}
+  .print-area .signature-box{grid-template-columns:1fr 1fr!important;gap:14mm!important;margin-top:10mm!important}
+}
 </style>
 <script>
 window.addEventListener('error', function(e){
@@ -181,9 +224,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "12/08/2026 17:06 - V24_PONTO_LIMPO_ESCALA_CORRIGIDA";
+const FINI_BUILD = "27/08/2026 22:30 - V27_AUTOSSALVAMENTO_SEGURO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "12/08/2026 17:06 · V24_PONTO_LIMPO_ESCALA_CORRIGIDA";
+const APP_VERSION = "27/08/2026 22:30 · V27_AUTOSSALVAMENTO_SEGURO";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -205,19 +248,20 @@ catch (e) { }
 const D_ITENS = ["AGUA MINERAL S/ GAS 500ML", "AGUA MINERAL C/ GAS 500ML", "ALGODAO DOCE CLASSICO 35G", "ALGODAO DOCE FRAMBOESA 35G", "ALGODAO DOCE MORANGO 35G", "ALGODAO DOCE T FRUTTI 35G", "ALGODAO DOCE UVA 35G", "BALA MEGA XXL COLA 900G", "BALEIRO AMARELO C/ ROSA", "BEM ESTAR DIET", "BEM ESTAR COLAGENO", "CAIXA FINI", "CH. FÚRIA ÁCIDA 14G", "CH. BOLA DE TENIS 200UN", "CH. DESTROIER", "CH. KLETS MORA-FRAM S/A 200UN", "CH. KLETS SANDIA S/AZ 200UN", "CH. KLETS TROPICAL S/A 200UN", "CH. KLETS WHITE S/AZ 200UN", "CH. NUCLEAR GUM GIG 50UN", "CHICLE BANANA SPLIT", "CHICLE FINIBURGUER 200UN", "CHICLE GARRAFAS COLA 200UN", "CHICLE KLÉTS MORANGO 30G", "CHICLE KLÉTS TUTTI FRUTTI 30G", "CHICLE MELAO 200UN", "CHICLE PANNAFRAGOLA 200UN", "COPO BANANA", "COPO DENTADURA", "COPO MARSH", "COPO TUBES", "DESENROLA&ESTIKA FRAMBOESA 27G", "DESENROLA&ESTIKA TUTTI-FRUTTI 27G", "EMBALAGEM PRESENTEAVEL P. AZUL", "FINI BOX", "FINI ZUMBIE 200UN", "PIRULITO FINIPOP CHERRY+GUM 100UN", "PIRULITO FINIPOP VAMPIRO GUM 100UN", "SACOLA MEDIA LOJA", "SACOLA PEQUENA LOJA", "SAQUINHO FINI FRANQUIA C/ZIP", "TUBES PINTA LINGUE 15G", "TUBES DE IOGURTE 27G", "TUBES DE MORANGO 27G", "TUBES MORANGO CITR 27G", "TUBES TWISTER 27G", "TUBES BOO 27G"];
 const D_BALAS = [{ cat: "Gigantes", itens: ["Banana GG 500G", "Garrafa de cola GG 1KG", "Golfinho GG 1KG", "Morango GG 1KG", "Ovo GG 1KG", "Rã brilho GG 1KG", "Urso GG 1KG"] }, { cat: "Gelatinas Nacionais", itens: ["Amora 500G", "Aro de morango 500G", "Banana 500G", "Beijo de morango 500G", "Caveira Recheada", "Dentadura 500G", "Dentadura da bruxa 500G", "Finiburguer 500G", "Frutiê frutas sortidas 200G", "Frutiê frutas vermelhas 200G", "Frutiê sobremesas 200G", "Gomos tangerina 500G", "Minhoca brilho 500G", "Minhoca cítrica 500G", "Mix surpresa", "Oceanitos 500G", "Ovo frito pequeno 500G", "Polvo pequeno 500G", "Rato 500G", "Regaliz terror", "Sapo pequeno 500G", "Sorvetinho 80G", "Ursinho brilho 500G"] }, { cat: "Gelatinas Exclusivas", itens: ["ALUBIAS", "AROS SURTIDOS", "Amora azul 250UN", "Amora multicolor 250UN", "Bananas recheadas 1KG", "Beijos twisty morango 1KG", "Boca de morango 250UN", "CEREJA BRILHO", "Cereja drageada", "Coração de pêssego 1KG", "Coração recheados 1KG", "Coração tricolor 1KG", "EURO DE MORANGO", "Fatias melancia recheadas 1KG", "Fruta gourmet", "Garrafa de cola cítrica 1KG", "Lagrimas 1KG", "Limões grandes 1KG", "Maças 1KG", "Melancia fatiada 1KG", "Morango brilho 1KG", "Morango cítrico 1KG", "Morangos açucarados", "Morangos recheados 1KG", "Orca 1KG", "Pimenta picante 1KG", "Polvo cítrico 1KG", "SORTIDO TERROR", "Tortugas 1KG", "Tropical jelly 1KG", "Tubarão 1KG", "zapatilha"] }, { cat: "Tubes Nacionais", itens: ["TUBES DESENROLA E ESTICA FRAM.", "Tubes de Iogurte", "Tubes pinta lingua", "Tubes morango 240G/80G", "Tubes morango cítrico 240G/80G", "Tubes sabores sortidos 80G", "Tubes tropical 80G", "Tubes tutti fruti 240G/80G", "Tubes twister 240G/80G", "Tubes twister cítrico 80G", "Tubes uva 80g", "Tubes uva cítrico 80g"] }, { cat: "Tubes Exclusivos", itens: ["Chewy chips 1KG", "Corda de cereja PT 30UN", "Espagueti fresa PT 200UN", "Espagueti multifuti PT 200UN", "Finipalo morango PT 30UN", "Jumbo colorido 30UN", "Jumbo melancia citrico 30UN", "Jumbo melancia 30UN", "Jumbo morango citrico PT 30UN", "Jumbo morango PT 30UN", "Jumbo morango com nata 30UN", "Jumbo tijolinho morango 30UN", "Jumbo torcida morango PT 30UN", "Jumbo torcida roja PT 30UN", "Jumbo torcido sorvete 30UN", "Jumbo tornado brilho PT 30UN", "Jumbo tornado pica PT 30UN", "LÍNGUA DE COLA", "Língua de framboesa PT 200UN", "Língua de maça verde PT 200UN", "Língua de melancia PT 200UN", "Língua de morango PT 200UN", "Língua multifruti PT 200UN", "Linhas de framboesa PT 200UN", "Linhas de morango PT 200UN", "Maxi morango citrico 70UN", "Maxi morango recheado 70UN", "Mix regaliz brilho 1KG", "Spiro morango 200UN", "Taco relleno negro 1KG", "Tacote morango 1KG", "Tacote negro 1KG", "Tijolinho morango 250UN", "Tijolinho colorido cítrico 1KG", "Tijolinho nata-morango 250UN", "Tornado recheado cítrico 200UN", "Tornado recheado 70UN", "Tubes manga 200UN", "Tubes morango nata-baunilha 200UN"] }, { cat: "Chicles", itens: ["Chicle bola de tenis GG 75UN", "Chicle bolos pequenos 1KG", "Chicle clássicos 500G", "Chicle finiburguer 200UN", "Chicle fúria ácida 140G", "Chicle melancia 500G", "Chicle morango 500G", "Chicle ovo de dinossauro 500G", "Chicle salada de frutas 500G"] }, { cat: "Marsh's", itens: ["Marsh morango com nata 200UN", "Marsh torção recheado colorido 200G", "Marsh torção recheado azul 200G", "Marsh torção recheado rosa 200G", "Marsh vulcão azul 200G", "Marsh vulcão rosa 200G", "Marsh vulcão sortidos 150UN"] }];
 const D_ESC = [{ id: "101", nome: "Daphne", hora: "9:40", cor: "#d8442e", jornada: "7:20h", regime: "6x1" }, { id: "102", nome: "Weslayne", hora: "14:00", cor: "#e8a23a", jornada: "7:20h", regime: "6x1" }, { id: "103", nome: "Leticia", hora: "14:00", cor: "#3f8f5f", jornada: "7:20h", regime: "6x1" }];
-const H_SEMANA = ["9:40", "14:00", "14:00"];
-const H_DOM_FER = ["11:00", "15:00", ""];
+const H_SEMANA = ["9:40", "13:00", "14:00"];
+const H_DOM_FER = ["11:00", "13:00", "13:00"];
 const D_CON = ["Jeanny", "Ana Clara", "Leidiane", "Marcelo", "Igor"];
 const CORES = ["#d8442e", "#e8a23a", "#3f8f5f", "#3a6ea5", "#9c27b0", "#ff6d00", "#00838f", "#558b2f", "#c62828", "#e91e63"];
 const MOTIVOS = ["Vencimento", "Avaria", "Queda/Acidente", "Consumo interno", "Erro de pesagem", "Outro"];
 const FORMAS = ["Dinheiro", "PIX", "Débito", "Crédito", "Vale Refeição"];
 const DENOMS_TROCO = [100, 50, 20, 10, 5, 2, 1, 0.50, 0.25, 0.10, 0.05];
 const PRECO_CONSUMO_KG = 75.90;
+const PRECO_DESPERDICIO_KG = 69.90;
 const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const WD = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const PONTO_OCORRENCIAS = ["Feriado", "Folga", "Folga extra", "Atestado"];
-const PONTO_JORNADAS = ["7:20h", "7h"];
-const PONTO_REGIMES = ["6x1", "5x2"];
+const PONTO_JORNADAS = ["7:20h"];
+const PONTO_REGIMES = ["6x1"];
 const TARA_ACRILICO_PADRAO = 0.732;
 /* Helpers */
 const pad = n => String(n).padStart(2, "0");
@@ -281,22 +325,139 @@ function traduzErroFirebase(e, acao = "acessar") {
     }
     return { titulo: "Erro no Firebase", detalhe: `Código: ${code}. ${msg}` };
 }
+/* Autossalvamento seguro, auditoria e fila de reconexão */
+const FINI_FILA_OFFLINE_KEY = "fini_fila_offline_v27";
+const FINI_EVENTO_FILA = "fini-fila-offline";
+function copiaSegura(v) {
+    try { return JSON.parse(JSON.stringify(v)); }
+    catch (e) { return v; }
+}
+function mesclarProfundo(base, extra) {
+    if (!base || typeof base !== "object" || Array.isArray(base)) return copiaSegura(extra);
+    if (!extra || typeof extra !== "object" || Array.isArray(extra)) return copiaSegura(extra);
+    const out = { ...base };
+    Object.entries(extra).forEach(([k, v]) => {
+        out[k] = v && typeof v === "object" && !Array.isArray(v) && out[k] && typeof out[k] === "object" && !Array.isArray(out[k])
+            ? mesclarProfundo(out[k], v) : copiaSegura(v);
+    });
+    return out;
+}
+function erroDeRede(e) {
+    const code = String((e === null || e === void 0 ? void 0 : e.code) || "").toLowerCase();
+    const msg = String((e === null || e === void 0 ? void 0 : e.message) || "").toLowerCase();
+    return ["unavailable", "deadline-exceeded", "network-request-failed"].some(x => code.includes(x)) || msg.includes("network") || msg.includes("offline");
+}
+function lerFilaOffline() {
+    try { const v = JSON.parse(localStorage.getItem(FINI_FILA_OFFLINE_KEY) || "[]"); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+}
+function gravarFilaOffline(fila) {
+    try {
+        if (fila.length) localStorage.setItem(FINI_FILA_OFFLINE_KEY, JSON.stringify(fila));
+        else localStorage.removeItem(FINI_FILA_OFFLINE_KEY);
+        window.dispatchEvent(new CustomEvent(FINI_EVENTO_FILA, { detail: { pendentes: fila.length } }));
+    }
+    catch (e) { console.warn("Não foi possível atualizar a fila offline", e); }
+}
+function enfileirarOffline(col, id, payload, origem = "AUTOSSALVAMENTO") {
+    const fila = lerFilaOffline(), idx = fila.findIndex(x => x.col === col && x.id === id);
+    const item = { col, id, payload: copiaSegura(payload), origem, criadoEm: new Date().toISOString() };
+    if (idx >= 0) fila[idx] = { ...fila[idx], payload: mesclarProfundo(fila[idx].payload || {}, item.payload), origem, atualizadoEm: item.criadoEm };
+    else fila.push(item);
+    gravarFilaOffline(fila);
+}
+async function registrarAuditoria(col, id, payload, origem = "AUTOSSALVAMENTO", acao = "SALVAR") {
+    if (["fini_auditoria", "fini_backups_escala"].includes(col)) return;
+    try {
+        await db.collection("fini_auditoria").add({
+            colecao: col,
+            documento: id,
+            acao,
+            origem,
+            responsavel: origem,
+            campos: Object.keys(payload || {}).filter(k => k !== "atualizadoEm"),
+            registradoEm: new Date().toISOString(),
+            versao: FINI_BUILD
+        });
+    }
+    catch (e) { console.warn("Auditoria não pôde ser registrada", e); }
+}
+async function salvarDocumentoSeguro(col, id, payload, origem = "AUTOSSALVAMENTO") {
+    const dados = { ...copiaSegura(payload), atualizadoEm: new Date().toISOString() };
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+        enfileirarOffline(col, id, dados, origem);
+        return { ok: true, offline: true };
+    }
+    try {
+        await db.collection(col).doc(id).set(dados, { merge: true });
+        await registrarAuditoria(col, id, dados, origem);
+        return { ok: true, offline: false };
+    }
+    catch (e) {
+        if (erroDeRede(e)) {
+            enfileirarOffline(col, id, dados, origem);
+            return { ok: true, offline: true };
+        }
+        throw e;
+    }
+}
+let finiFilaEmProcessamento = null;
+function processarFilaOffline() {
+    if (finiFilaEmProcessamento) return finiFilaEmProcessamento;
+    finiFilaEmProcessamento = (async () => {
+        if (typeof navigator !== "undefined" && !navigator.onLine) return false;
+        const fila = lerFilaOffline();
+        if (!fila.length) return true;
+        const restantes = [];
+        for (let i = 0; i < fila.length; i++) {
+            const item = fila[i];
+            try {
+                await db.collection(item.col).doc(item.id).set(item.payload, { merge: true });
+                await registrarAuditoria(item.col, item.id, item.payload, item.origem || "RECONEXAO", "REENVIAR_OFFLINE");
+            }
+            catch (e) {
+                restantes.push(item, ...fila.slice(i + 1));
+                break;
+            }
+        }
+        gravarFilaOffline(restantes);
+        return restantes.length === 0;
+    })().finally(() => { finiFilaEmProcessamento = null; });
+    return finiFilaEmProcessamento;
+}
+function criarBackupEscala(docId, snapshot, acao) {
+    const ts = new Date().toISOString();
+    const backupId = `${docId}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    return salvarDocumentoSeguro("fini_backups_escala", backupId, { documentoOrigem: docId, acao, criadoEm: ts, snapshot: copiaSegura(snapshot), versao: FINI_BUILD }, "BACKUP_AUTOMATICO");
+}
+if (typeof window !== "undefined") {
+    window.addEventListener("online", () => { processarFilaOffline(); });
+    setTimeout(() => { if (navigator.onLine) processarFilaOffline(); }, 1200);
+}
 /* useFireDoc */
 function useFireDoc(col, id, init) {
     const [data, setData] = useState(() => JSON.parse(JSON.stringify(init)));
     const [status, setStatus] = useState("load");
     const [dirty, setDirty] = useState(false);
     const [erro, setErro] = useState(null);
+    const revisao = useRef(0);
     const reload = useCallback(async () => { setStatus("load"); setErro(null); try {
         const s = await db.collection(col).doc(id).get();
         setData(s.exists ? { ...JSON.parse(JSON.stringify(init)), ...s.data() } : JSON.parse(JSON.stringify(init)));
+        revisao.current = 0;
         setDirty(false);
         setStatus("ok");
     }
     catch (e) {
         console.error("Firebase read error", col, id, e);
-        setErro(traduzErroFirebase(e, "ler os dados"));
-        setStatus("err");
+        if (erroDeRede(e) || (typeof navigator !== "undefined" && !navigator.onLine)) {
+            setErro(null);
+            setStatus("offline");
+        }
+        else {
+            setErro(traduzErroFirebase(e, "ler os dados"));
+            setStatus("err");
+        }
     } }, [col, id]);
     useEffect(() => { reload(); }, [reload]);
     const save = async (d2) => {
@@ -305,14 +466,15 @@ function useFireDoc(col, id, init) {
         // Por isso, aqui ignoramos qualquer evento de clique/formulário e salvamos o estado atual.
         const recebeuEvento = d2 && (d2.nativeEvent || d2.preventDefault || d2.target || d2.currentTarget);
         const payload = (!d2 || recebeuEvento) ? data : d2;
+        const revisaoSalva = revisao.current;
         setStatus("load");
         setErro(null);
         try {
-            await db.collection(col).doc(id).set({ ...payload, atualizadoEm: new Date().toISOString() }, { merge: true });
-            if (d2 && !recebeuEvento)
+            const resultado = await salvarDocumentoSeguro(col, id, payload, "AUTOSSALVAMENTO");
+            if (d2 && !recebeuEvento && revisao.current === revisaoSalva)
                 setData(d2);
-            setDirty(false);
-            setStatus("ok");
+            if (revisao.current === revisaoSalva) setDirty(false);
+            setStatus(resultado.offline ? "offline" : "ok");
             return true;
         }
         catch (e) {
@@ -339,21 +501,38 @@ function useFireDoc(col, id, init) {
             return false;
         }
     };
-    const update = p => { setData(d => ({ ...d, ...(typeof p === "function" ? p(d) : p) })); setDirty(true); };
+    const update = p => { revisao.current += 1; setData(d => ({ ...d, ...(typeof p === "function" ? p(d) : p) })); setDirty(true); };
     const updateAndSave = async (p) => {
-        const patch = typeof p === "function" ? p(data) : p;
-        const next = { ...data, ...patch };
-        setData(next);
-        setDirty(true);
-        return await save(next);
+        update(p);
+        return true;
     };
-    const clearLocal = (blank) => { setData(JSON.parse(JSON.stringify(blank || init))); setDirty(false); setErro(null); setStatus("ok"); };
+    useEffect(() => {
+        if (!dirty) return;
+        const timer = setTimeout(() => { save(data); }, 900);
+        return () => clearTimeout(timer);
+    }, [dirty, JSON.stringify(data), col, id]);
+    useEffect(() => {
+        const aoOnline = () => { if (status === "offline") setStatus("load"); processarFilaOffline().then(() => reload()); };
+        window.addEventListener("online", aoOnline);
+        return () => window.removeEventListener("online", aoOnline);
+    }, [status, reload]);
+    const clearLocal = (blank) => { revisao.current += 1; setData(JSON.parse(JSON.stringify(blank || init))); setDirty(false); setErro(null); setStatus(navigator.onLine ? "ok" : "offline"); };
     return { data, update, updateAndSave, status, save, reload, deleteDoc, clearLocal, dirty, erro };
 }
 /* Shared UI */
-function Status({ status, dirty, erro }) { return React.createElement("div", { className: "status" },
-    React.createElement("span", { className: "sdot " + (status === "ok" ? "ok" : status === "load" ? "load" : "err") }),
-    status === "load" ? "Sincronizando…" : status === "err" ? ((erro === null || erro === void 0 ? void 0 : erro.titulo) || "Erro técnico") : dirty ? "Não salvo" : "Tudo salvo"); }
+function Status({ status, dirty, erro }) {
+    const [online, setOnline] = useState(() => typeof navigator === "undefined" ? true : navigator.onLine);
+    const [pendentes, setPendentes] = useState(() => lerFilaOffline().length);
+    useEffect(() => {
+        const on = () => setOnline(true), off = () => setOnline(false), fila = e => setPendentes((e.detail && e.detail.pendentes) || 0);
+        window.addEventListener("online", on); window.addEventListener("offline", off); window.addEventListener(FINI_EVENTO_FILA, fila);
+        return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); window.removeEventListener(FINI_EVENTO_FILA, fila); };
+    }, []);
+    const offline = !online || status === "offline";
+    const texto = offline ? `Sem internet · ${pendentes || 1} alteração(ões) aguardando envio` : status === "load" ? "Sincronizando…" : status === "err" ? ((erro === null || erro === void 0 ? void 0 : erro.titulo) || "Erro técnico") : dirty ? "Salvando automaticamente…" : "Tudo salvo";
+    return React.createElement("div", { className: "status" },
+        React.createElement("span", { className: "sdot " + (offline ? "offline" : status === "ok" ? "ok" : status === "load" ? "load" : "err") }), texto);
+}
 function MonthNav({ ano, mes, setAno, setMes, dirty }) { const mv = d => { if (dirty && !confirm("Alterações não salvas. Continuar?"))
     return; let m = mes + d, a = ano; if (m < 0) {
     m = 11;
@@ -511,7 +690,7 @@ function ModalFuncCon({ funcs, onSave, onClose }) {
                 React.createElement("button", { className: "btn primary", onClick: () => onSave(lista) }, "\uD83D\uDCBE Salvar"))));
 }
 /* ══ ESCALA: Componentes ══ */
-const listaFuncionarias = arr => (arr || []).map((f, i) => typeof f === "string" ? { id: String(101 + i), nome: f, cor: CORES[i % CORES.length], jornada: "7:20h", regime: "6x1" } : { id: String(f.id || f.codigo || f.pin || String(101 + i)), nome: f.nome || "", cor: f.cor || CORES[i % CORES.length], jornada: f.jornada || "7:20h", regime: f.regime || "6x1" }).filter(f => f.nome.trim());
+const listaFuncionarias = arr => (arr || []).map((f, i) => typeof f === "string" ? { id: String(101 + i), nome: f, cor: CORES[i % CORES.length], jornada: "7:20h", regime: "6x1" } : { id: String(f.id || f.codigo || f.pin || String(101 + i)), nome: f.nome || "", cor: f.cor || CORES[i % CORES.length], hora: f.hora || "09:40", jornada: "7:20h", regime: "6x1" }).filter(f => f.nome.trim());
 const corFunc = (funcs, nome) => { var _a; return ((_a = funcs.find(f => f.nome === nome)) === null || _a === void 0 ? void 0 : _a.cor) || "#d8c1ca"; };
 const horariosPadrao = especial => especial ? H_DOM_FER : H_SEMANA;
 const escalaBase = (especial, funcs) => ({ folga: "", slots: horariosPadrao(especial).map(h => ({ hora: h, nome: "" })) });
@@ -529,7 +708,7 @@ function normalizarEscalaDia(raw, especial, funcs) {
         folga = raw.folga || raw.folgaNome || "";
         slots = Array.isArray(raw.slots) ? raw.slots.map(s => ({ hora: s.hora || "", nome: s.nome || "" })) : [];
     }
-    slots = base.slots.map((def, i) => { var _a, _b, _c; return ({ hora: ((_a = slots[i]) === null || _a === void 0 ? void 0 : _a.hora) || def.hora, nome: (_c = (_b = slots[i]) === null || _b === void 0 ? void 0 : _b.nome) !== null && _c !== void 0 ? _c : def.nome }); });
+    slots = base.slots.map((def, i) => { var _a, _b; return ({ hora: def.hora, nome: (_b = (_a = slots[i]) === null || _a === void 0 ? void 0 : _a.nome) !== null && _b !== void 0 ? _b : def.nome }); });
     return { folga, slots };
 }
 function conflitosEscalaDia(esc) {
@@ -553,7 +732,7 @@ function EscalaSlot({ slot, idx, funcs, onChange, alerta }) {
             ? React.createElement("input", { className: "ce-hora-inp", value: tmpH, onChange: e => setTmpH(e.target.value), onBlur: commit, onKeyDown: e => { if (e.key === "Enter")
                     commit(); if (e.key === "Escape")
                     setEditH(false); }, autoFocus: true })
-            : React.createElement("span", { className: "ce-hora", onClick: () => { setTmpH(slot.hora); setEditH(true); }, title: "Clique para editar o hor\u00E1rio" }, slot.hora || "aberto"),
+            : React.createElement("span", { className: "ce-hora", title: "Hor\u00E1rio de entrada fixo" }, slot.hora || "aberto"),
         React.createElement("select", { className: "ce-select", value: slot.nome || "", onChange: e => onChange({ ...slot, nome: e.target.value }), title: "Escolher funcion\u00E1ria do hor\u00E1rio" },
             React.createElement("option", { value: "" }, "Escolher\u2026"),
             funcs.map(f => React.createElement("option", { key: f.nome, value: f.nome }, f.nome))),
@@ -964,6 +1143,28 @@ function Caixa() {
     const diaInicial = (ano === hjD.getFullYear() && mes === hjD.getMonth()) ? pad(hjD.getDate()) : "01";
     const [diaTroco, setDiaTroco] = useState(diaInicial);
     const doc = useFireDoc("fini_caixa", keyMes(ano, mes), { dias: {}, inicialMes: "" });
+    const caixaDraftKey = `fini_rascunho:caixa:${keyMes(ano, mes)}`;
+    const caixaRestaurado = useRef("");
+    useEffect(() => {
+        if (doc.status !== "ok" || caixaRestaurado.current === caixaDraftKey)
+            return;
+        caixaRestaurado.current = caixaDraftKey;
+        try {
+            const local = localStorage.getItem(caixaDraftKey);
+            if (local)
+                doc.update(JSON.parse(local));
+        }
+        catch (e) { console.warn("Rascunho do caixa não pôde ser restaurado", e); }
+    }, [doc.status, caixaDraftKey]);
+    useEffect(() => {
+        if (!doc.dirty)
+            return;
+        try { localStorage.setItem(caixaDraftKey, JSON.stringify(doc.data)); }
+        catch (e) { console.warn("Rascunho do caixa não pôde ser salvo", e); }
+    }, [JSON.stringify(doc.data), doc.dirty, caixaDraftKey]);
+    useEffect(() => {
+        if (!doc.dirty && doc.status === "ok") localStorage.removeItem(caixaDraftKey);
+    }, [doc.dirty, doc.status, caixaDraftKey]);
     const nd = diMes(ano, mes), dias = doc.data.dias || {};
     useEffect(() => { const max = diMes(ano, mes); if (Number(diaTroco) > max)
         setDiaTroco(pad(max)); }, [ano, mes]);
@@ -994,7 +1195,7 @@ function Caixa() {
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Inicial do m\u00EAs"),
                     React.createElement("input", { className: "inp num", type: "number", step: "0.01", style: { width: 115 }, value: (_a = doc.data.inicialMes) !== null && _a !== void 0 ? _a : "", placeholder: "0,00", onChange: e => doc.update({ inicialMes: e.target.value }) })),
-                React.createElement("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "\uD83D\uDCBE Salvar m\u00EAs"))),
+                React.createElement("span", { className: "save-note " + (doc.status === "err" ? "err" : doc.dirty || doc.status === "load" ? "" : "ok") }, doc.status === "load" ? "Salvando automaticamente…" : doc.dirty ? "Alteração protegida neste aparelho" : "Salvo automaticamente"))),
         React.createElement("div", { className: "totbar" },
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Entradas"),
@@ -1165,18 +1366,54 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
     const [mes, setMes] = useState(hjD.getMonth());
     const [showM, setShowM] = useState(false);
     const doc = useFireDoc("fini_escala", keyMes(ano, mes), { dias: {}, anotacoes: "", feriados: {} });
+    const pontoHistorico = useFireDoc("fini_folha_ponto", keyMes(ano, mes), { funcionarias: {} });
     const cells = useMemo(() => gerarCels(ano, mes), [ano, mes]);
     const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
     const dias = doc.data.dias || {}, fer = doc.data.feriados || {};
-    const especial = (date, iso) => !!fer[iso];
-    const getEscala = (dd, date, iso) => normalizarEscalaDia(dias[dd], especial(date, iso), funcs);
+    const feriadosOficiais = useMemo(() => feriadosNacionais25(ano), [ano]);
+    const ehFeriado = iso => Boolean(feriadosOficiais[iso] || fer[iso]);
+    const nomeFeriado = iso => feriadosOficiais[iso] || (typeof fer[iso] === "string" ? fer[iso] : (fer[iso] ? "Feriado" : ""));
+    const especial = (date, iso) => date.getDay() === 0 || ehFeriado(iso);
+    const recuperarDoPonto = (dd, date, iso) => {
+        const esc = escalaBase(especial(date, iso), funcs), usados = new Set();
+        const dados = pontoHistorico.data.funcionarias || {};
+        funcs.forEach(f => {
+            const row = (((dados[f.nome] || {}).dias || {})[dd]) || {};
+            const tipo = normalizeTipoPonto(row.tipo);
+            if (isFolgaTipo(tipo)) {
+                if (!esc.folga) esc.folga = f.nome;
+                return;
+            }
+            if (!row.entrada) return;
+            const entrada = horaToMin(row.entrada);
+            const candidatos = esc.slots.map((s, idx) => ({ idx, dist: Math.abs((horaToMin(s.hora) || 0) - (entrada || 0)) }))
+                .filter(x => !usados.has(x.idx)).sort((a, b) => a.dist - b.dist || a.idx - b.idx);
+            const alvo = candidatos[0];
+            if (alvo) {
+                usados.add(alvo.idx);
+                esc.slots[alvo.idx] = { ...esc.slots[alvo.idx], nome: f.nome };
+            }
+        });
+        return esc;
+    };
+    const getEscala = (dd, date, iso) => {
+        const salvo = normalizarEscalaDia(dias[dd], especial(date, iso), funcs);
+        const temNomes = salvo.folga || salvo.slots.some(s => s.nome);
+        return temNomes ? salvo : recuperarDoPonto(dd, date, iso);
+    };
     const setDia = (dd, next) => doc.updateAndSave(d => ({ dias: { ...d.dias, [dd]: next } }));
     const updateFolga = (dd, date, iso, nome) => setDia(dd, { ...getEscala(dd, date, iso), folga: nome });
     const updateSlot = (dd, date, iso, idx, slot) => { const base = getEscala(dd, date, iso); const slots = [...base.slots]; slots[idx] = slot; setDia(dd, { ...base, slots }); };
-    const toggleFer = iso => doc.updateAndSave(d => { const n = { ...d.feriados }; if (n[iso])
+    const toggleFer = iso => {
+        if (feriadosOficiais[iso]) {
+            alert(`${feriadosOficiais[iso]} é feriado nacional oficial e permanece no calendário.`);
+            return;
+        }
+        doc.updateAndSave(d => { const n = { ...d.feriados }; if (n[iso])
         delete n[iso];
     else
-        n[iso] = true; return { feriados: n }; });
+        n[iso] = "Feriado"; return { feriados: n }; });
+    };
     const limparNomesTodosMeses = async () => {
         if (!confirm("Apagar os nomes/folgas salvos dentro dos dias de TODOS os meses da escala? Os horários, feriados e anotações serão mantidos."))
             return;
@@ -1185,6 +1422,8 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
             const batch = db.batch();
             snap.docs.forEach(docSnap => {
                 const data = docSnap.data() || {};
+                const backupRef = db.collection("fini_backups_escala").doc();
+                batch.set(backupRef, { documentoOrigem: docSnap.id, acao: "LIMPAR_NOMES_TODOS_MESES", criadoEm: new Date().toISOString(), snapshot: copiaSegura(data), versao: FINI_BUILD });
                 const diasOrig = data.dias || {};
                 const diasLimpos = {};
                 Object.entries(diasOrig).forEach(([dd, raw]) => {
@@ -1201,15 +1440,16 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                 batch.set(docSnap.ref, { dias: diasLimpos, atualizadoEm: new Date().toISOString() }, { merge: true });
             });
             await batch.commit();
+            await registrarAuditoria("fini_escala", "TODOS_OS_MESES", { quantidadeMeses: snap.size }, "ADMIN", "LIMPAR_NOMES_COM_BACKUP");
             await doc.reload();
-            alert("Nomes apagados dos dias em todos os meses da escala. Horários e feriados foram mantidos.");
+            alert("Backup concluído. Os nomes foram apagados dos dias em todos os meses; horários, feriados e anotações foram mantidos.");
         }
         catch (e) {
             console.error(e);
             alert("Não foi possível limpar todos os meses. Verifique a conexão e as permissões do Firebase.");
         }
     };
-    const sugerirEscalaMes = () => {
+    const sugerirEscalaMes = async () => {
         const funcsAtivas = funcs.filter(f => f && f.nome);
         if (!funcsAtivas.length) {
             alert("Cadastre funcionárias antes de sugerir escala.");
@@ -1217,35 +1457,50 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
         }
         if (!confirm("Gerar uma sugestão automática para este mês? Isso vai substituir os dias da escala deste mês. Revise antes de usar como escala final."))
             return;
-        const nd = diMes(ano, mes);
-        const novoDias = {};
-        let domingoIndex = 0;
+        const nd = diMes(ano, mes), novoDias = {}, folgasPorDia = {}, domingosUsados = new Set();
+        const semanas = new Map();
         for (let i = 1; i <= nd; i++) {
-            const dd = pad(i);
             const dt = new Date(ano, mes, i);
-            const iso = isoDia(ano, mes, i);
-            const ehFeriado = !!fer[iso];
-            const horas = horariosPadrao(ehFeriado);
-            // Domingo agora segue a escala normal 6x1; a folga de domingo é apenas uma sugestão rotativa.
-            let folgaIdx = (i - 1) % funcsAtivas.length;
-            if (dt.getDay() === 0) {
-                folgaIdx = domingoIndex % funcsAtivas.length;
-                domingoIndex++;
-            }
-            const folga = funcsAtivas[folgaIdx]?.nome || "";
-            const disponiveis = funcsAtivas.filter(f => f.nome !== folga);
-            let ptr = i % Math.max(1, disponiveis.length);
-            const slots = horas.map(h => {
-                if (!h || !disponiveis.length)
-                    return { hora: h, nome: "" };
-                const nome = disponiveis[ptr % disponiveis.length]?.nome || "";
-                ptr++;
-                return { hora: h, nome };
+            const segundaIndex = (dt.getDay() + 6) % 7;
+            const inicio = new Date(ano, mes, i - segundaIndex);
+            const chave = isoDia(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+            if (!semanas.has(chave)) semanas.set(chave, []);
+            semanas.get(chave).push(i);
+        }
+        [...semanas.values()].forEach((diasSemana, semanaIdx) => {
+            const usados = new Set();
+            const domingo = diasSemana.find(d => new Date(ano, mes, d).getDay() === 0);
+            funcsAtivas.forEach((f, fi) => {
+                let escolhido = null;
+                if (domingo && !domingosUsados.has(f.nome) && fi === (semanaIdx % funcsAtivas.length)) {
+                    escolhido = domingo;
+                    domingosUsados.add(f.nome);
+                }
+                if (!escolhido) {
+                    const preferencia = diasSemana[(fi * 2 + semanaIdx) % diasSemana.length];
+                    escolhido = [preferencia, ...diasSemana].find(d => !usados.has(d) && d !== domingo) ||
+                        diasSemana.find(d => !usados.has(d)) || null;
+                }
+                if (escolhido) {
+                    usados.add(escolhido);
+                    folgasPorDia[escolhido] = f.nome;
+                }
             });
+        });
+        for (let i = 1; i <= nd; i++) {
+            const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i);
+            const horas = horariosPadrao(dt.getDay() === 0 || ehFeriado(iso));
+            const folga = folgasPorDia[i] || "";
+            const disponiveis = funcsAtivas.filter(f => f.nome !== folga);
+            const ordem = disponiveis.map((_, idx) => disponiveis[(idx + i + mes) % disponiveis.length]);
+            const indices = ordem.length === 2 && horas.length === 3 ? [0, 2] : horas.map((_, idx) => idx);
+            const slots = horas.map(h => ({ hora: h, nome: "" }));
+            ordem.slice(0, indices.length).forEach((f, idx) => { slots[indices[idx]].nome = f.nome; });
             novoDias[dd] = { folga, slots };
         }
-        doc.updateAndSave({ dias: novoDias, atualizadoEm: new Date().toISOString() });
-        alert("Sugestão de escala gerada e salva com nomes. Revise folgas, domingos e feriados antes de usar como escala final.");
+        const backup = await criarBackupEscala(keyMes(ano, mes), doc.data, "SUBSTITUIR_POR_SUGESTAO_6X1");
+        const salvo = await doc.updateAndSave({ dias: novoDias, atualizadoEm: new Date().toISOString() });
+        if (salvo) alert(`${backup.offline ? "Backup protegido para envio. " : "Backup concluído. "}Sugestão 6x1 gerada com uma folga por funcionária em cada semana visível e no máximo um domingo por funcionária no mês. Revise antes de usar como escala final.`);
     };
     const resumo = useMemo(() => {
         const nd = diMes(ano, mes);
@@ -1253,7 +1508,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
             let trab = 0, turnos = 0, dom = 0, fer_ = 0, folgas = 0, alertas = 0;
             for (let i = 1; i <= nd; i++) {
                 const date = new Date(ano, mes, i), dd = pad(i), iso = isoDia(ano, mes, i);
-                const esc = normalizarEscalaDia(dias[dd], especial(date, iso), funcs);
+                const esc = getEscala(dd, date, iso);
                 const nomesTrab = esc.slots.map(s => s.nome).filter(Boolean);
                 const diaTrab = nomesTrab.includes(f.nome);
                 const qtTurnos = nomesTrab.filter(n => n === f.nome).length;
@@ -1263,7 +1518,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                     turnos += qtTurnos;
                     if (date.getDay() === 0)
                         dom++;
-                    if (fer[iso])
+                    if (ehFeriado(iso))
                         fer_++;
                 }
                 if (esc.folga === f.nome)
@@ -1273,21 +1528,21 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
             }
             return { nome: f.nome, cor: f.cor, trab, turnos, dom, fer: fer_, folgas, alertas };
         });
-    }, [ano, mes, dias, fer, funcs]);
+    }, [ano, mes, dias, fer, funcs, feriadosOficiais, JSON.stringify(pontoHistorico.data.funcionarias || {})]);
     const totalAlertas = useMemo(() => {
         let t = 0;
         for (let i = 1; i <= diMes(ano, mes); i++) {
             const date = new Date(ano, mes, i), dd = pad(i), iso = isoDia(ano, mes, i);
-            if (conflitosEscalaDia(normalizarEscalaDia(dias[dd], especial(date, iso), funcs)).length)
+            if (conflitosEscalaDia(getEscala(dd, date, iso)).length)
                 t++;
         }
         return t;
-    }, [ano, mes, dias, fer, funcs]);
+    }, [ano, mes, dias, fer, funcs, JSON.stringify(pontoHistorico.data.funcionarias || {})]);
     return React.createElement(React.Fragment, null,
         React.createElement("div", { className: "htop" },
             React.createElement("div", null,
                 React.createElement("h1", null, "Escala de Trabalho"),
-                React.createElement("div", { className: "hsub" }, "Folga em primeiro lugar \u00B7 hor\u00E1rios edit\u00E1veis \u00B7 escolha da funcion\u00E1ria por hor\u00E1rio \u00B7 brancos permitidos")),
+                React.createElement("div", { className: "hsub" }, "Calend\u00E1rio mensal \u00B7 folga e hor\u00E1rios de entrada vis\u00EDveis por dia")),
             React.createElement(Status, { ...doc })),
         React.createElement(ErrBox, { ...doc }),
         React.createElement("div", { className: "toolbar" },
@@ -1296,7 +1551,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                 React.createElement("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "\u2699\uFE0F Funcion\u00E1rias"),
                 React.createElement("button", { className: "btn ghost sm", onClick: limparNomesTodosMeses }, "\uD83E\uDDF9 Limpar nomes salvos"),
                 React.createElement("button", { className: "btn ghost sm", onClick: sugerirEscalaMes }, "\u2728 Sugerir escala do m\u00EAs"),
-                React.createElement("button", { className: "btn ghost sm", onClick: () => window.print() }, "\uD83D\uDDA8 Imprimir"),
+                React.createElement("button", { className: "btn ghost sm", onClick: () => imprimir25("escala") }, "\uD83D\uDDA8 Imprimir escala"),
                 React.createElement("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "\uD83D\uDCBE Salvar m\u00EAs"))),
         React.createElement("div", { className: "totbar" },
             React.createElement("div", { className: "tt" },
@@ -1306,7 +1561,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                 React.createElement("span", null, "Modelo dias de semana"),
                 React.createElement("b", null, H_SEMANA.join(" · "))),
             React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Modelo feriado"),
+                React.createElement("span", null, "Modelo domingo / feriado"),
                 React.createElement("b", null, H_DOM_FER.map(h => h || "aberto").join(" · "))),
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Alertas no m\u00EAs"),
@@ -1317,7 +1572,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                 if (!c.dentro)
                     return React.createElement("div", { className: "ecell out", key: idx });
                 const dd = pad(c.date.getDate());
-                const isFer = fer[c.iso];
+                const isFer = ehFeriado(c.iso);
                 const esc = getEscala(dd, c.date, c.iso);
                 const avisos = conflitosEscalaDia(esc);
                 const folgaAlerta = esc.folga && esc.slots.some(s => s.nome === esc.folga) ? `${esc.folga} também está escalada em horário` : null;
@@ -1334,13 +1589,13 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                         React.createElement("span", null, c.date.getDate()),
                         React.createElement("span", { className: "ebadges" },
                             avisos.length > 0 && React.createElement("span", { className: "badge warn" }, "ajustar"),
-                            React.createElement("span", { className: "badge" + (isFer ? "" : " off"), onClick: () => toggleFer(c.iso) }, isFer ? "feriado" : "?"))),
+                            React.createElement("span", { className: "badge" + (isFer ? "" : " off"), onClick: () => toggleFer(c.iso), title: isFer ? nomeFeriado(c.iso) : "Marcar feriado local" }, isFer ? "feriado" : "?"))),
                     React.createElement("div", { className: "ce-rows" },
                         React.createElement(EscalaFolgaRow, { nome: esc.folga, funcs: funcs, onChange: nome => updateFolga(dd, c.date, c.iso, nome), alerta: folgaAlerta }),
                         esc.slots.map((s, i) => React.createElement(EscalaSlot, { key: i, slot: s, idx: i, funcs: funcs, alerta: slotAlert(s), onChange: slot => updateSlot(dd, c.date, c.iso, i, slot) }))),
                     especial(c.date, c.iso) && React.createElement("div", { className: "es-mini" },
-                        React.createElement("b", null, "Feriado:"),
-                        " horários especiais")));
+                        React.createElement("b", null, isFer ? `${nomeFeriado(c.iso)}:` : "Domingo:"),
+                        " entradas 11h e 13h")));
             })),
         React.createElement("div", { style: { margin: "16px 0 14px" } },
             React.createElement("div", { style: { fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 16, marginBottom: 10, color: "var(--ink)" } },
@@ -1372,6 +1627,33 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
             React.createElement("div", { className: "tt", style: { flex: 1 } },
                 React.createElement("span", null, "Anota\u00E7\u00F5es do m\u00EAs"),
                 React.createElement("textarea", { className: "inp", style: { width: "100%", minHeight: 52, resize: "vertical", marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Folgas extras, trocas, avisos gerais\u2026", onChange: e => doc.update({ anotacoes: e.target.value }) }))),
+        React.createElement("section", { className: "print-area schedule-print" },
+            React.createElement("div", { className: "print-title" }, `Escala de Trabalho \u00B7 ${MESES[mes]} ${ano}`),
+            React.createElement("div", { className: "print-subtitle" }, "FINI Petr\u00F3polis \u00B7 jornada 6x1 \u00B7 7h20 trabalhadas + 1h de almo\u00E7o"),
+            React.createElement("table", null,
+                React.createElement("thead", null,
+                    React.createElement("tr", null,
+                        React.createElement("th", null, "Data"),
+                        React.createElement("th", null, "Dia / feriado"),
+                        React.createElement("th", null, "Folga"),
+                        React.createElement("th", null, "Abertura"),
+                        React.createElement("th", null, "Intermedi\u00E1rio"),
+                        React.createElement("th", null, "Fechamento"))),
+                React.createElement("tbody", null, Array.from({ length: diMes(ano, mes) }, (_, i) => i + 1).map(i => {
+                    const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i);
+                    const esc = getEscala(dd, dt, iso), feriadoNome = nomeFeriado(iso);
+                    const slotTxt = idx => {
+                        const slot = esc.slots[idx];
+                        return slot ? `${slot.hora}${slot.nome ? ` \u00B7 ${slot.nome}` : ""}` : "\u2014";
+                    };
+                    return React.createElement("tr", { key: dd, className: feriadoNome ? "holiday-print" : "" },
+                        React.createElement("td", null, `${dd}/${pad(mes + 1)}`),
+                        React.createElement("td", null, feriadoNome || WD[dt.getDay()]),
+                        React.createElement("td", { className: esc.folga ? "off-print" : "" }, esc.folga || "\u2014"),
+                        React.createElement("td", null, slotTxt(0)),
+                        React.createElement("td", null, slotTxt(1)),
+                        React.createElement("td", null, slotTxt(2)));
+                })))),
         React.createElement("div", { className: "foot" },
             "Salvo em ",
             React.createElement("b", null,
@@ -1409,7 +1691,7 @@ function horaToMin(v) {
     if (!s)
         return null;
     if (!s.includes(":"))
-        s = s + ":00";
+        s = normalizaHora25(s);
     const [h, m = "0"] = s.split(":");
     const hh = parseInt(h, 10), mm = parseInt(m, 10);
     if (isNaN(hh) || isNaN(mm))
@@ -1450,7 +1732,7 @@ function escalaSugeridaPonto(ano, mes, dd, func, tipo) {
     if (tp === "Folga" || tp === "Folga extra" || tp === "Atestado")
         return { entrada: "", saidaAlmoco: "", retornoAlmoco: "", saida: "", intervalo: "00:00", jornada: "00:00" };
     if (tp === "Feriado")
-        return { entrada: "11:00", saidaAlmoco: "14:00", retornoAlmoco: "14:20", saida: "17:20", intervalo: "00:20", jornada: "06:00" };
+        return { entrada: "11:00", saidaAlmoco: "14:00", retornoAlmoco: "15:00", saida: "19:20", intervalo: "01:00", jornada: "07:20" };
     const jorn = String((func === null || func === void 0 ? void 0 : func.jornada) || "7:20h");
     if (jorn === "7h")
         return { entrada: "09:40", saidaAlmoco: "13:00", retornoAlmoco: "14:00", saida: "17:40", intervalo: "01:00", jornada: "07:00" };
@@ -1494,11 +1776,10 @@ function calcPonto(row, ano, mes, dd, func) {
     }
     let banco = 0, extra = 0, devida = 0;
     if (tp === "Feriado") {
-        // Feriado compensado: crédito bruto = horas trabalhadas em dobro.
-        // Do crédito bruto, desconta-se a jornada padrão da funcionária (7h ou 7h20),
-        // porque a diferença do dia reduzido fica no banco de horas.
+        // Feriado trabalhado gera duas folgas compensatórias (2 x 7h20).
+        // A diferença entre o ponto real e a jornada padrão também permanece no banco.
         const previstaPadrao = jornadaMinFunc(func);
-        banco = (trabalhada * 2) - previstaPadrao + ajuste;
+        banco = trabalhada + previstaPadrao + ajuste;
         extra = Math.max(0, banco);
         devida = Math.max(0, -banco);
         return { ativa, prevista: previstaPadrao, trabalhada, intervalo, extra, devida, banco, credito: Math.max(0, banco), debito: Math.max(0, -banco) };
@@ -1515,6 +1796,18 @@ function agoraHHMM() { const d = new Date(); return pad(d.getHours()) + ":" + pa
 const CAMPOS_PONTO = ["entrada", "saidaAlmoco", "retornoAlmoco", "saida"];
 const ROTULOS_PONTO = { entrada: "Entrada", saidaAlmoco: "Saída almoço", retornoAlmoco: "Volta almoço", saida: "Saída" };
 const SENHA_ADMIN_PONTO = "2231";
+const INTERVALO_MINIMO_PONTO_MS = 2 * 60 * 1000;
+function bloqueioPontoRestante(row, id) {
+    const registros = (row && row.registrosPonto) || [];
+    const tempos = registros.map(r => new Date(r.registradoEm || 0).getTime()).filter(Number.isFinite);
+    try {
+        const local = Number(localStorage.getItem(`fini_ultimo_ponto:${id}`) || 0);
+        if (local) tempos.push(local);
+    }
+    catch (e) { }
+    const ultimo = tempos.length ? Math.max(...tempos) : 0;
+    return Math.max(0, INTERVALO_MINIMO_PONTO_MS - (Date.now() - ultimo));
+}
 function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
     const [ano, setAno] = useState(hjD.getFullYear());
     const [mes, setMes] = useState(hjD.getMonth());
@@ -1524,6 +1817,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
     const [pontoMsg, setPontoMsg] = useState("");
     const [adminPin, setAdminPin] = useState("");
     const [adminOn, setAdminOn] = useState(false);
+    const [confirmacao, setConfirmacao] = useState(null);
     const doc = useFireDoc("fini_folha_ponto", keyMes(ano, mes), { funcionarias: {}, anotacoes: "", status: "Aberto" });
     const escalaDoc = useFireDoc("fini_escala", keyMes(ano, mes), { dias: {}, anotacoes: "", feriados: {} });
     const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
@@ -1541,8 +1835,8 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
     const tipoAutoEscala = (dd, func = funcAtual) => {
         const dt = new Date(ano, mes, Number(dd));
         const iso = isoDia(ano, mes, Number(dd));
-        const ehFeriado = !!ferEscala[iso];
-        const esc = normalizarEscalaDia(diasEscala[dd], ehFeriado, funcs);
+        const ehFeriado = Boolean(ferEscala[iso] || feriadosNacionais25(ano)[iso]);
+        const esc = normalizarEscalaDia(diasEscala[dd], dt.getDay() === 0 || ehFeriado, funcs);
         if (ehFeriado)
             return "Feriado";
         return esc.folga && esc.folga === func.nome ? "Folga" : "";
@@ -1675,15 +1969,20 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         }
         const dd = pad(hoje.getDate());
         let baseDoc = doc.data;
-        try {
-            const snap = await db.collection("fini_folha_ponto").doc(keyMes(ano, mes)).get();
-            if (snap.exists)
-                baseDoc = { ...baseDoc, ...snap.data() };
+        if (navigator.onLine) {
+            try {
+                const snap = await db.collection("fini_folha_ponto").doc(keyMes(ano, mes)).get();
+                if (snap.exists)
+                    baseDoc = { ...baseDoc, ...snap.data() };
+            }
+            catch (e) {
+                if (!erroDeRede(e)) {
+                    setPontoMsg("Não consegui conferir o ponto atual no Firebase. Tente novamente.");
+                    return;
+                }
+            }
         }
-        catch (e) {
-            setPontoMsg("Não consegui conferir o ponto atual no Firebase. Tente novamente.");
-            return;
-        }
+        else setPontoMsg("Sem internet: usando os últimos dados disponíveis neste aparelho para a conferência.");
         const all = baseDoc.funcionarias || {};
         const fd = all[f.nome] || { saldoInicial: "", dias: {} };
         const raw = ((_a = fd.dias) === null || _a === void 0 ? void 0 : _a[dd]) || {};
@@ -1694,26 +1993,67 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
             setPontoMsg(`Hoje está marcado como ${row.tipo} para ${f.nome}. Remova o tipo antes de registrar ponto.`);
             return;
         }
+        const bloqueio = bloqueioPontoRestante(row, f.id);
+        if (bloqueio > 0) {
+            setPontoMsg(`Aguarde ${Math.ceil(bloqueio / 1000)} segundos para registrar outro ponto de ${f.nome}. Proteção contra duplicidade ativada.`);
+            return;
+        }
         const campo = CAMPOS_PONTO.find(c => !row[c]);
         if (!campo) {
             setPontoMsg(`${f.nome} já tem os 4 registros do dia. Use o botão limpar dia se precisar refazer.`);
             return;
         }
         const hora = agoraHHMM();
-        if (!confirm(`Confirmar ponto?\n\nFuncionária: ${f.nome}\nRegistro: ${ROTULOS_PONTO[campo]}\nHorário do computador: ${hora}\n\nClique em OK para gravar.`)) {
-            setPontoMsg("Registro cancelado. Nenhum horário foi gravado.");
+        setConfirmacao({ f, dd, campo, hora });
+        setPontoMsg("Confira o tipo de registro e o horário antes de confirmar.");
+    };
+    const confirmarPonto = async () => {
+        if (!confirmacao)
             return;
-        }
-        const novoRegistro = { campo, hora, registradoEm: new Date().toISOString(), id: f.id, nome: f.nome, origem: "ID_FUNCIONARIA" };
-        row = { ...row, [campo]: hora, registrosPonto: [...(row.registrosPonto || []), novoRegistro] };
-        const novoDoc = { funcionarias: { [f.nome]: { ...fd, dias: { ...(fd.dias || {}), [dd]: row } } }, atualizadoEm: new Date().toISOString() };
-        setPontoMsg("Salvando registro no Firebase...");
+        const { f, dd, campo, hora } = confirmacao;
+        setPontoMsg("Conferindo e salvando registro no Firebase...");
         try {
-            await db.collection("fini_folha_ponto").doc(keyMes(ano, mes)).set(novoDoc, { merge: true });
-            await doc.reload();
+            let baseDoc = doc.data || { funcionarias: {} };
+            if (navigator.onLine) {
+                try {
+                    const snap = await db.collection("fini_folha_ponto").doc(keyMes(ano, mes)).get();
+                    if (snap.exists) baseDoc = snap.data();
+                }
+                catch (e) {
+                    if (!erroDeRede(e)) throw e;
+                }
+            }
+            const all = baseDoc.funcionarias || {};
+            const fd = all[f.nome] || { saldoInicial: "", dias: {} };
+            const raw = (fd.dias || {})[dd] || {};
+            const autoEscala = tipoAutoEscala(dd, f);
+            const autoTipo = (!raw.tipoManual && autoEscala) ? autoEscala : (devePuxarTipoEscala(raw) ? autoEscala : "");
+            let row = { ...defaultPontoRow(ano, mes, dd, f), ...raw, tipo: normalizeTipoPonto(raw.tipo) || autoTipo };
+            const bloqueio = bloqueioPontoRestante(row, f.id);
+            if (bloqueio > 0) {
+                setConfirmacao(null);
+                setPontoMsg(`Registro cancelado para evitar duplicidade. Aguarde ${Math.ceil(bloqueio / 1000)} segundos.`);
+                return;
+            }
+            const proximoCampo = CAMPOS_PONTO.find(c => !row[c]);
+            if (proximoCampo !== campo) {
+                setConfirmacao(null);
+                setPontoMsg(proximoCampo ? `O ponto mudou enquanto a confirmação estava aberta. O próximo registro agora é ${ROTULOS_PONTO[proximoCampo]}. Confira novamente.` : `${f.nome} já tem os 4 registros do dia.`);
+                await doc.reload();
+                return;
+            }
+            const novoRegistro = { campo, hora, registradoEm: new Date().toISOString(), id: f.id, nome: f.nome, origem: "ID_FUNCIONARIA_CONFIRMADO" };
+            row = { ...row, [campo]: hora, registrosPonto: [...(row.registrosPonto || []), novoRegistro] };
+            const novoDoc = { funcionarias: { [f.nome]: { ...fd, dias: { ...(fd.dias || {}), [dd]: row } } }, atualizadoEm: new Date().toISOString() };
+            const resultado = await salvarDocumentoSeguro("fini_folha_ponto", keyMes(ano, mes), novoDoc, `PONTO_ID_${f.id}_${f.nome}`);
+            try { localStorage.setItem(`fini_ultimo_ponto:${f.id}`, String(Date.now())); }
+            catch (e) { }
+            if (resultado.offline) doc.update(d => mesclarProfundo(d, novoDoc));
+            else await doc.reload();
             setFuncNome(f.nome);
             setPontoId("");
-            setPontoMsg(`✅ ${ROTULOS_PONTO[campo]} registrada e salva para ${f.nome} às ${hora}.`);
+            setConfirmacao(null);
+            setPontoMsg(resultado.offline ? `✅ ${ROTULOS_PONTO[campo]} protegida neste aparelho para ${f.nome} às ${hora}. Será enviada quando a internet voltar.` : `✅ ${ROTULOS_PONTO[campo]} registrada e salva para ${f.nome} às ${hora}.`);
         }
         catch (e) {
             console.error("Erro ao registrar ponto", e);
@@ -1726,7 +2066,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         React.createElement("div", { className: "htop" },
             React.createElement("div", null,
                 React.createElement("h1", null, "Folha de Ponto"),
-                React.createElement("div", { className: "hsub" }, "Registro por ID \u00B7 tipo e observações liberados \u00B7 horários bloqueados para ponto real")),
+                React.createElement("div", { className: "hsub" }, "Registro por ID com confirma\u00E7\u00E3o \u00B7 situa\u00E7\u00E3o vinculada \u00E0 escala \u00B7 hor\u00E1rios manuais protegidos por senha")),
             React.createElement(Status, { ...doc })),
         React.createElement(ErrBox, { ...doc }),
         React.createElement("div", { className: "toolbar" },
@@ -1736,7 +2076,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                     React.createElement("label", null, "Funcion\u00E1ria"),
                     React.createElement("div", { className: "func-chips" }, nomes.map(n => React.createElement("button", { key: n, type: "button", className: "func-chip" + (funcNome === n ? " on" : ""), onClick: () => setFuncNome(n) }, n)))),
                 React.createElement("button", { className: "btn ghost sm", onClick: () => adminOn ? setShowM(true) : exigirAdmin(), title: "Precisa da senha administrativa" }, "\u2699\uFE0F Funcion\u00E1rias"),
-                React.createElement("button", { className: "btn ghost sm", onClick: () => window.print() }, "\uD83D\uDDA8 Imprimir"),
+                React.createElement("button", { className: "btn ghost sm", onClick: () => imprimir25("ponto") }, "\uD83D\uDDA8 Imprimir folha"),
                 React.createElement("button", { className: "btn primary", onClick: salvar, disabled: !adminOn || !doc.dirty || doc.status === "load", title: !adminOn ? "Libere a edição administrativa para salvar ajustes manuais" : "Salvar mês" }, "\uD83D\uDCBE Salvar m\u00EAs"))),
         React.createElement("div", { style: { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 16, padding: "14px 16px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", boxShadow: "var(--shadow)" } },
             React.createElement("div", { className: "field" },
@@ -1810,17 +2150,17 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                             React.createElement("div", { className: "pmini" }, WD[dt.getDay()])),
                         React.createElement("td", { className: "ptype" },
                             React.createElement("select", { value: row.tipo || "", onChange: e => setDia(dd, "tipo", e.target.value) },
-                                React.createElement("option", { value: "" }, "Normal"),
+                                React.createElement("option", { value: "" }, "Trabalho"),
                                 opcoesTipoPonto().map(t => React.createElement("option", { key: t }, t))),
                             row.tipoAutoEscala && React.createElement("div", { className: "pmini" }, "Puxado da escala")),
                         React.createElement("td", null,
-                            React.createElement("input", { className: "pinput-mini", value: row.entrada || "", placeholder: sug.entrada || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "entrada", e.target.value), title: adminOn ? "Edição manual liberada" : "Registro automático por ID" })),
+                            React.createElement("input", { className: "pinput-mini", inputMode: "numeric", value: row.entrada || "", placeholder: sug.entrada || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "entrada", e.target.value), onBlur: e => adminOn && setDia(dd, "entrada", normalizaHora25(e.target.value)), title: adminOn ? "Edi\u00E7\u00E3o manual liberada; pode digitar 0940" : "Registro autom\u00E1tico por ID" })),
                         React.createElement("td", null,
-                            React.createElement("input", { className: "pinput-mini", value: row.saidaAlmoco || "", placeholder: sug.saidaAlmoco || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "saidaAlmoco", e.target.value), title: adminOn ? "Edição manual liberada" : "Registro automático por ID" })),
+                            React.createElement("input", { className: "pinput-mini", inputMode: "numeric", value: row.saidaAlmoco || "", placeholder: sug.saidaAlmoco || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "saidaAlmoco", e.target.value), onBlur: e => adminOn && setDia(dd, "saidaAlmoco", normalizaHora25(e.target.value)), title: adminOn ? "Edi\u00E7\u00E3o manual liberada; pode digitar 1300" : "Registro autom\u00E1tico por ID" })),
                         React.createElement("td", null,
-                            React.createElement("input", { className: "pinput-mini", value: row.retornoAlmoco || "", placeholder: sug.retornoAlmoco || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "retornoAlmoco", e.target.value), title: adminOn ? "Edição manual liberada" : "Registro automático por ID" })),
+                            React.createElement("input", { className: "pinput-mini", inputMode: "numeric", value: row.retornoAlmoco || "", placeholder: sug.retornoAlmoco || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "retornoAlmoco", e.target.value), onBlur: e => adminOn && setDia(dd, "retornoAlmoco", normalizaHora25(e.target.value)), title: adminOn ? "Edi\u00E7\u00E3o manual liberada; pode digitar 1400" : "Registro autom\u00E1tico por ID" })),
                         React.createElement("td", null,
-                            React.createElement("input", { className: "pinput-mini", value: row.saida || "", placeholder: sug.saida || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "saida", e.target.value), title: adminOn ? "Edição manual liberada" : "Registro automático por ID" })),
+                            React.createElement("input", { className: "pinput-mini", inputMode: "numeric", value: row.saida || "", placeholder: sug.saida || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "saida", e.target.value), onBlur: e => adminOn && setDia(dd, "saida", normalizaHora25(e.target.value)), title: adminOn ? "Edi\u00E7\u00E3o manual liberada; pode digitar 1800" : "Registro autom\u00E1tico por ID" })),
                         React.createElement("td", null,
                             React.createElement("input", { className: "pinput-mini", value: row.intervalo || "", placeholder: "00:00", disabled: !adminOn, onChange: e => setDia(dd, "intervalo", e.target.value) })),
                         React.createElement("td", { className: "num" },
@@ -1847,18 +2187,460 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                     React.createElement("option", null, "Conferido"),
                     React.createElement("option", null, "Fechado"),
                     React.createElement("option", null, "Compensado/Pago")))),
+        React.createElement("section", { className: "print-area point-print" },
+            React.createElement("div", { className: "print-title" }, `Folha de Ponto \u00B7 ${funcAtual.nome}`),
+            React.createElement("div", { className: "print-subtitle" }, `FINI Petr\u00F3polis \u00B7 ${MESES[mes]} ${ano} \u00B7 6x1 \u00B7 7h20 + 1h de almo\u00E7o`),
+            React.createElement("table", null,
+                React.createElement("thead", null,
+                    React.createElement("tr", null, ["Data", "Situa\u00E7\u00E3o", "Entrada", "Almo\u00E7o", "Retorno", "Sa\u00EDda", "Trab.", "Banco", "Observa\u00E7\u00E3o"].map(t => React.createElement("th", { key: t }, t)))),
+                React.createElement("tbody", null, Array.from({ length: nd }, (_, i) => i + 1).map(i => {
+                    const dd = pad(i), dt = new Date(ano, mes, i), row = getRow(dd), calc = calcPonto(row, ano, mes, dd, funcAtual);
+                    return React.createElement("tr", { key: dd },
+                        React.createElement("td", null, `${dd}/${pad(mes + 1)} ${WD[dt.getDay()]}`),
+                        React.createElement("td", null, normalizeTipoPonto(row.tipo) || "Trabalho"),
+                        React.createElement("td", null, row.entrada || ""),
+                        React.createElement("td", null, row.saidaAlmoco || ""),
+                        React.createElement("td", null, row.retornoAlmoco || ""),
+                        React.createElement("td", null, row.saida || ""),
+                        React.createElement("td", null, calc.ativa ? minToDur(calc.trabalhada) : ""),
+                        React.createElement("td", null, calc.ativa ? minToDur(calc.banco) : ""),
+                        React.createElement("td", null, row.obs || ""));
+                }))),
+            React.createElement("div", { className: "signature-box" },
+                React.createElement("div", { className: "signature-line" }, `Assinatura \u00B7 ${funcAtual.nome}`),
+                React.createElement("div", { className: "signature-line" }, "Respons\u00E1vel pela confer\u00EAncia"))),
         React.createElement("div", { className: "foot" },
             "Salvo em ",
             React.createElement("b", null,
                 "fini_folha_ponto/",
                 keyMes(ano, mes)),
             ". A jornada normal vem do cadastro da funcion\u00E1ria. Os hor\u00E1rios de entrada, almo\u00E7o, retorno e sa\u00EDda s\u00E3o gravados pelo ID da funcion\u00E1ria com o hor\u00E1rio do computador. Para as funcion\u00E1rias, o ponto s\u00F3 registra por ID com o hor\u00E1rio do computador. A coluna Tipo fica liberada sem senha para marcar Feriado, Folga, Folga extra ou Atestado. Quando a aba Escala salva tiver feriado, a Folha de Ponto puxa Feriado automaticamente; quando a funcion\u00E1ria estiver marcada como folga, puxa Folga e zera hora devida; horários, limpeza e saldo inicial continuam bloqueados pela senha administrativa; observações e anotações gerais são livres e s\u00E3o salvos automaticamente no Firebase. Cadastro de funcion\u00E1rias continua sendo salvo no bot\u00E3o do pr\u00F3prio cadastro."),
+        confirmacao && React.createElement("div", { className: "ov confirm-modal", onClick: e => e.target === e.currentTarget && setConfirmacao(null) },
+            React.createElement("div", { className: "mbox" },
+                React.createElement("h2", null, "Confirmar registro de ponto"),
+                React.createElement("div", { className: "confirm-time" }, confirmacao.hora),
+                React.createElement("div", { className: "confirm-grid" },
+                    React.createElement("div", null, React.createElement("span", null, "Funcion\u00E1ria"), confirmacao.f.nome),
+                    React.createElement("div", null, React.createElement("span", null, "Registro"), ROTULOS_PONTO[confirmacao.campo]),
+                    React.createElement("div", null, React.createElement("span", null, "Data"), fmtD(`${keyMes(ano, mes)}-${confirmacao.dd}`)),
+                    React.createElement("div", null, React.createElement("span", null, "Aten\u00E7\u00E3o"), "Confira para evitar duplicidade")),
+                React.createElement("div", { className: "ma" },
+                    React.createElement("button", { className: "btn ghost", onClick: () => { setConfirmacao(null); setPontoMsg("Registro cancelado. Nenhum hor\u00E1rio foi gravado."); } }, "Cancelar"),
+                    React.createElement("button", { className: "btn primary", onClick: confirmarPonto }, "Confirmar e gravar")))),
         showM && adminOn && React.createElement(ModalFuncEsc, { funcs: funcs, onSave: l => { onSaveFuncEsc(l); setShowM(false); }, onClose: () => setShowM(false) }));
 }
+/* ══ V25 · FLUXOS GERENCIAIS LIMPOS ══ */
+const h25 = React.createElement;
+const clone25 = value => JSON.parse(JSON.stringify(value));
+
+function useLocalDraft25(col, id, blank) {
+    const storageKey = `fini_rascunho:${col}:${id}`;
+    const blankJson = JSON.stringify(blank);
+    const [data, setData] = useState(() => clone25(blank));
+    const [dirty, setDirty] = useState(false);
+    const [status, setStatus] = useState("ok");
+    const [erro, setErro] = useState(null);
+    const [online, setOnline] = useState(() => navigator.onLine);
+    useEffect(() => {
+        let ativo = true;
+        setStatus("load");
+        setErro(null);
+        (async () => { try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                if (!ativo) return;
+                setData({ ...clone25(JSON.parse(blankJson)), ...JSON.parse(saved) });
+                setDirty(true);
+                setStatus(navigator.onLine ? "ok" : "offline");
+                return;
+            }
+            if (navigator.onLine) {
+                const snap = await db.collection(col).doc(id).get();
+                const remoto = snap.exists ? snap.data() : null;
+                if (ativo && remoto && remoto.rascunho) {
+                    setData({ ...clone25(JSON.parse(blankJson)), ...remoto });
+                    localStorage.setItem(storageKey, JSON.stringify(remoto));
+                    setDirty(true);
+                }
+            }
+            if (ativo) setStatus(navigator.onLine ? "ok" : "offline");
+        }
+        catch (e) {
+            if (!ativo) return;
+            setData(clone25(JSON.parse(blankJson)));
+            if (erroDeRede(e)) setStatus("offline");
+            else { setErro({ titulo: "Rascunho local indisponível", detalhe: String(e.message || e) }); setStatus("err"); }
+        } })();
+        return () => { ativo = false; };
+    }, [storageKey, blankJson]);
+    useEffect(() => {
+        const on = () => setOnline(true), off = () => setOnline(false);
+        window.addEventListener("online", on); window.addEventListener("offline", off);
+        return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+    }, []);
+    const update = patch => setData(current => {
+        const delta = typeof patch === "function" ? patch(current) : patch;
+        const next = { ...current, ...delta };
+        try { localStorage.setItem(storageKey, JSON.stringify(next)); }
+        catch (e) { console.warn("Falha ao salvar rascunho", e); }
+        setDirty(true);
+        return next;
+    });
+    useEffect(() => {
+        if (!dirty) return;
+        const timer = setTimeout(async () => {
+            setStatus("load");
+            try {
+                const resultado = await salvarDocumentoSeguro(col, id, { ...data, data: id, rascunho: true }, "RASCUNHO_AUTOMATICO");
+                setStatus(resultado.offline ? "offline" : "ok");
+            }
+            catch (e) {
+                setErro(traduzErroFirebase(e, "salvar o rascunho"));
+                setStatus("err");
+            }
+        }, 900);
+        return () => clearTimeout(timer);
+    }, [dirty, JSON.stringify(data), storageKey, online]);
+    const save = async () => {
+        setStatus("load");
+        setErro(null);
+        try {
+            const resultado = await salvarDocumentoSeguro(col, id, { ...data, data: id, rascunho: false }, "CONTAGEM_FINALIZADA");
+            if (resultado.offline) {
+                setStatus("offline");
+                return false;
+            }
+            localStorage.removeItem(storageKey);
+            setData(clone25(JSON.parse(blankJson)));
+            setDirty(false);
+            setStatus("ok");
+            return true;
+        }
+        catch (e) {
+            setErro(traduzErroFirebase(e, "salvar a contagem"));
+            setStatus("err");
+            return false;
+        }
+    };
+    return { data, update, save, dirty, status, erro };
+}
+
+function DraftStatus25({ doc }) {
+    if (doc.status === "err") return h25("span", { className: "save-note err" }, "Não foi possível salvar o rascunho");
+    if (doc.status === "offline") return h25("span", { className: "draft-pill" }, "Sem internet · rascunho protegido neste aparelho");
+    return h25("span", { className: "draft-pill" }, doc.dirty ? (doc.status === "load" ? "Salvando automaticamente…" : "Rascunho salvo automaticamente") : "Contagem nova");
+}
+
+function EstoqueV25({ itens, onSaveItens }) {
+    const [data, setData] = useState(HOJE), [busca, setBusca] = useState(""), [showM, setShowM] = useState(false);
+    const blank = useMemo(() => ({ data, itens: {} }), [data]);
+    const doc = useLocalDraft25("fini_estoque_quiosque", data, blank);
+    const filtro = itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
+    const set = (n, v) => doc.update(d => ({ itens: { ...(d.itens || {}), [n]: v } }));
+    const preenchidos = itens.filter(n => String((doc.data.itens || {})[n] || "").trim() !== "").length;
+    const total = itens.reduce((s, n) => s + num((doc.data.itens || {})[n]), 0);
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Itens"), h25("div", { className: "hsub" }, "A contagem permanece neste aparelho até ser salva.")), h25(DraftStatus25, { doc })),
+        h25(ErrBox, { ...doc }),
+        h25("div", { className: "toolbar" },
+            h25("div", { className: "tl" },
+                h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })),
+                h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome do item", onChange: e => setBusca(e.target.value) }))),
+            h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: doc.save }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Preenchidos"), h25("b", null, `${preenchidos}/${itens.length}`)), h25("div", { className: "tt" }, h25("span", null, "Total de unidades"), h25("b", { className: "hl" }, total.toLocaleString("pt-BR")))),
+        h25("div", { className: "panel" }, filtro.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25("input", { className: "inp num", style: { width: 88 }, inputMode: "decimal", value: (doc.data.itens || {})[n] ?? "", placeholder: "0", onChange: e => set(n, e.target.value) }), h25("span", { className: "un" }, "un")))),
+        showM && h25(ModalItens, { itens, onSave: l => { onSaveItens(l); setShowM(false); }, onClose: () => setShowM(false) }));
+}
+
+function BalasV25({ balas, onSaveBalas }) {
+    const [data, setData] = useState(HOJE), [busca, setBusca] = useState(""), [showM, setShowM] = useState(false);
+    const blank = useMemo(() => ({ data, pesos: {}, pacotes: {} }), [data]);
+    const doc = useLocalDraft25("fini_balas_kg", data, blank);
+    const set = (grupo, n, v) => doc.update(d => ({ [grupo]: { ...(d[grupo] || {}), [n]: v } }));
+    const todos = balas.flatMap(c => c.itens);
+    const totalKg = todos.reduce((s, n) => s + num((doc.data.pesos || {})[n]), 0);
+    const totalPct = todos.reduce((s, n) => s + num((doc.data.pacotes || {})[n]), 0);
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Peso e pacotes ficam guardados neste aparelho até salvar.")), h25(DraftStatus25, { doc })),
+        h25(ErrBox, { ...doc }),
+        h25("div", { className: "toolbar" },
+            h25("div", { className: "tl" }, h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })), h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome da bala", onChange: e => setBusca(e.target.value) }))),
+            h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: doc.save }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Peso total"), h25("b", { className: "hl" }, kgF(totalKg))), h25("div", { className: "tt" }, h25("span", null, "Pacotes"), h25("b", null, totalPct.toLocaleString("pt-BR")))),
+        h25("div", { className: "panel" }, balas.map(c => {
+            const list = c.itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
+            if (!list.length) return null;
+            return h25(React.Fragment, { key: c.cat }, h25("div", { className: "cat" }, h25("span", null, c.cat)), list.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25("input", { className: "inp num", style: { width: 94 }, inputMode: "decimal", value: (doc.data.pesos || {})[n] ?? "", placeholder: "0,000", onChange: e => set("pesos", n, e.target.value) }), h25("span", { className: "un" }, "kg"), h25("input", { className: "inp num", style: { width: 72 }, inputMode: "numeric", value: (doc.data.pacotes || {})[n] ?? "", placeholder: "0", onChange: e => set("pacotes", n, e.target.value) }), h25("span", { className: "un" }, "pct"))));
+        })),
+        showM && h25(ModalBalas, { balas, onSave: l => { onSaveBalas(l); setShowM(false); }, onClose: () => setShowM(false) }));
+}
+
+function ComparativoV25({ itens, balas }) {
+    const [datas, setDatas] = useState([]), [data, setData] = useState(""), [res, setRes] = useState(null), [loading, setLoading] = useState(false);
+    useEffect(() => { (async () => { try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").get(), db.collection("fini_balas_kg").get()]); const list = [...new Set([...a.docs.map(d => d.id), ...b.docs.map(d => d.id)])].filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort().reverse(); setDatas(list); if (list[0]) setData(list[0]); } catch (e) { console.error(e); } })(); }, []);
+    useEffect(() => { if (!data) return; (async () => { setLoading(true); try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").doc(data).get(), db.collection("fini_balas_kg").doc(data).get()]); setRes({ itens: a.exists ? a.data().itens || {} : {}, pesos: b.exists ? b.data().pesos || {} : {}, pacotes: b.exists ? b.data().pacotes || {} : {} }); } catch (e) { console.error(e); setRes(null); } setLoading(false); })(); }, [data]);
+    const balaRows = balas.flatMap(c => c.itens.map(nome => ({ cat: c.cat, nome }))).filter(x => num((res?.pesos || {})[x.nome]) || num((res?.pacotes || {})[x.nome]));
+    const itemRows = itens.filter(n => num((res?.itens || {})[n]));
+    const tabelaItens = res && h25("div", { style: { marginBottom: 14 } },
+        h25("div", { className: "cat" }, "Itens do quiosque"),
+        h25("div", { className: "panel" }, h25("table", null,
+            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 120, textAlign: "right" } }, "Quantidade"))),
+            h25("tbody", null,
+                itemRows.map(n => h25("tr", { key: n }, h25("td", null, n), h25("td", { className: "num" }, num(res.itens[n]).toLocaleString("pt-BR")))),
+                !itemRows.length && h25("tr", null, h25("td", { colSpan: 2, style: { textAlign: "center" } }, "Sem itens preenchidos."))))));
+    const tabelaBalas = res && h25("div", null,
+        h25("div", { className: "cat" }, "Balas a granel"),
+        h25("div", { className: "panel" }, h25("table", null,
+            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 110, textAlign: "right" } }, "Kg"), h25("th", { style: { width: 100, textAlign: "right" } }, "Pacotes"))),
+            h25("tbody", null,
+                balaRows.map(x => h25("tr", { key: x.nome }, h25("td", null, h25("span", { className: "pmini" }, `${x.cat} · `), x.nome), h25("td", { className: "num" }, kgF(res.pesos[x.nome])), h25("td", { className: "num" }, num(res.pacotes[x.nome]) || "—"))),
+                !balaRows.length && h25("tr", null, h25("td", { colSpan: 3, style: { textAlign: "center" } }, "Sem balas preenchidas."))))));
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Consultar contagem"), h25("div", { className: "hsub" }, "Visualização completa de uma única data."))),
+        h25("div", { className: "toolbar" }, h25("div", { className: "field" }, h25("label", null, "Data salva"), h25("select", { className: "inp", value: data, onChange: e => setData(e.target.value) }, h25("option", { value: "" }, "Selecione"), datas.map(d => h25("option", { key: d, value: d }, fmtD(d))))), h25("span", { className: "clean-note" }, loading ? "Carregando…" : data ? `${itemRows.length} itens e ${balaRows.length} balas preenchidos` : "Nenhuma contagem selecionada")),
+        tabelaItens,
+        tabelaBalas);
+}
+
+function ConsultarV26({ itens, balas }) {
+    const [modo, setModo] = useState("uma");
+    return h25(React.Fragment, null,
+        h25("div", { className: "view-switch", role: "group", "aria-label": "Modo de consulta do estoque" },
+            h25("button", { className: modo === "uma" ? "on" : "", onClick: () => setModo("uma") }, "Ver uma contagem"),
+            h25("button", { className: modo === "comparar" ? "on" : "", onClick: () => setModo("comparar") }, "Comparar duas contagens")),
+        modo === "uma" ? h25(ComparativoV25, { itens, balas }) : h25(Comparativo, { itens, balas }));
+}
+
+function DesperdicioV25() {
+    const [ano, setAno] = useState(hjD.getFullYear()), [mes, setMes] = useState(hjD.getMonth());
+    const doc = useFireDoc("fini_desperdicio", keyMes(ano, mes), { entradas: [] });
+    const ents = doc.data.entradas || [];
+    const add = () => doc.update(d => ({ entradas: [...(d.entradas || []), { data: HOJE, produto: "", quantidade: "", unidade: "KG", motivo: MOTIVOS[0], responsavel: "" }] }));
+    const upd = (i, k, v) => doc.update(d => { const rows = [...(d.entradas || [])]; rows[i] = { ...rows[i], [k]: v }; return { entradas: rows }; });
+    const del = i => doc.update(d => ({ entradas: (d.entradas || []).filter((_, j) => i !== j) }));
+    const totalKg = ents.filter(e => e.unidade === "KG").reduce((s, e) => s + num(e.quantidade), 0);
+    const totalUn = ents.filter(e => e.unidade === "UN").reduce((s, e) => s + num(e.quantidade), 0);
+    const totalValor = totalKg * PRECO_DESPERDICIO_KG;
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Desperdício"), h25("div", { className: "hsub" }, "Somente perdas em kg geram valor; itens unitários ficam apenas em quantidade.")), h25(Status, { ...doc })),
+        h25(ErrBox, { ...doc }),
+        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("div", { className: "tl" }, h25("button", { className: "btn ghost", onClick: add }, "+ Registrar perda"), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar mês"))),
+        h25("div", { className: "totbar" },
+            h25("div", { className: "tt" }, h25("span", null, "Valor por kg"), h25("b", null, brl(PRECO_DESPERDICIO_KG))),
+            h25("div", { className: "tt" }, h25("span", null, "Bala desperdiçada"), h25("div", { className: "waste-kpi" }, h25("b", { className: "hl" }, kgF(totalKg)), h25("small", null, `${totalUn.toLocaleString("pt-BR")} un`))),
+            h25("div", { className: "tt" }, h25("span", null, "Custo do desperdício em kg"), h25("b", { className: "hl" }, brl(totalValor)))),
+        h25("div", { className: "panel table-wrap" }, h25("table", { style: { minWidth: 760 } },
+            h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Produto"), h25("th", null, "Quantidade"), h25("th", null, "Unidade"), h25("th", null, "Valor"), h25("th", null, "Motivo"), h25("th", null, "Responsável"), h25("th", null))),
+            h25("tbody", null, ents.map((e, i) => h25("tr", { key: i },
+                h25("td", null, h25("input", { type: "date", value: e.data || HOJE, onChange: ev => upd(i, "data", ev.target.value) })),
+                h25("td", null, h25("input", { value: e.produto || "", placeholder: "Produto", onChange: ev => upd(i, "produto", ev.target.value) })),
+                h25("td", null, h25("input", { className: "num", inputMode: "decimal", value: e.quantidade || "", placeholder: "0", onChange: ev => upd(i, "quantidade", ev.target.value) })),
+                h25("td", null, h25("select", { value: e.unidade || "KG", onChange: ev => upd(i, "unidade", ev.target.value) }, ["KG", "UN", "PCT"].map(x => h25("option", { key: x }, x)))),
+                h25("td", { className: "num" }, e.unidade === "KG" ? brl(num(e.quantidade) * PRECO_DESPERDICIO_KG) : "—"),
+                h25("td", null, h25("select", { value: e.motivo || MOTIVOS[0], onChange: ev => upd(i, "motivo", ev.target.value) }, MOTIVOS.map(x => h25("option", { key: x }, x)))),
+                h25("td", null, h25("input", { value: e.responsavel || "", onChange: ev => upd(i, "responsavel", ev.target.value) })),
+                h25("td", null, h25("button", { className: "rm", onClick: () => del(i), title: "Excluir linha" }, "×")))),
+                !ents.length && h25("tr", null, h25("td", { colSpan: 8, style: { textAlign: "center", padding: 22 } }, "Nenhuma perda registrada."))))));
+}
+
+function VendasV25() {
+    const [ano, setAno] = useState(Math.max(2026, hjD.getFullYear())), [mes, setMes] = useState(hjD.getFullYear() === 2026 ? Math.max(7, hjD.getMonth()) : hjD.getMonth());
+    useEffect(() => { if (ano < 2026 || (ano === 2026 && mes < 7)) { setAno(2026); setMes(7); } }, [ano, mes]);
+    const doc = useFireDoc("fini_vendas_diarias", keyMes(ano, mes), { dias: {}, metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "" } });
+    const dias = doc.data.dias || {}, metas = { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(doc.data.metas || {}) };
+    const setDia = (dd, k, v) => doc.update(d => ({ dias: { ...(d.dias || {}), [dd]: { ...((d.dias || {})[dd] || {}), [k]: v } } }));
+    const setMeta = (k, v) => doc.update(d => ({ metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(d.metas || {}), [k]: v } }));
+    const rows = Array.from({ length: diMes(ano, mes) }, (_, i) => { const dd = pad(i + 1), d = dias[dd] || {}, vendas = num(d.vendas), tc = num(d.tc); return { dd, vendas: d.vendas ?? "", tc: d.tc ?? "", tm: tc ? vendas / tc : 0, obs: d.obs || "" }; });
+    const totalVendas = rows.reduce((s, r) => s + num(r.vendas), 0), totalTC = rows.reduce((s, r) => s + num(r.tc), 0), tm = totalTC ? totalVendas / totalTC : 0;
+    const atual = metas.tipo === "tm" ? tm : totalVendas;
+    const fmt = v => metas.tipo === "tm" || metas.tipo === "faturamento" ? brl(v) : String(v);
+    const labels = { mensal: "Meta mensal", intermediaria: "Meta intermediária", super: "Super meta" };
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Vendas Diárias"), h25("div", { className: "hsub" }, "Faturamento, transações (TC) e ticket médio (TM) a partir de agosto de 2026.")), h25(Status, { ...doc })),
+        h25(ErrBox, { ...doc }),
+        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar mês")),
+        h25("div", { className: "goal-grid" },
+            h25("div", { className: "goal-card" }, h25("label", null, "Acompanhar metas por"), h25("select", { className: "inp", value: metas.tipo, onChange: e => setMeta("tipo", e.target.value) }, h25("option", { value: "faturamento" }, "Faturamento total"), h25("option", { value: "tm" }, "Ticket médio (TM)"))),
+            ["mensal", "intermediaria", "super"].map(k => { const alvo = num(metas[k]), pct = alvo ? Math.min(100, atual / alvo * 100) : 0; return h25("div", { className: "goal-card", key: k }, h25("label", null, labels[k]), h25("input", { className: "inp num", inputMode: "decimal", value: metas[k], placeholder: "R$ 0,00", onChange: e => setMeta(k, e.target.value) }), h25("div", { className: "clean-note" }, alvo ? `${fmt(atual)} de ${fmt(alvo)} · ${pct.toFixed(0)}%` : "Defina a meta"), h25("div", { className: "progress" }, h25("span", { style: { width: `${pct}%` } }))); })),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Vendas"), h25("b", { className: "hl" }, brl(totalVendas))), h25("div", { className: "tt" }, h25("span", null, "TC"), h25("b", null, totalTC.toLocaleString("pt-BR"))), h25("div", { className: "tt" }, h25("span", null, "TM"), h25("b", null, brl(tm)))),
+        h25("div", { className: "panel table-wrap" }, h25("table", { className: "sales-table" }, h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Vendas"), h25("th", null, "TC"), h25("th", null, "TM"), h25("th", null, "Observação"))), h25("tbody", null, rows.map(r => { const dt = new Date(ano, mes, Number(r.dd)); return h25("tr", { key: r.dd, className: dt.getDay() === 0 ? "wd-dom" : "" }, h25("td", null, `${r.dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`), h25("td", null, h25("input", { className: "num", inputMode: "decimal", value: r.vendas, placeholder: "0,00", onChange: e => setDia(r.dd, "vendas", e.target.value) })), h25("td", null, h25("input", { className: "num", inputMode: "numeric", value: r.tc, placeholder: "0", onChange: e => setDia(r.dd, "tc", e.target.value) })), h25("td", { className: "num" }, r.tm ? brl(r.tm) : "—"), h25("td", null, h25("input", { value: r.obs, placeholder: "Opcional", onChange: e => setDia(r.dd, "obs", e.target.value) }))); })))));
+}
+
+function pascoa25(ano) {
+    const a = ano % 19, b = Math.floor(ano / 100), c = ano % 100, d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const mes = Math.floor((h + l - 7 * m + 114) / 31) - 1, dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(ano, mes, dia);
+}
+function feriadosNacionais25(ano) {
+    const fixos = [[0, 1, "Confraternização Universal"], [3, 21, "Tiradentes"], [4, 1, "Dia Mundial do Trabalho"], [8, 7, "Independência do Brasil"], [9, 12, "Nossa Senhora Aparecida"], [10, 2, "Finados"], [10, 15, "Proclamação da República"], [10, 20, "Consciência Negra"], [11, 25, "Natal"]];
+    const out = Object.fromEntries(fixos.map(([m, d, nome]) => [isoDia(ano, m, d), nome]));
+    const sexta = pascoa25(ano); sexta.setDate(sexta.getDate() - 2);
+    out[isoDia(sexta.getFullYear(), sexta.getMonth(), sexta.getDate())] = "Paixão de Cristo";
+    return out;
+}
+function normalizaHora25(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    let h, m;
+    if (raw.includes(":")) [h, m = "0"] = raw.split(":");
+    else {
+        const digits = raw.replace(/\D/g, "");
+        if (!digits) return raw;
+        if (digits.length <= 2) { h = digits; m = "0"; }
+        else if (digits.length === 3) { h = digits.slice(0, 1); m = digits.slice(1); }
+        else { h = digits.slice(0, 2); m = digits.slice(2, 4); }
+    }
+    const hh = Number(h), mm = Number(m);
+    if (!Number.isInteger(hh) || !Number.isInteger(mm) || hh < 0 || hh > 23 || mm < 0 || mm > 59) return raw;
+    return `${pad(hh)}:${pad(mm)}`;
+}
+function imprimir25(tipo) {
+    document.body.classList.remove("print-escala", "print-ponto");
+    document.body.classList.add(`print-${tipo}`);
+    const limpar = () => { document.body.classList.remove("print-escala", "print-ponto"); window.removeEventListener("afterprint", limpar); };
+    window.addEventListener("afterprint", limpar);
+    setTimeout(() => window.print(), 40);
+}
+function statusEscala25(raw) {
+    if (["Folga", "Folga 6x1"].includes(raw)) return "Folga";
+    if (["Folga extra", "Folga feriado", "Folga compensatória"].includes(raw)) return "Folga feriado";
+    if (raw === "Atestado") return "Atestado";
+    return "Trabalho";
+}
+function sugerirEscala25(ano, mes, funcs) {
+    const quadro = {}, nd = diMes(ano, mes), blocos = [], domingosUsados = new Set();
+    for (let d = 1; d <= nd; d++)
+        quadro[pad(d)] = Object.fromEntries(funcs.map(f => [f.nome, "Trabalho"]));
+    for (let inicio = 1; inicio <= nd; inicio += 7)
+        blocos.push(Array.from({ length: Math.min(7, nd - inicio + 1) }, (_, i) => inicio + i));
+    blocos.forEach((diasBloco, bi) => {
+        const domingo = diasBloco.find(d => new Date(ano, mes, d).getDay() === 0);
+        const candidatos = diasBloco.filter(d => new Date(ano, mes, d).getDay() !== 0);
+        const pessoaDomingo = domingo ? funcs.find((f, offset) => offset === bi % Math.max(1, funcs.length) && !domingosUsados.has(f.nome)) : null;
+        funcs.forEach((f, fi) => {
+            let folga;
+            if (pessoaDomingo && pessoaDomingo.nome === f.nome) {
+                folga = domingo;
+                domingosUsados.add(f.nome);
+            }
+            else {
+                const base = candidatos.length ? candidatos : diasBloco;
+                folga = base[(fi * 2 + bi) % base.length];
+            }
+            quadro[pad(folga)][f.nome] = "Folga";
+        });
+    });
+    return quadro;
+}
+
+function EscalaV25({ funcEsc, onSaveFuncEsc }) {
+    const [ano, setAno] = useState(hjD.getFullYear()), [mes, setMes] = useState(hjD.getMonth()), [showM, setShowM] = useState(false);
+    const doc = useFireDoc("fini_escala", keyMes(ano, mes), { quadro: {}, anotacoes: "" });
+    const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
+    const feriados = useMemo(() => feriadosNacionais25(ano), [ano]);
+    const quadro = doc.data.quadro || {};
+    const get = (dd, nome) => statusEscala25((quadro[dd] || {})[nome]);
+    const set = (dd, nome, value) => doc.update(d => ({ quadro: { ...(d.quadro || {}), [dd]: { ...((d.quadro || {})[dd] || {}), [nome]: value } } }));
+    const sugerir = () => {
+        if (doc.dirty && !confirm("Substituir a escala ainda não salva pela sugestão 6x1?")) return;
+        doc.update({ quadro: sugerirEscala25(ano, mes, funcs) });
+    };
+    const resumo = funcs.map(f => {
+        let trab = 0, folgas = 0, domingos = 0, ferTrab = 0, folgaFer = 0;
+        for (let i = 1; i <= diMes(ano, mes); i++) {
+            const dd = pad(i), st = get(dd, f.nome), iso = isoDia(ano, mes, i), dow = new Date(ano, mes, i).getDay();
+            if (st === "Trabalho") { trab++; if (dow === 0) domingos++; if (feriados[iso]) ferTrab++; }
+            else { folgas++; if (st === "Folga feriado") folgaFer++; }
+        }
+        return { nome: f.nome, trab, folgas, domingos, ferTrab, folgaFer, saldoFer: ferTrab * 2 - folgaFer };
+    });
+    const rows = Array.from({ length: diMes(ano, mes) }, (_, i) => i + 1);
+    const statusOptions = ["Trabalho", "Folga", "Folga feriado", "Atestado"];
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Escala"), h25("div", { className: "hsub" }, "Regra única: 6x1 · 7h20 trabalhadas · 1h de almoço em qualquer dia.")), h25(Status, { ...doc })),
+        h25(ErrBox, { ...doc }),
+        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Funcionárias"), h25("button", { className: "btn ghost", onClick: sugerir }, "Sugerir 6x1"), h25("button", { className: "btn ghost", onClick: () => imprimir25("escala") }, "Imprimir tabela"), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar mês"))),
+        h25("div", { className: "clean-note", style: { marginBottom: 10 } }, "A sugestão cria uma folga por funcionária em cada semana, sem repetir domingo para a mesma pessoa no mês. Feriado trabalhado gera saldo de duas folgas."),
+        h25("div", { className: "panel table-wrap" }, h25("table", { className: "schedule-table sticky-first" },
+            h25("thead", null, h25("tr", null, h25("th", null, "Data"), funcs.map(f => h25("th", { key: f.nome }, f.nome)))),
+            h25("tbody", null, rows.map(i => { const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i), fer = feriados[iso]; return h25("tr", { key: dd, className: (fer ? "holiday-row " : "") + (dt.getDay() === 0 ? "sunday-row" : "") },
+                h25("td", null, `${dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`, fer && h25("span", { className: "holiday-name" }, fer)),
+                funcs.map(f => { const st = get(dd, f.nome); return h25("td", { key: f.nome }, h25("select", { className: `schedule-select ${st === "Trabalho" ? "work" : "off"}`, value: st, onChange: e => set(dd, f.nome, e.target.value) }, statusOptions.map(x => h25("option", { key: x }, x)))); })); })))),
+        h25("div", { className: "summary-grid" }, resumo.map(r => h25("div", { className: "summary-card", key: r.nome }, h25("strong", null, r.nome), h25("dl", null, h25("dt", null, "Dias trabalhados"), h25("dd", null, r.trab), h25("dt", null, "Folgas no mês"), h25("dd", null, r.folgas), h25("dt", null, "Domingos trabalhados"), h25("dd", null, r.domingos), h25("dt", null, "Feriados trabalhados"), h25("dd", null, r.ferTrab), h25("dt", null, "Saldo folgas de feriado"), h25("dd", { style: { color: r.saldoFer ? "var(--fini)" : "inherit" } }, r.saldoFer))))),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt", style: { flex: 1 } }, h25("span", null, "Anotações do mês"), h25("textarea", { className: "inp", style: { width: "100%", minHeight: 58, marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Trocas, compensações e avisos", onChange: e => doc.update({ anotacoes: e.target.value }) }))),
+        h25("section", { className: "print-area schedule-print" }, h25("div", { className: "print-title" }, `Escala de Trabalho · ${MESES[mes]} ${ano}`), h25("div", { className: "print-subtitle" }, "FINI Petrópolis · Jornada 6x1 · 7h20 trabalhadas + 1h de almoço"), h25("table", null, h25("thead", null, h25("tr", null, h25("th", { style: { width: "24%" } }, "Data"), funcs.map(f => h25("th", { key: f.nome }, f.nome)))), h25("tbody", null, rows.map(i => { const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i), fer = feriados[iso]; return h25("tr", { key: dd, className: fer ? "holiday-print" : "" }, h25("td", null, `${dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`, fer ? ` · ${fer}` : ""), funcs.map(f => { const st = get(dd, f.nome); return h25("td", { className: st === "Trabalho" ? "" : "off-print", key: f.nome }, st === "Trabalho" ? "Trabalho · 7h20 + 1h" : st); })); })))),
+        showM && h25(ModalFuncEsc, { funcs, onSave: l => { onSaveFuncEsc(l.map(f => ({ ...f, jornada: "7:20h", regime: "6x1" }))); setShowM(false); }, onClose: () => setShowM(false) }));
+}
+
+function calcPonto25(row, tipo) {
+    const st = statusEscala25(tipo);
+    if (st !== "Trabalho") return { trab: 0, saldo: 0 };
+    const intervalo = row.saidaAlmoco && row.retornoAlmoco ? diffHora(row.saidaAlmoco, row.retornoAlmoco) : 60;
+    const trab = row.entrada && row.saida ? Math.max(0, diffHora(row.entrada, row.saida) - intervalo) : 0;
+    return { trab, saldo: trab ? trab - 440 + durToMin(row.ajuste) : 0 };
+}
+function FolhaPontoV25({ funcEsc, onSaveFuncEsc }) {
+    const [ano, setAno] = useState(hjD.getFullYear()), [mes, setMes] = useState(hjD.getMonth()), [funcNome, setFuncNome] = useState(""), [pontoId, setPontoId] = useState(""), [confirmacao, setConfirmacao] = useState(null), [msg, setMsg] = useState(""), [showM, setShowM] = useState(false);
+    const doc = useFireDoc("fini_folha_ponto", keyMes(ano, mes), { funcionarias: {}, anotacoes: "", status: "Aberto" });
+    const escala = useFireDoc("fini_escala", keyMes(ano, mes), { quadro: {} });
+    const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
+    useEffect(() => { if (!funcNome && funcs[0]) setFuncNome(funcs[0].nome); }, [funcs, funcNome]);
+    const func = funcs.find(f => f.nome === funcNome) || funcs[0] || { nome: "", id: "" };
+    const fd = (doc.data.funcionarias || {})[func.nome] || { dias: {} }, dias = fd.dias || {}, feriados = feriadosNacionais25(ano), nd = diMes(ano, mes);
+    const tipoDia = dd => { const iso = `${keyMes(ano, mes)}-${dd}`, st = statusEscala25((((escala.data.quadro || {})[dd] || {})[func.nome])); if (st !== "Trabalho") return st; return feriados[iso] ? "Feriado" : "Trabalho"; };
+    const getRow = dd => { const saved = dias[dd] || {}; return { entrada: "", saidaAlmoco: "", retornoAlmoco: "", saida: "", ajuste: "", obs: "", ...saved, tipo: saved.tipoManual ? saved.tipo : tipoDia(dd) }; };
+    const setDia = (dd, k, value) => doc.update(d => { const all = d.funcionarias || {}, atual = all[func.nome] || { dias: {} }, row = { ...((atual.dias || {})[dd] || {}), [k]: value, ...(k === "tipo" ? { tipoManual: true } : {}) }; return { funcionarias: { ...all, [func.nome]: { ...atual, dias: { ...(atual.dias || {}), [dd]: row } } } }; });
+    const setTipoDia = (dd, value) => value === "__AUTO__" ? doc.update(d => { const all = d.funcionarias || {}, atual = all[func.nome] || { dias: {} }, row = { ...((atual.dias || {})[dd] || {}), tipoManual: false }; return { funcionarias: { ...all, [func.nome]: { ...atual, dias: { ...(atual.dias || {}), [dd]: row } } } }; }) : setDia(dd, "tipo", value);
+    const prepararPonto = () => {
+        const f = funcs.find(x => String(x.id) === String(pontoId).trim());
+        if (!f) { setMsg("ID não encontrado."); return; }
+        const agora = new Date(), mesmoMes = agora.getFullYear() === ano && agora.getMonth() === mes, dd = pad(mesmoMes ? agora.getDate() : 1);
+        const row = { tipo: "Trabalho", ...((((doc.data.funcionarias || {})[f.nome] || {}).dias || {})[dd] || {}) };
+        const st = statusEscala25(((((escala.data.quadro || {})[dd] || {})[f.nome])) || row.tipo);
+        if (st !== "Trabalho") { setMsg(`${f.nome} está marcada como ${st} em ${fmtD(`${keyMes(ano, mes)}-${dd}`)}.`); return; }
+        const campo = CAMPOS_PONTO.find(c => !row[c]);
+        if (!campo) { setMsg(`${f.nome} já possui os quatro horários do dia.`); return; }
+        setConfirmacao({ f, dd, campo, hora: agoraHHMM(), row }); setMsg("");
+    };
+    const confirmarPonto = async () => {
+        const c = confirmacao; if (!c) return;
+        const all = doc.data.funcionarias || {}, atual = all[c.f.nome] || { dias: {} }, row = { ...c.row, [c.campo]: c.hora, registrosPonto: [...(c.row.registrosPonto || []), { campo: c.campo, hora: c.hora, registradoEm: new Date().toISOString(), id: c.f.id }] };
+        const next = { ...doc.data, funcionarias: { ...all, [c.f.nome]: { ...atual, dias: { ...(atual.dias || {}), [c.dd]: row } } } };
+        setConfirmacao(null); setMsg("Salvando ponto…");
+        const ok = await doc.save(next); if (ok) { setFuncNome(c.f.nome); setPontoId(""); setMsg(`${ROTULOS_PONTO[c.campo]} registrada às ${c.hora}.`); }
+    };
+    const rows = Array.from({ length: nd }, (_, i) => { const dd = pad(i + 1), row = getRow(dd), tipo = row.tipo || tipoDia(dd), calc = calcPonto25(row, tipo); return { dd, row, tipo, calc, dt: new Date(ano, mes, i + 1) }; });
+    const totalTrab = rows.reduce((s, r) => s + r.calc.trab, 0), totalSaldo = rows.reduce((s, r) => s + r.calc.saldo, 0), ferTrab = rows.filter(r => feriados[`${keyMes(ano, mes)}-${r.dd}`] && statusEscala25(r.tipo) === "Trabalho").length, folgasFer = rows.filter(r => statusEscala25(r.tipo) === "Folga feriado").length;
+    return h25(React.Fragment, null,
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Folha de Ponto"), h25("div", { className: "hsub" }, "Jornada única 7h20 + 1h · horários, observações e anotações sem trava.")), h25(Status, { ...doc })),
+        h25(ErrBox, { ...doc }),
+        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("div", { className: "tl" }, h25("div", { className: "func-chips" }, funcs.map(f => h25("button", { className: "func-chip" + (f.nome === func.nome ? " on" : ""), key: f.nome, onClick: () => setFuncNome(f.nome) }, f.nome))), h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Funcionárias"), h25("button", { className: "btn ghost", onClick: () => imprimir25("ponto") }, "Imprimir folha"), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar ajustes"))),
+        h25("div", { className: "toolbar" }, h25("div", { className: "field" }, h25("label", null, "ID da funcionária"), h25("input", { className: "inp", inputMode: "numeric", style: { width: 120, textAlign: "center", fontWeight: 700 }, value: pontoId, placeholder: "ID", onChange: e => setPontoId(e.target.value.replace(/\D/g, "")), onKeyDown: e => e.key === "Enter" && prepararPonto() })), h25("button", { className: "btn primary", onClick: prepararPonto }, "Registrar próximo ponto"), msg && h25("span", { className: "save-note ok" }, msg)),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Horas trabalhadas"), h25("b", null, minToDur(totalTrab))), h25("div", { className: "tt" }, h25("span", null, "Saldo de horas"), h25("b", { className: corSaldo(totalSaldo) }, minToDur(totalSaldo))), h25("div", { className: "tt" }, h25("span", null, "Feriados trabalhados"), h25("b", null, ferTrab)), h25("div", { className: "tt" }, h25("span", null, "Saldo de folgas feriado"), h25("b", { className: "hl" }, ferTrab * 2 - folgasFer))),
+        h25("div", { className: "panel table-wrap" }, h25("table", { className: "point-table-v25" }, h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Situação"), h25("th", null, "Entrada"), h25("th", null, "Saída almoço"), h25("th", null, "Retorno"), h25("th", null, "Saída"), h25("th", null, "Trabalhadas"), h25("th", null, "Saldo"), h25("th", null, "Observação"))), h25("tbody", null, rows.map(r => h25("tr", { key: r.dd, className: feriados[`${keyMes(ano, mes)}-${r.dd}`] ? "pfer" : statusEscala25(r.tipo) !== "Trabalho" ? "pfolga" : "" },
+            h25("td", null, `${r.dd}/${pad(mes + 1)} · ${WD[r.dt.getDay()]}`),
+            h25("td", null, h25("select", { value: r.row.tipoManual ? r.tipo : "__AUTO__", onChange: e => setTipoDia(r.dd, e.target.value) }, h25("option", { value: "__AUTO__" }, `Conforme escala · ${tipoDia(r.dd)}`), ["Trabalho", "Feriado", "Folga", "Folga feriado", "Atestado"].map(x => h25("option", { key: x }, x)))),
+            CAMPOS_PONTO.map(c => h25("td", { key: c }, h25("input", { className: "time-input", inputMode: "numeric", value: r.row[c] || "", placeholder: "00:00", onChange: e => setDia(r.dd, c, e.target.value), onBlur: e => setDia(r.dd, c, normalizaHora25(e.target.value)) }))),
+            h25("td", { className: "num" }, r.calc.trab ? minToDur(r.calc.trab) : "—"), h25("td", { className: `num ${corSaldo(r.calc.saldo)}` }, r.calc.trab ? minToDur(r.calc.saldo) : "—"), h25("td", null, h25("input", { className: "pobs", value: r.row.obs || "", placeholder: "Observação", onChange: e => setDia(r.dd, "obs", e.target.value) }))))))),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt", style: { flex: 1 } }, h25("span", null, "Anotações gerais"), h25("textarea", { className: "inp", style: { width: "100%", minHeight: 58, marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Justificativas e acordos do mês", onChange: e => doc.update({ anotacoes: e.target.value }) }))),
+        h25("section", { className: "print-area point-print" }, h25("div", { className: "print-title" }, `Folha de Ponto · ${func.nome}`), h25("div", { className: "print-subtitle" }, `FINI Petrópolis · ${MESES[mes]} ${ano} · Jornada 6x1 · 7h20 + 1h de almoço`), h25("table", null, h25("thead", null, h25("tr", null, ["Data", "Situação", "Entrada", "Almoço", "Retorno", "Saída", "Trab.", "Saldo", "Observação"].map(x => h25("th", { key: x }, x)))), h25("tbody", null, rows.map(r => h25("tr", { key: r.dd }, h25("td", null, `${r.dd}/${pad(mes + 1)} ${WD[r.dt.getDay()]}`), h25("td", null, r.tipo), h25("td", null, r.row.entrada || ""), h25("td", null, r.row.saidaAlmoco || ""), h25("td", null, r.row.retornoAlmoco || ""), h25("td", null, r.row.saida || ""), h25("td", null, r.calc.trab ? minToDur(r.calc.trab) : ""), h25("td", null, r.calc.trab ? minToDur(r.calc.saldo) : ""), h25("td", null, r.row.obs || ""))))), h25("div", { className: "signature-box" }, h25("div", { className: "signature-line" }, `Assinatura · ${func.nome}`), h25("div", { className: "signature-line" }, "Responsável pela conferência"))),
+        confirmacao && h25("div", { className: "ov confirm-modal" }, h25("div", { className: "mbox" }, h25("h2", null, "Confirmar horário"), h25("div", { className: "confirm-time" }, confirmacao.hora), h25("div", { className: "confirm-grid" }, h25("div", null, h25("span", null, "Funcionária"), confirmacao.f.nome), h25("div", null, h25("span", null, "Registro"), ROTULOS_PONTO[confirmacao.campo]), h25("div", null, h25("span", null, "Data"), fmtD(`${keyMes(ano, mes)}-${confirmacao.dd}`)), h25("div", null, h25("span", null, "Próximo passo"), "Gravar no Firebase")), h25("div", { className: "ma" }, h25("button", { className: "btn ghost", onClick: () => setConfirmacao(null) }, "Cancelar"), h25("button", { className: "btn primary", onClick: confirmarPonto }, "Confirmar registro")))),
+        showM && h25(ModalFuncEsc, { funcs, onSave: l => { onSaveFuncEsc(l.map(f => ({ ...f, jornada: "7:20h", regime: "6x1" }))); setShowM(false); }, onClose: () => setShowM(false) }));
+}
+
 /* ══ APP ══ */
-const MODS = [{ id: "estoque", ic: "📦", lbl: "Itens Quiosque" }, { id: "balas", ic: "🍬", lbl: "Balas (Kg)" }, { id: "comp", ic: "📊", lbl: "Comparativo" }, { id: "desp", ic: "⚠️", lbl: "Desperdício" }, { id: "caixa", ic: "💵", lbl: "Caixa / Troco" }, { id: "consumo", ic: "🥤", lbl: "Consumo" }, { id: "escala", ic: "📅", lbl: "Escala" }, { id: "ponto", ic: "🕒", lbl: "Folha de Ponto" }];
+const MODS = [{ id: "estoque", ic: "📦", lbl: "Itens" }, { id: "balas", ic: "🍬", lbl: "Balas" }, { id: "comp", ic: "🔎", lbl: "Consultar" }, { id: "desp", ic: "⚠️", lbl: "Desperdício" }, { id: "vendas", ic: "📈", lbl: "Vendas Diárias" }, { id: "caixa", ic: "💵", lbl: "Caixa / Troco" }, { id: "consumo", ic: "🥤", lbl: "Consumo" }, { id: "escala", ic: "📅", lbl: "Escala" }, { id: "ponto", ic: "🕒", lbl: "Folha de Ponto" }];
 function App() {
-    const [aba, setAba] = useState("estoque");
+    const abaInicial = new URLSearchParams(window.location.search).get("aba");
+    const [aba, setAba] = useState(MODS.some(m => m.id === abaInicial) ? abaInicial : "estoque");
+    useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: "auto" }); }, [aba]);
+    useEffect(() => {
+        const tipoImpressao = new URLSearchParams(window.location.search).get("print");
+        if (["escala", "ponto"].includes(tipoImpressao))
+            document.body.classList.add(`print-${tipoImpressao}`);
+    }, []);
     const cat = useFireDoc("fini_config", "catalogo", { itens: D_ITENS, balas: D_BALAS });
     const func = useFireDoc("fini_config", "funcionarios", { escala: D_ESC, consumo: D_CON });
     const itens = cat.data.itens || D_ITENS, balas = cat.data.balas || D_BALAS;
@@ -1876,23 +2658,13 @@ function App() {
             MODS.map(m => React.createElement("button", { key: m.id, className: "navb" + (aba === m.id ? " on" : ""), onClick: () => setAba(m.id) },
                 React.createElement("span", { className: "ic" }, m.ic),
                 m.lbl)),
-            React.createElement("div", { className: "sp" }),
-            React.createElement("div", { className: "fb" },
-                "Vers\u00E3o: ",
-                APP_VERSION,
-                React.createElement("br", null),
-                "Firebase: ficha-tecnica-burger",
-                React.createElement("br", null),
-                "cole\u00E7\u00F5es: fini_*",
-                React.createElement("br", null),
-                "origem: ",
-                window.location.protocol === "file:" ? "arquivo local" : "site publicado")),
+            React.createElement("div", { className: "sp" })),
         React.createElement("main", { className: "main" },
-            React.createElement("div", { style: { background: "#e8fff1", border: "2px solid #3f8f5f", borderRadius: 14, padding: "10px 14px", marginBottom: 14, fontSize: 13, fontWeight: 700, color: "#135c35" } }, "✅ ARQUIVO CORRETO ABERTO · V24 PONTO LIMPO + ESCALA CORRIGIDA · se você não vê esta faixa verde, ainda está no arquivo antigo."),
-            aba === "estoque" && React.createElement(Estoque, { itens: itens, onSaveItens: saveItens }),
-            aba === "balas" && React.createElement(Balas, { balas: balas, onSaveBalas: saveBalas }),
-            aba === "comp" && React.createElement(Comparativo, { itens: itens, balas: balas }),
-            aba === "desp" && React.createElement(Desperdicio, null),
+            aba === "estoque" && React.createElement(EstoqueV25, { itens: itens, onSaveItens: saveItens }),
+            aba === "balas" && React.createElement(BalasV25, { balas: balas, onSaveBalas: saveBalas }),
+            aba === "comp" && React.createElement(ConsultarV26, { itens: itens, balas: balas }),
+            aba === "desp" && React.createElement(DesperdicioV25, null),
+            aba === "vendas" && React.createElement(VendasV25, null),
             aba === "caixa" && React.createElement(Caixa, null),
             aba === "consumo" && React.createElement(Consumo, { funcCon: funcCon, onSaveFuncCon: saveFuncCon }),
             aba === "escala" && React.createElement(Escala, { funcEsc: funcEsc, onSaveFuncEsc: saveFuncEsc }),
@@ -1911,6 +2683,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V24 2026-08-12: ponto limpo, confirmação de registro, observações livres, domingo normal e escala sugerida corrigida -->
+<!-- Versao V27 2026-08-27: autosalvamento geral, auditoria, backup de escala, fila offline e proteção de ponto -->
 </body>
 </html>
