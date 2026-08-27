@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V27</title>
+<title>FINI Petrópolis · Gestão V28</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -11,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--paper:#fff5f9;--card:#fffafc;--ink:#2a1018;--ink-soft:#6b4d55;--ink-faint:#b08090;--line:#f0d0dc;--line-soft:#f7e5ec;--fini:#e8266e;--fini-deep:#c01858;--yellow:#f5c000;--green:#3f8f5f;--blue:#3a6ea5;--shadow:0 18px 44px -22px rgba(60,20,40,.35)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -224,9 +225,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "27/08/2026 22:30 - V27_AUTOSSALVAMENTO_SEGURO";
+const FINI_BUILD = "27/08/2026 23:55 - V28_IMPORTACAO_VENDAS";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "27/08/2026 22:30 · V27_AUTOSSALVAMENTO_SEGURO";
+const APP_VERSION = "27/08/2026 23:55 · V28_IMPORTACAO_VENDAS";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -2443,8 +2444,75 @@ function DesperdicioV25() {
                 !ents.length && h25("tr", null, h25("td", { colSpan: 8, style: { textAlign: "center", padding: 22 } }, "Nenhuma perda registrada."))))));
 }
 
+function normalizaCabecalhoVendas(v) {
+    return String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+function numeroRelatorioVendas(v) {
+    if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+    let s = String(v ?? "").replace(/R\$/gi, "").replace(/\s/g, "");
+    if (!s) return 0;
+    const ultimaVirgula = s.lastIndexOf(","), ultimoPonto = s.lastIndexOf(".");
+    if (ultimaVirgula > ultimoPonto) s = s.replace(/\./g, "").replace(",", ".");
+    else if (ultimoPonto > ultimaVirgula && ultimaVirgula >= 0) s = s.replace(/,/g, "");
+    else if (ultimaVirgula >= 0) s = s.replace(",", ".");
+    else if (/^\d{1,3}(?:\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+    const n = Number(s.replace(/[^0-9.-]/g, ""));
+    return Number.isFinite(n) ? n : 0;
+}
+function dataRelatorioVendas(v) {
+    if (v instanceof Date && !isNaN(v)) return isoDia(v.getFullYear(), v.getMonth(), v.getDate());
+    if (typeof v === "number" && window.XLSX && XLSX.SSF) {
+        const d = XLSX.SSF.parse_date_code(v);
+        if (d) return `${d.y}-${pad(d.m)}-${pad(d.d)}`;
+    }
+    const s = String(v || "").trim();
+    let m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+    if (m) { const a = Number(m[3]) < 100 ? 2000 + Number(m[3]) : Number(m[3]); return `${a}-${pad(Number(m[2]))}-${pad(Number(m[1]))}`; }
+    m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    return m ? `${m[1]}-${pad(Number(m[2]))}-${pad(Number(m[3]))}` : "";
+}
+function mapearTabelaVendas(linhas) {
+    if (!Array.isArray(linhas) || !linhas.length) return [];
+    let cab = -1, indices = null;
+    for (let i = 0; i < Math.min(linhas.length, 30); i++) {
+        const hs = (linhas[i] || []).map(normalizaCabecalhoVendas);
+        const data = hs.findIndex(x => x === "data" || x.includes("datamov") || x.includes("datavenda"));
+        const vendas = hs.findIndex(x => x.includes("totvendas") || x.includes("totalvendas") || x.includes("faturamento") || (x.includes("vendas") && !x.includes("produto")));
+        const tc = hs.findIndex(x => x === "tc" || x.includes("totalcupom") || x.includes("transacoes") || x.includes("cupons"));
+        const tm = hs.findIndex(x => x === "tm" || x.includes("ticketmedio"));
+        if (data >= 0 && vendas >= 0 && (tc >= 0 || tm >= 0)) { cab = i; indices = { data, vendas, tc, tm }; break; }
+    }
+    if (!indices) return [];
+    return linhas.slice(cab + 1).map(row => {
+        const data = dataRelatorioVendas(row[indices.data]), vendas = numeroRelatorioVendas(row[indices.vendas]);
+        const tmInformado = indices.tm >= 0 ? numeroRelatorioVendas(row[indices.tm]) : 0;
+        let tc = indices.tc >= 0 ? numeroRelatorioVendas(row[indices.tc]) : 0;
+        if (!tc && vendas && tmInformado) tc = Math.round(vendas / tmInformado);
+        return { data, vendas, tc: Math.round(tc), tmInformado };
+    }).filter(r => r.data && r.data >= "2026-08-01" && r.vendas >= 0 && r.tc >= 0);
+}
+async function lerArquivoVendas(file) {
+    const buffer = await file.arrayBuffer(), inicio = new TextDecoder("utf-8").decode(buffer.slice(0, 256)).trim().toLowerCase();
+    const tabelas = [];
+    if (inicio.startsWith("<html") || inicio.startsWith("<!doctype")) {
+        const pagina = new DOMParser().parseFromString(new TextDecoder("utf-8").decode(buffer), "text/html");
+        pagina.querySelectorAll("table").forEach(table => tabelas.push(Array.from(table.querySelectorAll("tr")).map(tr => Array.from(tr.querySelectorAll("th,td")).map(c => c.textContent.trim()))));
+    }
+    else {
+        if (!window.XLSX) throw new Error("O leitor de planilhas não carregou. Verifique a internet e tente novamente.");
+        const wb = XLSX.read(buffer, { type: "array", cellDates: true });
+        wb.SheetNames.forEach(nome => tabelas.push(XLSX.utils.sheet_to_json(wb.Sheets[nome], { header: 1, raw: true, defval: "" })));
+    }
+    const brutos = tabelas.flatMap(mapearTabelaVendas);
+    if (!brutos.length) throw new Error("Não encontrei colunas de Data, Vendas e TC/TM no arquivo.");
+    const porData = {};
+    brutos.forEach(r => { porData[r.data] = porData[r.data] ? { ...r, vendas: porData[r.data].vendas + r.vendas, tc: porData[r.data].tc + r.tc } : r; });
+    return Object.values(porData).sort((a, b) => a.data.localeCompare(b.data));
+}
+
 function VendasV25() {
     const [ano, setAno] = useState(Math.max(2026, hjD.getFullYear())), [mes, setMes] = useState(hjD.getFullYear() === 2026 ? Math.max(7, hjD.getMonth()) : hjD.getMonth());
+    const [importMsg, setImportMsg] = useState(""), [importando, setImportando] = useState(false), arquivoRef = useRef(null);
     useEffect(() => { if (ano < 2026 || (ano === 2026 && mes < 7)) { setAno(2026); setMes(7); } }, [ano, mes]);
     const doc = useFireDoc("fini_vendas_diarias", keyMes(ano, mes), { dias: {}, metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "" } });
     const dias = doc.data.dias || {}, metas = { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(doc.data.metas || {}) };
@@ -2455,10 +2523,38 @@ function VendasV25() {
     const atual = metas.tipo === "tm" ? tm : totalVendas;
     const fmt = v => metas.tipo === "tm" || metas.tipo === "faturamento" ? brl(v) : String(v);
     const labels = { mensal: "Meta mensal", intermediaria: "Meta intermediária", super: "Super meta" };
+    const importarArquivo = async (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = "";
+        if (!file) return;
+        setImportando(true); setImportMsg("Lendo arquivo…");
+        try {
+            if (doc.dirty && !(await doc.save())) throw new Error("Não foi possível salvar os dados manuais antes da importação.");
+            const registros = await lerArquivoVendas(file), total = registros.reduce((s, r) => s + r.vendas, 0), cupons = registros.reduce((s, r) => s + r.tc, 0);
+            const meses = [...new Set(registros.map(r => r.data.slice(0, 7)))];
+            if (!confirm(`Importar ${registros.length} dias (${meses.join(", ")})?\n\nVendas: ${brl(total)}\nTC: ${cupons.toLocaleString("pt-BR")}\nTM: ${brl(cupons ? total / cupons : 0)}\n\nDatas já preenchidas serão atualizadas; observações e metas serão preservadas.`)) { setImportMsg("Importação cancelada."); return; }
+            for (const chave of meses) {
+                const ref = db.collection("fini_vendas_diarias").doc(chave), snap = await ref.get(), anterior = snap.exists ? snap.data() : {};
+                const diasImportados = { ...(anterior.dias || {}) };
+                registros.filter(r => r.data.startsWith(chave)).forEach(r => {
+                    const dd = r.data.slice(8, 10);
+                    diasImportados[dd] = { ...(diasImportados[dd] || {}), vendas: r.vendas.toFixed(2), tc: String(r.tc), importadoEm: new Date().toISOString(), fonteImportacao: file.name };
+                });
+                await salvarDocumentoSeguro("fini_vendas_diarias", chave, { ...anterior, dias: diasImportados, ultimaImportacao: { arquivo: file.name, registros: registros.filter(r => r.data.startsWith(chave)).length, importadoEm: new Date().toISOString() } }, `IMPORTACAO_VENDAS_${file.name}`);
+            }
+            const ultimoMes = meses[meses.length - 1], [a, m] = ultimoMes.split("-").map(Number);
+            setAno(a); setMes(m - 1);
+            if (ultimoMes === keyMes(ano, mes)) await doc.reload();
+            setImportMsg(`${registros.length} dias importados · ${brl(total)} · TC ${cupons.toLocaleString("pt-BR")}`);
+        }
+        catch (err) { console.error("Erro ao importar vendas", err); setImportMsg(`Não importado: ${err.message || err}`); }
+        finally { setImportando(false); }
+    };
     return h25(React.Fragment, null,
         h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Vendas Diárias"), h25("div", { className: "hsub" }, "Faturamento, transações (TC) e ticket médio (TM) a partir de agosto de 2026.")), h25(Status, { ...doc })),
         h25(ErrBox, { ...doc }),
-        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar mês")),
+        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("div", { className: "tl" }, h25("input", { ref: arquivoRef, type: "file", accept: ".xls,.xlsx,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", style: { display: "none" }, onChange: importarArquivo }), h25("button", { className: "btn ghost", onClick: () => arquivoRef.current && arquivoRef.current.click(), disabled: importando }, importando ? "Importando…" : "Importar arquivo"), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar mês"))),
+        importMsg && h25("div", { className: "clean-note", style: { marginBottom: 12 } }, importMsg),
         h25("div", { className: "goal-grid" },
             h25("div", { className: "goal-card" }, h25("label", null, "Acompanhar metas por"), h25("select", { className: "inp", value: metas.tipo, onChange: e => setMeta("tipo", e.target.value) }, h25("option", { value: "faturamento" }, "Faturamento total"), h25("option", { value: "tm" }, "Ticket médio (TM)"))),
             ["mensal", "intermediaria", "super"].map(k => { const alvo = num(metas[k]), pct = alvo ? Math.min(100, atual / alvo * 100) : 0; return h25("div", { className: "goal-card", key: k }, h25("label", null, labels[k]), h25("input", { className: "inp num", inputMode: "decimal", value: metas[k], placeholder: "R$ 0,00", onChange: e => setMeta(k, e.target.value) }), h25("div", { className: "clean-note" }, alvo ? `${fmt(atual)} de ${fmt(alvo)} · ${pct.toFixed(0)}%` : "Defina a meta"), h25("div", { className: "progress" }, h25("span", { style: { width: `${pct}%` } }))); })),
@@ -2683,6 +2779,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V27 2026-08-27: autosalvamento geral, auditoria, backup de escala, fila offline e proteção de ponto -->
+<!-- Versao V28 2026-08-27: importação de vendas por XLS/XLSX/CSV preservando entrada manual -->
 </body>
 </html>
