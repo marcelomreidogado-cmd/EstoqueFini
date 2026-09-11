@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V29</title>
+<title>FINI Petrópolis · Gestão V30</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -186,7 +186,12 @@ table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:12px 0}.summary-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.summary-card strong{font-size:13px}.summary-card dl{display:grid;grid-template-columns:1fr auto;gap:3px 10px;margin-top:7px;font-size:11px}.summary-card dt{color:var(--ink-soft)}.summary-card dd{font-family:'DM Mono';font-weight:700}
 .print-area{display:none}.print-title{font-family:Arial,sans-serif;font-size:15pt;font-weight:700;margin-bottom:2mm}.print-subtitle{font-family:Arial,sans-serif;font-size:9pt;margin-bottom:4mm;color:#333}.signature-box{display:grid;grid-template-columns:1fr 1fr;gap:14mm;margin-top:10mm}.signature-line{border-top:1px solid #222;text-align:center;padding-top:2mm;font:9pt Arial}
 .point-table-v25{min-width:960px}.point-table-v25 th,.point-table-v25 td{white-space:nowrap}.point-table-v25 .pobs{min-width:150px!important}.time-input{width:70px!important;font-family:'DM Mono'!important;text-align:center!important}
-.sales-table{min-width:760px}.sales-table td input{min-width:92px}.goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px}.goal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px}.goal-card label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);font-weight:700;margin-bottom:5px}.goal-card input,.goal-card select{width:100%}.progress{height:7px;background:var(--line-soft);border-radius:999px;overflow:hidden;margin-top:7px}.progress>span{display:block;height:100%;background:var(--fini);border-radius:inherit;max-width:100%}
+.sales-width,.cash-width{width:100%;max-width:980px;margin-left:auto;margin-right:auto}
+.sales-summary{justify-content:center;max-width:720px}.sales-summary .tt{min-width:150px;text-align:center}.sales-summary .tt span{font-size:11px;font-weight:800;letter-spacing:.07em}.sales-summary .tt b{font-size:19px}
+.sales-table{width:100%;min-width:680px;table-layout:fixed}.sales-table th{padding:9px 6px;text-align:center;font-size:13px;letter-spacing:.055em;color:var(--ink);white-space:nowrap}.sales-table td{padding:4px 6px;height:42px;vertical-align:middle}.sales-table th:nth-child(1){width:120px}.sales-table th:nth-child(2){width:180px}.sales-table th:nth-child(3){width:125px}.sales-table th:nth-child(4){width:150px}.sales-table td:nth-child(1){text-align:center;font-weight:700;white-space:nowrap}.sales-table td:nth-child(2),.sales-table td:nth-child(3),.sales-table td:nth-child(4){text-align:center}.sales-table td:nth-child(5){text-align:left}.sales-table td input{width:100%;min-width:0!important;height:34px;padding:5px 9px}.sales-table .money-input{max-width:160px;margin:auto}.sales-table .tc-input{max-width:86px;margin:auto;text-align:center!important;font-weight:800}.sales-table .tm-auto{display:inline-flex;align-items:center;justify-content:center;min-width:112px;padding:6px 9px;border-radius:8px;background:#fff6fa;color:var(--ink);font-family:'DM Mono';font-weight:700}.sales-table .obs-input{max-width:260px}
+.money-input{font-family:'DM Mono'!important;text-align:right!important;font-variant-numeric:tabular-nums}.money-input:not(:focus){color:var(--ink);font-weight:700}
+.cash-table{width:100%;min-width:820px;table-layout:fixed}.cash-table th{text-align:center;font-size:12px}.cash-table td{padding:4px 6px}.cash-table .money-input{width:100%;min-width:0}.cash-summary{justify-content:center}.cash-summary .tt{text-align:center}
+.goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px}.goal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px}.goal-card label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);font-weight:700;margin-bottom:5px}.goal-card input,.goal-card select{width:100%}.progress{height:7px;background:var(--line-soft);border-radius:999px;overflow:hidden;margin-top:7px}.progress>span{display:block;height:100%;background:var(--fini);border-radius:inherit;max-width:100%}
 .draft-pill{display:inline-flex;align-items:center;gap:5px;background:#fff7db;color:#795500;border:1px solid #f0d98b;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:700}
 .confirm-modal .mbox{max-width:420px}.confirm-time{font-family:'DM Mono';font-size:30px;color:var(--fini);text-align:center;padding:10px 0}.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.confirm-grid div{background:#fff;border:1px solid var(--line-soft);border-radius:9px;padding:8px}.confirm-grid span{display:block;color:var(--ink-faint);font-size:9px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
 .waste-kpi{display:flex;align-items:baseline;gap:6px}.waste-kpi small{color:var(--ink-faint);font-size:10px}
@@ -235,9 +240,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "10/09/2026 21:23 - V29_CONTAGEM_PROTEGIDA_ESCALA";
+const FINI_BUILD = "10/09/2026 21:54 - V30_MOEDA_VENDAS_CAIXA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "10/09/2026 21:23 · V29_CONTAGEM_PROTEGIDA_ESCALA";
+const APP_VERSION = "10/09/2026 21:54 · V30_MOEDA_VENDAS_CAIXA";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -282,6 +287,40 @@ const HOJE = `${hjD.getFullYear()}-${pad(hjD.getMonth() + 1)}-${pad(hjD.getDate(
 const brl = v => (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const kgF = v => (Number(v) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + " kg";
 const num = v => { const n = parseFloat(String(v || "").replace(",", ".")); return isNaN(n) ? 0 : n; };
+function numeroMoeda25(v) {
+    if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+    let s = String(v ?? "").replace(/R\$/gi, "").replace(/\s/g, "").replace(/[^0-9,.-]/g, "");
+    if (!s) return 0;
+    const ultimaVirgula = s.lastIndexOf(","), ultimoPonto = s.lastIndexOf(".");
+    if (ultimaVirgula > ultimoPonto) s = s.replace(/\./g, "").replace(",", ".");
+    else if (ultimoPonto > ultimaVirgula && ultimaVirgula >= 0) s = s.replace(/,/g, "");
+    else if ((s.match(/\./g) || []).length > 1) {
+        const partes = s.split("."), decimal = partes[partes.length - 1].length <= 2 ? partes.pop() : "";
+        s = partes.join("") + (decimal ? `.${decimal}` : "");
+    }
+    else if (ultimaVirgula >= 0) s = s.replace(",", ".");
+    else if (ultimoPonto >= 0 && s.length - ultimoPonto - 1 === 3) s = s.replace(".", "");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+}
+function CampoMoeda25({ value, onChange, className = "", style, placeholder = "R$ 0,00", ariaLabel }) {
+    const vazio = value === undefined || value === null || String(value).trim() === "";
+    const [editando, setEditando] = useState(false), [entrada, setEntrada] = useState("");
+    useEffect(() => {
+        if (!editando) setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    }, [value, editando, vazio]);
+    const confirmar = () => {
+        const raw = String(entrada || "").trim();
+        onChange(raw ? numeroMoeda25(raw).toFixed(2) : "");
+        setEditando(false);
+    };
+    return React.createElement("input", {
+        className: `money-input ${className}`.trim(), style, type: "text", inputMode: "decimal", value: editando ? entrada : (vazio ? "" : brl(numeroMoeda25(value))), placeholder, "aria-label": ariaLabel,
+        onFocus: e => { setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 })); setEditando(true); setTimeout(() => e.target.select(), 0); },
+        onChange: e => setEntrada(e.target.value), onBlur: confirmar,
+        onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 })); e.currentTarget.blur(); } }
+    });
+}
 function somaExpressao(v) {
     const raw = String(v !== null && v !== void 0 ? v : "").trim();
     if (!raw)
@@ -1213,9 +1252,9 @@ function Caixa() {
             React.createElement("div", { className: "tl" },
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Inicial do m\u00EAs"),
-                    React.createElement("input", { className: "inp num", type: "number", step: "0.01", style: { width: 115 }, value: (_a = doc.data.inicialMes) !== null && _a !== void 0 ? _a : "", placeholder: "0,00", onChange: e => doc.update({ inicialMes: e.target.value }) })),
+                    React.createElement(CampoMoeda25, { className: "inp", style: { width: 150 }, value: (_a = doc.data.inicialMes) !== null && _a !== void 0 ? _a : "", ariaLabel: "Valor inicial do mês", onChange: v => doc.update({ inicialMes: v }) })),
                 React.createElement("span", { className: "save-note " + (doc.status === "err" ? "err" : doc.dirty || doc.status === "load" ? "" : "ok") }, doc.status === "load" ? "Salvando automaticamente…" : doc.dirty ? "Alteração protegida neste aparelho" : "Salvo automaticamente"))),
-        React.createElement("div", { className: "totbar" },
+        React.createElement("div", { className: "totbar cash-width cash-summary" },
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Entradas"),
                 React.createElement("b", { style: { color: "var(--green)" } }, brl(tE))),
@@ -1228,7 +1267,7 @@ function Caixa() {
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Troco conferido"),
                 React.createElement("b", null, brl(totalTroco)))),
-        React.createElement("div", { className: "panel", style: { marginBottom: 16 } },
+        React.createElement("div", { className: "panel cash-width", style: { marginBottom: 16 } },
             React.createElement("div", { className: "cat" },
                 React.createElement("span", null, "Confer\u00EAncia de Troco"),
                 React.createElement("span", { className: "ct" },
@@ -1256,8 +1295,8 @@ function Caixa() {
                     React.createElement("input", { type: "number", min: "0", step: "1", value: qtd, placeholder: "Qtd", onChange: e => setTroco(den, e.target.value) }),
                     React.createElement("div", { className: "ttl" }, brl(tot)));
             }))),
-        React.createElement("div", { className: "panel" },
-            React.createElement("table", null,
+        React.createElement("div", { className: "panel cash-width table-wrap" },
+            React.createElement("table", { className: "cash-table" },
                 React.createElement("thead", null,
                     React.createElement("tr", null,
                         React.createElement("th", { style: { width: 115 } }, "Data"),
@@ -1275,11 +1314,11 @@ function Caixa() {
                         " \u00B7 ",
                         WD[dow]),
                     React.createElement("td", null,
-                        React.createElement("input", { className: "num", type: "number", step: "0.01", value: (_a = l.inicialRaw) !== null && _a !== void 0 ? _a : "", placeholder: l.ini.toFixed(2), onChange: e => set(l.dd, "inicial", e.target.value) })),
+                        React.createElement(CampoMoeda25, { value: (_a = l.inicialRaw) !== null && _a !== void 0 ? _a : "", placeholder: brl(l.ini), ariaLabel: `Valor inicial de ${l.dd}/${pad(mes + 1)}`, onChange: v => set(l.dd, "inicial", v) })),
                     React.createElement("td", null,
-                        React.createElement("input", { className: "num", type: "number", step: "0.01", value: (_b = l.entrada) !== null && _b !== void 0 ? _b : "", placeholder: "0,00", onChange: e => set(l.dd, "entrada", e.target.value) })),
+                        React.createElement(CampoMoeda25, { value: (_b = l.entrada) !== null && _b !== void 0 ? _b : "", ariaLabel: `Entrada de ${l.dd}/${pad(mes + 1)}`, onChange: v => set(l.dd, "entrada", v) })),
                     React.createElement("td", null,
-                        React.createElement("input", { className: "num", type: "number", step: "0.01", value: (_c = l.saida) !== null && _c !== void 0 ? _c : "", placeholder: "0,00", onChange: e => set(l.dd, "saida", e.target.value) })),
+                        React.createElement(CampoMoeda25, { value: (_c = l.saida) !== null && _c !== void 0 ? _c : "", ariaLabel: `Saída de ${l.dd}/${pad(mes + 1)}`, onChange: v => set(l.dd, "saida", v) })),
                     React.createElement("td", null,
                         React.createElement("select", { value: l.forma || "", onChange: e => set(l.dd, "forma", e.target.value) },
                             React.createElement("option", { value: "" }, "\u2014"),
@@ -2617,6 +2656,12 @@ function mapearTabelaVendas(linhas) {
         const tmInformado = indices.tm >= 0 ? numeroRelatorioVendas(row[indices.tm]) : 0;
         let tc = indices.tc >= 0 ? numeroRelatorioVendas(row[indices.tc]) : 0;
         if (!tc && vendas && tmInformado) tc = Math.round(vendas / tmInformado);
+        if (tc && !Number.isInteger(tc)) {
+            const quantidadePelaMedia = vendas && tc ? vendas / tc : 0;
+            if (tmInformado && Number.isInteger(tmInformado) && Math.abs(quantidadePelaMedia - tmInformado) < 0.1) tc = tmInformado;
+            else if (quantidadePelaMedia >= 1 && Math.abs(quantidadePelaMedia - Math.round(quantidadePelaMedia)) < 0.1) tc = Math.round(quantidadePelaMedia);
+            else tc = Math.round(tc);
+        }
         return { data, vendas, tc: Math.round(tc), tmInformado };
     }).filter(r => r.data && r.data >= "2026-08-01" && r.vendas >= 0 && r.tc >= 0);
 }
@@ -2686,9 +2731,9 @@ function VendasV25() {
         importMsg && h25("div", { className: "clean-note", style: { marginBottom: 12 } }, importMsg),
         h25("div", { className: "goal-grid" },
             h25("div", { className: "goal-card" }, h25("label", null, "Acompanhar metas por"), h25("select", { className: "inp", value: metas.tipo, onChange: e => setMeta("tipo", e.target.value) }, h25("option", { value: "faturamento" }, "Faturamento total"), h25("option", { value: "tm" }, "Ticket médio (TM)"))),
-            ["mensal", "intermediaria", "super"].map(k => { const alvo = num(metas[k]), pct = alvo ? Math.min(100, atual / alvo * 100) : 0; return h25("div", { className: "goal-card", key: k }, h25("label", null, labels[k]), h25("input", { className: "inp num", inputMode: "decimal", value: metas[k], placeholder: "R$ 0,00", onChange: e => setMeta(k, e.target.value) }), h25("div", { className: "clean-note" }, alvo ? `${fmt(atual)} de ${fmt(alvo)} · ${pct.toFixed(0)}%` : "Defina a meta"), h25("div", { className: "progress" }, h25("span", { style: { width: `${pct}%` } }))); })),
-        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Vendas"), h25("b", { className: "hl" }, brl(totalVendas))), h25("div", { className: "tt" }, h25("span", null, "TC"), h25("b", null, totalTC.toLocaleString("pt-BR"))), h25("div", { className: "tt" }, h25("span", null, "TM"), h25("b", null, brl(tm)))),
-        h25("div", { className: "panel table-wrap" }, h25("table", { className: "sales-table" }, h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Vendas"), h25("th", null, "TC"), h25("th", null, "TM"), h25("th", null, "Observação"))), h25("tbody", null, rows.map(r => { const dt = new Date(ano, mes, Number(r.dd)); return h25("tr", { key: r.dd, className: dt.getDay() === 0 ? "wd-dom" : "" }, h25("td", null, `${r.dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`), h25("td", null, h25("input", { className: "num", inputMode: "decimal", value: r.vendas, placeholder: "0,00", onChange: e => setDia(r.dd, "vendas", e.target.value) })), h25("td", null, h25("input", { className: "num", inputMode: "numeric", value: r.tc, placeholder: "0", onChange: e => setDia(r.dd, "tc", e.target.value) })), h25("td", { className: "num" }, r.tm ? brl(r.tm) : "—"), h25("td", null, h25("input", { value: r.obs, placeholder: "Opcional", onChange: e => setDia(r.dd, "obs", e.target.value) }))); })))));
+            ["mensal", "intermediaria", "super"].map(k => { const alvo = num(metas[k]), pct = alvo ? Math.min(100, atual / alvo * 100) : 0; return h25("div", { className: "goal-card", key: k }, h25("label", null, labels[k]), h25(CampoMoeda25, { className: "inp", value: metas[k], ariaLabel: labels[k], onChange: v => setMeta(k, v) }), h25("div", { className: "clean-note" }, alvo ? `${fmt(atual)} de ${fmt(alvo)} · ${pct.toFixed(0)}%` : "Defina a meta"), h25("div", { className: "progress" }, h25("span", { style: { width: `${pct}%` } }))); })),
+        h25("div", { className: "totbar sales-width sales-summary" }, h25("div", { className: "tt" }, h25("span", null, "Vendas"), h25("b", { className: "hl" }, brl(totalVendas))), h25("div", { className: "tt" }, h25("span", null, "TC · quantidade"), h25("b", null, totalTC.toLocaleString("pt-BR"))), h25("div", { className: "tt" }, h25("span", null, "TM · automático"), h25("b", null, brl(tm)))),
+        h25("div", { className: "panel table-wrap sales-width" }, h25("table", { className: "sales-table" }, h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Vendas (R$)"), h25("th", null, "TC (quantidade)"), h25("th", null, "TM automático"), h25("th", null, "Observação"))), h25("tbody", null, rows.map(r => { const dt = new Date(ano, mes, Number(r.dd)); return h25("tr", { key: r.dd, className: dt.getDay() === 0 ? "wd-dom" : "" }, h25("td", null, `${r.dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`), h25("td", null, h25(CampoMoeda25, { value: r.vendas, ariaLabel: `Vendas de ${r.dd}/${pad(mes + 1)}`, onChange: v => setDia(r.dd, "vendas", v) })), h25("td", null, h25("input", { className: "tc-input", type: "text", inputMode: "numeric", pattern: "[0-9]*", value: r.tc, placeholder: "0", "aria-label": `TC de ${r.dd}/${pad(mes + 1)}`, onChange: e => setDia(r.dd, "tc", e.target.value.replace(/\D/g, "")) })), h25("td", null, h25("span", { className: "tm-auto", title: "Calculado automaticamente: Vendas ÷ TC" }, r.tm ? brl(r.tm) : "—")), h25("td", null, h25("input", { className: "obs-input", value: r.obs, placeholder: "Opcional", onChange: e => setDia(r.dd, "obs", e.target.value) }))); })))));
 }
 
 function pascoa25(ano) {
@@ -2908,6 +2953,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V29 2026-09-10: contagem acumulada e verificada, fila ordenada, backup final e escala sem folga sexta/sábado -->
+<!-- Versao V30 2026-09-10: moeda em Vendas/Caixa, TC inteiro, TM automático e tabelas compactas -->
 </body>
 </html>
