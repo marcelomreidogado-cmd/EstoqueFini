@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V28</title>
+<title>FINI Petrópolis · Gestão V29</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -205,10 +205,20 @@ table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
 @media print{
   html,body{background:#fff!important;color:#000!important}.app{display:block!important}.side,.main>*{display:none!important}.main{display:block!important;padding:0!important;max-width:none!important}.main>.print-area{display:block!important}.print-area{font-family:Arial,sans-serif;color:#000}.print-area table{width:100%;border-collapse:collapse;font-size:7.6pt;table-layout:fixed}.print-area th,.print-area td{border:1px solid #555;padding:1.25mm 1mm;vertical-align:middle;background:#fff!important;color:#000!important;position:static!important}.print-area th{font-weight:700;text-transform:none;letter-spacing:0}.print-area tr{break-inside:avoid}.print-area .holiday-print{background:#eee!important}.print-area .off-print{font-weight:700}.print-area.point-print table{font-size:7pt}.print-area.point-print th,.print-area.point-print td{padding:1mm .8mm}.print-area textarea,.print-area input{border:0;background:transparent;color:#000}
   .print-area.schedule-print{page:schedule}.print-area.point-print{page:point}
-  body.print-escala .print-area.schedule-print table{font-size:7.1pt}
-  body.print-escala .print-area.schedule-print th,body.print-escala .print-area.schedule-print td{padding:.62mm .75mm;line-height:1.05}
-  body.print-escala .schedule-print .print-title{font-size:13pt;margin-bottom:1mm}
-  body.print-escala .schedule-print .print-subtitle{font-size:8pt;margin-bottom:2.2mm}
+  body.print-escala .schedule-print{height:195mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+  body.print-escala .schedule-print .print-title{font-size:13pt;margin-bottom:2mm;text-align:center}
+  body.print-escala .schedule-print-weekdays,body.print-escala .schedule-print-days{display:grid;grid-template-columns:repeat(7,1fr)}
+  body.print-escala .schedule-print-weekdays{height:7mm}
+  body.print-escala .schedule-print-weekday{border:1px solid #777;border-right:0;padding:1.2mm;text-align:center;font:bold 7.5pt Arial;text-transform:uppercase}
+  body.print-escala .schedule-print-weekday:last-child{border-right:1px solid #777}
+  body.print-escala .schedule-print-days{height:181mm;border-left:1px solid #777;border-top:1px solid #777;grid-auto-rows:1fr}
+  body.print-escala .schedule-print-day{border-right:1px solid #777;border-bottom:1px solid #777;padding:1.2mm;min-width:0;overflow:hidden;font:6.7pt/1.16 Arial;background:#fff;color:#000}
+  body.print-escala .schedule-print-day.out{background:#f4f4f4}
+  body.print-escala .schedule-print-day.holiday{background:#f1f1f1}
+  body.print-escala .schedule-print-date{display:flex;justify-content:space-between;gap:1mm;font-weight:700;font-size:7.4pt;margin-bottom:.8mm}
+  body.print-escala .schedule-print-holiday{font-size:5.8pt;text-align:right;white-space:normal}
+  body.print-escala .schedule-print-off{font-weight:700;margin-bottom:.6mm}
+  body.print-escala .schedule-print-slot{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.35mm}
   .print-area .signature-box{grid-template-columns:1fr 1fr!important;gap:14mm!important;margin-top:10mm!important}
 }
 </style>
@@ -225,9 +235,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "27/08/2026 23:55 - V28_IMPORTACAO_VENDAS";
+const FINI_BUILD = "10/09/2026 21:23 - V29_CONTAGEM_PROTEGIDA_ESCALA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "27/08/2026 23:55 · V28_IMPORTACAO_VENDAS";
+const APP_VERSION = "10/09/2026 21:23 · V29_CONTAGEM_PROTEGIDA_ESCALA";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -368,7 +378,7 @@ function enfileirarOffline(col, id, payload, origem = "AUTOSSALVAMENTO") {
     gravarFilaOffline(fila);
 }
 async function registrarAuditoria(col, id, payload, origem = "AUTOSSALVAMENTO", acao = "SALVAR") {
-    if (["fini_auditoria", "fini_backups_escala"].includes(col)) return;
+    if (["fini_auditoria", "fini_backups_escala", "fini_backups_contagem"].includes(col)) return;
     try {
         await db.collection("fini_auditoria").add({
             colecao: col,
@@ -691,7 +701,15 @@ function ModalFuncCon({ funcs, onSave, onClose }) {
                 React.createElement("button", { className: "btn primary", onClick: () => onSave(lista) }, "\uD83D\uDCBE Salvar"))));
 }
 /* ══ ESCALA: Componentes ══ */
-const listaFuncionarias = arr => (arr || []).map((f, i) => typeof f === "string" ? { id: String(101 + i), nome: f, cor: CORES[i % CORES.length], jornada: "7:20h", regime: "6x1" } : { id: String(f.id || f.codigo || f.pin || String(101 + i)), nome: f.nome || "", cor: f.cor || CORES[i % CORES.length], hora: f.hora || "09:40", jornada: "7:20h", regime: "6x1" }).filter(f => f.nome.trim());
+const listaFuncionarias = arr => {
+    const vistos = new Set();
+    return (arr || []).map((f, i) => typeof f === "string" ? { id: String(101 + i), nome: f, cor: CORES[i % CORES.length], jornada: "7:20h", regime: "6x1" } : { id: String(f.id || f.codigo || f.pin || String(101 + i)), nome: f.nome || "", cor: f.cor || CORES[i % CORES.length], hora: f.hora || "09:40", jornada: "7:20h", regime: "6x1" }).map(f => ({ ...f, nome: f.nome.trim() })).filter(f => {
+        const chave = f.nome.toLocaleLowerCase("pt-BR");
+        if (!chave || vistos.has(chave)) return false;
+        vistos.add(chave);
+        return true;
+    });
+};
 const corFunc = (funcs, nome) => { var _a; return ((_a = funcs.find(f => f.nome === nome)) === null || _a === void 0 ? void 0 : _a.cor) || "#d8c1ca"; };
 const horariosPadrao = especial => especial ? H_DOM_FER : H_SEMANA;
 const escalaBase = (especial, funcs) => ({ folga: "", slots: horariosPadrao(especial).map(h => ({ hora: h, nome: "" })) });
@@ -710,7 +728,7 @@ function normalizarEscalaDia(raw, especial, funcs) {
         slots = Array.isArray(raw.slots) ? raw.slots.map(s => ({ hora: s.hora || "", nome: s.nome || "" })) : [];
     }
     slots = base.slots.map((def, i) => { var _a, _b; return ({ hora: def.hora, nome: (_b = (_a = slots[i]) === null || _a === void 0 ? void 0 : _a.nome) !== null && _b !== void 0 ? _b : def.nome }); });
-    return { folga, slots };
+    return { folga, slots, tipoFolga: raw && raw.tipoFolga || "", feriadoOrigem: raw && raw.feriadoOrigem || "" };
 }
 function conflitosEscalaDia(esc) {
     const nomes = esc.slots.map(s => s.nome).filter(Boolean);
@@ -1362,6 +1380,89 @@ function gerarCels(ano, mes) { const p = new Date(ano, mes, 1), s = new Date(p);
     if (i >= 34 && d.getMonth() !== mes && d.getDay() === 6)
         break;
 } return c; }
+function semanaEscala25(ano, mes, dia) {
+    const dt = new Date(ano, mes, dia), recuo = (dt.getDay() + 6) % 7, segunda = new Date(ano, mes, dia - recuo);
+    return isoDia(segunda.getFullYear(), segunda.getMonth(), segunda.getDate());
+}
+function gerarSugestaoEscalaMes25(ano, mes, funcsOriginais, feriadosMes = {}) {
+    const funcs = listaFuncionarias(funcsOriginais), nd = diMes(ano, mes), folgas = {}, semanas = new Map();
+    const domingos = [], diasUteisFolga = [];
+    for (let dia = 1; dia <= nd; dia++) {
+        const dt = new Date(ano, mes, dia), dow = dt.getDay(), chave = semanaEscala25(ano, mes, dia), iso = isoDia(ano, mes, dia);
+        if (!semanas.has(chave)) semanas.set(chave, []);
+        semanas.get(chave).push(dia);
+        if (dow === 0) domingos.push(dia);
+        if (dow >= 1 && dow <= 4 && !feriadosMes[iso]) diasUteisFolga.push(dia);
+    }
+    const semanasComFolga = new Map(), diasOcupados = new Set();
+    const marcarFolga = (dia, nome, tipoFolga, feriadoOrigem = "") => {
+        folgas[dia] = { nome, tipoFolga, feriadoOrigem };
+        diasOcupados.add(dia);
+        const chave = semanaEscala25(ano, mes, dia);
+        if (!semanasComFolga.has(chave)) semanasComFolga.set(chave, new Set());
+        semanasComFolga.get(chave).add(nome);
+    };
+    // Cada funcionária recebe exatamente um domingo distinto no mês.
+    funcs.forEach((f, i) => {
+        if (!domingos.length) return;
+        const dia = domingos[i % domingos.length];
+        if (!diasOcupados.has(dia)) marcarFolga(dia, f.nome, "6x1");
+    });
+    // Feriado trabalhado gera duas folgas. Elas são distribuídas antes de completar
+    // a escala 6x1 porque uma folga compensatória já atende o descanso daquela semana.
+    const compensacoes = [];
+    Object.keys(feriadosMes).sort().forEach(iso => {
+        if (!iso.startsWith(`${keyMes(ano, mes)}-`)) return;
+        const diaFeriado = Number(iso.slice(8, 10)), folgaNoFeriado = folgas[diaFeriado] && folgas[diaFeriado].nome;
+        funcs.filter(f => f.nome !== folgaNoFeriado).forEach(f => {
+            compensacoes.push({ nome: f.nome, feriado: iso, diaFeriado });
+            compensacoes.push({ nome: f.nome, feriado: iso, diaFeriado });
+        });
+    });
+    const pendentes = [];
+    compensacoes.forEach((comp, idx) => {
+        const candidatos = diasUteisFolga.filter(d => !diasOcupados.has(d));
+        candidatos.sort((a, b) => {
+            const semanaA = semanaEscala25(ano, mes, a), semanaB = semanaEscala25(ano, mes, b);
+            const jaFolgaA = (semanasComFolga.get(semanaA) || new Set()).has(comp.nome) ? 1 : 0;
+            const jaFolgaB = (semanasComFolga.get(semanaB) || new Set()).has(comp.nome) ? 1 : 0;
+            const aposA = a > comp.diaFeriado ? 0 : 1, aposB = b > comp.diaFeriado ? 0 : 1;
+            return jaFolgaA - jaFolgaB || aposA - aposB || Math.abs(a - comp.diaFeriado) - Math.abs(b - comp.diaFeriado) || a - b;
+        });
+        if (!candidatos.length) { pendentes.push(comp); return; }
+        marcarFolga(candidatos[0], comp.nome, "feriado", comp.feriado);
+    });
+    // Completa a folga semanal somente de segunda a quinta, sem usar sexta ou sábado.
+    // Domingo e compensação de feriado já contam como folga na respectiva semana.
+    [...semanas.entries()].forEach(([chave, diasSemana], semanaIdx) => {
+        const jaAtendidos = semanasComFolga.get(chave) || new Set();
+        funcs.forEach((f, fi) => {
+            if (jaAtendidos.has(f.nome)) return;
+            const candidatos = diasSemana.filter(d => {
+                const dow = new Date(ano, mes, d).getDay(), iso = isoDia(ano, mes, d);
+                return dow >= 1 && dow <= 4 && !feriadosMes[iso] && !diasOcupados.has(d);
+            });
+            if (!candidatos.length) return;
+            const escolhido = candidatos[(semanaIdx + fi) % candidatos.length];
+            marcarFolga(escolhido, f.nome, "6x1");
+            jaAtendidos.add(f.nome);
+        });
+    });
+    const dias = {};
+    for (let dia = 1; dia <= nd; dia++) {
+        const dd = pad(dia), dt = new Date(ano, mes, dia), iso = isoDia(ano, mes, dia), horas = horariosPadrao(dt.getDay() === 0 || Boolean(feriadosMes[iso]));
+        const folgaDia = folgas[dia] || { nome: "", tipoFolga: "", feriadoOrigem: "" };
+        const disponiveis = funcs.filter(f => f.nome !== folgaDia.nome);
+        const inicio = disponiveis.length ? (dia + mes) % disponiveis.length : 0;
+        const ordem = disponiveis.map((_, idx) => disponiveis[(idx + inicio) % disponiveis.length]);
+        const indices = ordem.length === 2 && horas.length === 3 ? [0, 2] : horas.map((_, idx) => idx);
+        const slots = horas.map(h => ({ hora: h, nome: "" }));
+        ordem.slice(0, indices.length).forEach((f, idx) => { slots[indices[idx]].nome = f.nome; });
+        dias[dd] = { folga: folgaDia.nome, tipoFolga: folgaDia.tipoFolga, feriadoOrigem: folgaDia.feriadoOrigem, slots };
+    }
+    const domingosDistribuidos = Object.entries(folgas).filter(([dia]) => new Date(ano, mes, Number(dia)).getDay() === 0).length;
+    return { dias, pendentes, domingosDistribuidos, compensacoesGeradas: compensacoes.length - pendentes.length };
+}
 function Escala({ funcEsc, onSaveFuncEsc }) {
     const [ano, setAno] = useState(hjD.getFullYear());
     const [mes, setMes] = useState(hjD.getMonth());
@@ -1403,7 +1504,7 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
         return temNomes ? salvo : recuperarDoPonto(dd, date, iso);
     };
     const setDia = (dd, next) => doc.updateAndSave(d => ({ dias: { ...d.dias, [dd]: next } }));
-    const updateFolga = (dd, date, iso, nome) => setDia(dd, { ...getEscala(dd, date, iso), folga: nome });
+    const updateFolga = (dd, date, iso, nome) => setDia(dd, { ...getEscala(dd, date, iso), folga: nome, tipoFolga: nome ? "manual" : "", feriadoOrigem: "" });
     const updateSlot = (dd, date, iso, idx, slot) => { const base = getEscala(dd, date, iso); const slots = [...base.slots]; slots[idx] = slot; setDia(dd, { ...base, slots }); };
     const toggleFer = iso => {
         if (feriadosOficiais[iso]) {
@@ -1458,50 +1559,18 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
         }
         if (!confirm("Gerar uma sugestão automática para este mês? Isso vai substituir os dias da escala deste mês. Revise antes de usar como escala final."))
             return;
-        const nd = diMes(ano, mes), novoDias = {}, folgasPorDia = {}, domingosUsados = new Set();
-        const semanas = new Map();
-        for (let i = 1; i <= nd; i++) {
-            const dt = new Date(ano, mes, i);
-            const segundaIndex = (dt.getDay() + 6) % 7;
-            const inicio = new Date(ano, mes, i - segundaIndex);
-            const chave = isoDia(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-            if (!semanas.has(chave)) semanas.set(chave, []);
-            semanas.get(chave).push(i);
+        const feriadosMes = {};
+        for (let i = 1; i <= diMes(ano, mes); i++) {
+            const iso = isoDia(ano, mes, i);
+            if (ehFeriado(iso)) feriadosMes[iso] = nomeFeriado(iso) || "Feriado";
         }
-        [...semanas.values()].forEach((diasSemana, semanaIdx) => {
-            const usados = new Set();
-            const domingo = diasSemana.find(d => new Date(ano, mes, d).getDay() === 0);
-            funcsAtivas.forEach((f, fi) => {
-                let escolhido = null;
-                if (domingo && !domingosUsados.has(f.nome) && fi === (semanaIdx % funcsAtivas.length)) {
-                    escolhido = domingo;
-                    domingosUsados.add(f.nome);
-                }
-                if (!escolhido) {
-                    const preferencia = diasSemana[(fi * 2 + semanaIdx) % diasSemana.length];
-                    escolhido = [preferencia, ...diasSemana].find(d => !usados.has(d) && d !== domingo) ||
-                        diasSemana.find(d => !usados.has(d)) || null;
-                }
-                if (escolhido) {
-                    usados.add(escolhido);
-                    folgasPorDia[escolhido] = f.nome;
-                }
-            });
-        });
-        for (let i = 1; i <= nd; i++) {
-            const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i);
-            const horas = horariosPadrao(dt.getDay() === 0 || ehFeriado(iso));
-            const folga = folgasPorDia[i] || "";
-            const disponiveis = funcsAtivas.filter(f => f.nome !== folga);
-            const ordem = disponiveis.map((_, idx) => disponiveis[(idx + i + mes) % disponiveis.length]);
-            const indices = ordem.length === 2 && horas.length === 3 ? [0, 2] : horas.map((_, idx) => idx);
-            const slots = horas.map(h => ({ hora: h, nome: "" }));
-            ordem.slice(0, indices.length).forEach((f, idx) => { slots[indices[idx]].nome = f.nome; });
-            novoDias[dd] = { folga, slots };
-        }
+        const sugestao = gerarSugestaoEscalaMes25(ano, mes, funcsAtivas, feriadosMes);
         const backup = await criarBackupEscala(keyMes(ano, mes), doc.data, "SUBSTITUIR_POR_SUGESTAO_6X1");
-        const salvo = await doc.updateAndSave({ dias: novoDias, atualizadoEm: new Date().toISOString() });
-        if (salvo) alert(`${backup.offline ? "Backup protegido para envio. " : "Backup concluído. "}Sugestão 6x1 gerada com uma folga por funcionária em cada semana visível e no máximo um domingo por funcionária no mês. Revise antes de usar como escala final.`);
+        const salvo = await doc.updateAndSave({ dias: sugestao.dias, atualizadoEm: new Date().toISOString() });
+        if (salvo) {
+            const avisoPendente = sugestao.pendentes.length ? ` Não havia datas livres suficientes para ${sugestao.pendentes.length} folga(s) de feriado; revise o mês.` : ` As ${sugestao.compensacoesGeradas} folgas de feriado foram distribuídas dentro do mês.`;
+            alert(`${backup.offline ? "Backup protegido para envio. " : "Backup concluído. "}Sugestão gerada com folgas somente de segunda a quinta e um domingo distinto para cada funcionária. Nenhuma funcionária foi repetida no mesmo dia.${avisoPendente}`);
+        }
     };
     const resumo = useMemo(() => {
         const nd = diMes(ano, mes);
@@ -1630,31 +1699,15 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                 React.createElement("textarea", { className: "inp", style: { width: "100%", minHeight: 52, resize: "vertical", marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Folgas extras, trocas, avisos gerais\u2026", onChange: e => doc.update({ anotacoes: e.target.value }) }))),
         React.createElement("section", { className: "print-area schedule-print" },
             React.createElement("div", { className: "print-title" }, `Escala de Trabalho \u00B7 ${MESES[mes]} ${ano}`),
-            React.createElement("div", { className: "print-subtitle" }, "FINI Petr\u00F3polis \u00B7 jornada 6x1 \u00B7 7h20 trabalhadas + 1h de almo\u00E7o"),
-            React.createElement("table", null,
-                React.createElement("thead", null,
-                    React.createElement("tr", null,
-                        React.createElement("th", null, "Data"),
-                        React.createElement("th", null, "Dia / feriado"),
-                        React.createElement("th", null, "Folga"),
-                        React.createElement("th", null, "Abertura"),
-                        React.createElement("th", null, "Intermedi\u00E1rio"),
-                        React.createElement("th", null, "Fechamento"))),
-                React.createElement("tbody", null, Array.from({ length: diMes(ano, mes) }, (_, i) => i + 1).map(i => {
-                    const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i);
-                    const esc = getEscala(dd, dt, iso), feriadoNome = nomeFeriado(iso);
-                    const slotTxt = idx => {
-                        const slot = esc.slots[idx];
-                        return slot ? `${slot.hora}${slot.nome ? ` \u00B7 ${slot.nome}` : ""}` : "\u2014";
-                    };
-                    return React.createElement("tr", { key: dd, className: feriadoNome ? "holiday-print" : "" },
-                        React.createElement("td", null, `${dd}/${pad(mes + 1)}`),
-                        React.createElement("td", null, feriadoNome || WD[dt.getDay()]),
-                        React.createElement("td", { className: esc.folga ? "off-print" : "" }, esc.folga || "\u2014"),
-                        React.createElement("td", null, slotTxt(0)),
-                        React.createElement("td", null, slotTxt(1)),
-                        React.createElement("td", null, slotTxt(2)));
-                })))),
+            React.createElement("div", { className: "schedule-print-weekdays" }, WD.map(w => React.createElement("div", { className: "schedule-print-weekday", key: w }, w))),
+            React.createElement("div", { className: "schedule-print-days" }, cells.map((c, idx) => {
+                if (!c.dentro) return React.createElement("div", { className: "schedule-print-day out", key: idx });
+                const dd = pad(c.date.getDate()), esc = getEscala(dd, c.date, c.iso), feriadoNome = nomeFeriado(c.iso);
+                return React.createElement("div", { className: `schedule-print-day${feriadoNome ? " holiday" : ""}`, key: idx },
+                    React.createElement("div", { className: "schedule-print-date" }, React.createElement("span", null, `${c.date.getDate()} · ${WD[c.date.getDay()]}`), feriadoNome && React.createElement("span", { className: "schedule-print-holiday" }, feriadoNome)),
+                    esc.folga && React.createElement("div", { className: "schedule-print-off" }, `${esc.tipoFolga === "feriado" ? "Folga feriado" : "Folga"}: ${esc.folga}`),
+                    esc.slots.filter(s => s.nome).map((s, i) => React.createElement("div", { className: "schedule-print-slot", key: i }, `${s.hora} · ${s.nome}`)));
+            }))),
         React.createElement("div", { className: "foot" },
             "Salvo em ",
             React.createElement("b", null,
@@ -2242,33 +2295,39 @@ function useLocalDraft25(col, id, blank) {
     const [status, setStatus] = useState("ok");
     const [erro, setErro] = useState(null);
     const [online, setOnline] = useState(() => navigator.onLine);
+    const dataRef = useRef(clone25(blank)), revisaoRef = useRef(0), timerRef = useRef(null), filaRef = useRef(Promise.resolve()), finalizandoRef = useRef(false), chaveAtivaRef = useRef(storageKey), baseFinalizadaRef = useRef(null);
+    useEffect(() => { dataRef.current = data; }, [data]);
     useEffect(() => {
         let ativo = true;
+        chaveAtivaRef.current = storageKey;
+        finalizandoRef.current = false;
+        baseFinalizadaRef.current = null;
+        clearTimeout(timerRef.current);
         setStatus("load");
         setErro(null);
         (async () => { try {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) {
-                if (!ativo) return;
-                setData({ ...clone25(JSON.parse(blankJson)), ...JSON.parse(saved) });
-                setDirty(true);
-                setStatus(navigator.onLine ? "ok" : "offline");
-                return;
-            }
+            const saved = localStorage.getItem(storageKey), local = saved ? JSON.parse(saved) : null;
+            let remoto = null;
             if (navigator.onLine) {
                 const snap = await db.collection(col).doc(id).get();
-                const remoto = snap.exists ? snap.data() : null;
-                if (ativo && remoto && remoto.rascunho) {
-                    setData({ ...clone25(JSON.parse(blankJson)), ...remoto });
-                    localStorage.setItem(storageKey, JSON.stringify(remoto));
-                    setDirty(true);
-                }
+                remoto = snap.exists ? snap.data() : null;
             }
-            if (ativo) setStatus(navigator.onLine ? "ok" : "offline");
+            if (!ativo) return;
+            let next = clone25(JSON.parse(blankJson));
+            if (remoto) next = mesclarProfundo(next, remoto);
+            if (local) next = mesclarProfundo(next, local);
+            dataRef.current = next;
+            setData(next);
+            const emEdicao = Boolean(local || (remoto && remoto.rascunho));
+            setDirty(emEdicao);
+            if (!local && remoto && remoto.rascunho) localStorage.setItem(storageKey, JSON.stringify(next));
+            setStatus(navigator.onLine ? "ok" : "offline");
         }
         catch (e) {
             if (!ativo) return;
-            setData(clone25(JSON.parse(blankJson)));
+            const fallback = clone25(JSON.parse(blankJson));
+            dataRef.current = fallback;
+            setData(fallback);
             if (erroDeRede(e)) setStatus("offline");
             else { setErro({ titulo: "Rascunho local indisponível", detalhe: String(e.message || e) }); setStatus("err"); }
         } })();
@@ -2280,8 +2339,13 @@ function useLocalDraft25(col, id, blank) {
         return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
     }, []);
     const update = patch => setData(current => {
-        const delta = typeof patch === "function" ? patch(current) : patch;
-        const next = { ...current, ...delta };
+        if (finalizandoRef.current) return current;
+        const origem = baseFinalizadaRef.current ? mesclarProfundo(clone25(baseFinalizadaRef.current), current) : current;
+        const delta = typeof patch === "function" ? patch(origem) : patch;
+        const next = { ...origem, ...delta };
+        baseFinalizadaRef.current = null;
+        dataRef.current = next;
+        revisaoRef.current += 1;
         try { localStorage.setItem(storageKey, JSON.stringify(next)); }
         catch (e) { console.warn("Falha ao salvar rascunho", e); }
         setDirty(true);
@@ -2289,41 +2353,94 @@ function useLocalDraft25(col, id, blank) {
     });
     useEffect(() => {
         if (!dirty) return;
-        const timer = setTimeout(async () => {
-            setStatus("load");
-            try {
-                const resultado = await salvarDocumentoSeguro(col, id, { ...data, data: id, rascunho: true }, "RASCUNHO_AUTOMATICO");
-                setStatus(resultado.offline ? "offline" : "ok");
-            }
-            catch (e) {
-                setErro(traduzErroFirebase(e, "salvar o rascunho"));
-                setStatus("err");
-            }
+        clearTimeout(timerRef.current);
+        const snapshot = clone25(data), revisao = revisaoRef.current, chave = storageKey;
+        timerRef.current = setTimeout(() => {
+            filaRef.current = filaRef.current.catch(() => true).then(async () => {
+                if (finalizandoRef.current && chaveAtivaRef.current === chave) return;
+                if (chaveAtivaRef.current === chave) setStatus("load");
+                try {
+                    const resultado = await salvarDocumentoSeguro(col, id, { ...snapshot, data: id, rascunho: true }, "RASCUNHO_AUTOMATICO_ORDENADO");
+                    if (chaveAtivaRef.current === chave && revisaoRef.current === revisao) setStatus(resultado.offline ? "offline" : "ok");
+                }
+                catch (e) {
+                    if (chaveAtivaRef.current === chave) { setErro(traduzErroFirebase(e, "salvar o rascunho")); setStatus("err"); }
+                    throw e;
+                }
+            });
         }, 900);
-        return () => clearTimeout(timer);
+        return () => clearTimeout(timerRef.current);
     }, [dirty, JSON.stringify(data), storageKey, online]);
     const save = async () => {
+        clearTimeout(timerRef.current);
+        finalizandoRef.current = true;
         setStatus("load");
         setErro(null);
         try {
-            const resultado = await salvarDocumentoSeguro(col, id, { ...data, data: id, rascunho: false }, "CONTAGEM_FINALIZADA");
+            await filaRef.current.catch(() => true);
+            const snapshot = { ...clone25(dataRef.current), data: id, rascunho: false };
+            const ref = db.collection(col).doc(id), anteriorSnap = navigator.onLine ? await ref.get() : null;
+            const anterior = anteriorSnap && anteriorSnap.exists ? anteriorSnap.data() : null;
+            const backupId = `${id}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+            await salvarDocumentoSeguro("fini_backups_contagem", backupId, { colecaoOrigem: col, documentoOrigem: id, criadoEm: new Date().toISOString(), anterior: copiaSegura(anterior), novaContagem: copiaSegura(snapshot), versao: FINI_BUILD }, "BACKUP_CONTAGEM_FINAL");
+            let resultado = await salvarDocumentoSeguro(col, id, snapshot, "CONTAGEM_FINALIZADA_VERIFICADA");
             if (resultado.offline) {
                 setStatus("offline");
+                finalizandoRef.current = false;
                 return false;
             }
+            let conferencia = await ref.get(), remoto = conferencia.exists ? conferencia.data() : {};
+            if (!contagemConfere25(snapshot, remoto)) {
+                resultado = await salvarDocumentoSeguro(col, id, snapshot, "REPETICAO_CONTAGEM_INCOMPLETA");
+                conferencia = await ref.get(); remoto = conferencia.exists ? conferencia.data() : {};
+            }
+            if (!contagemConfere25(snapshot, remoto)) throw new Error("A conferência encontrou campos ausentes após o salvamento. A tela foi mantida para nova tentativa.");
             localStorage.removeItem(storageKey);
-            setData(clone25(JSON.parse(blankJson)));
+            baseFinalizadaRef.current = clone25(snapshot);
+            const limpo = clone25(JSON.parse(blankJson));
+            dataRef.current = limpo;
+            setData(limpo);
             setDirty(false);
             setStatus("ok");
+            finalizandoRef.current = false;
             return true;
         }
         catch (e) {
             setErro(traduzErroFirebase(e, "salvar a contagem"));
             setStatus("err");
+            finalizandoRef.current = false;
             return false;
         }
     };
-    return { data, update, save, dirty, status, erro };
+    return { data, update, save, dirty, status, erro, baseFinalizada: baseFinalizadaRef.current };
+}
+
+function contagemConfere25(esperado, remoto) {
+    if (!remoto || remoto.rascunho !== false) return false;
+    const grupos = ["itens", "pesos", "pacotes"];
+    return grupos.every(grupo => Object.entries(esperado[grupo] || {}).every(([nome, valor]) => String(((remoto[grupo] || {})[nome]) ?? "") === String(valor ?? "")));
+}
+
+function valorAcumulado25(anterior, lancamento, decimais) {
+    const raw = String(lancamento ?? "").trim();
+    if (!raw) return "";
+    const substituir = raw.startsWith("="), conta = somaExpressao(substituir ? raw.slice(1) : raw);
+    if (!conta.ok) return String(anterior ?? "");
+    const total = Math.max(0, (substituir ? 0 : num(anterior)) + conta.total);
+    return fmtCalcValor(total, decimais, decimais > 0);
+}
+
+function CampoContagemAcumulada25({ value, baseOculta, onCommit, decimais = 0, style, placeholder, ariaLabel }) {
+    const [editando, setEditando] = useState(false), [entrada, setEntrada] = useState(String(value ?? ""));
+    const alterou = useRef(false), base = useRef(String(value ?? ""));
+    useEffect(() => { if (!editando) setEntrada(String(value ?? "")); }, [value, editando]);
+    const iniciar = () => { base.current = String(value ?? "").trim() !== "" ? String(value) : String(baseOculta ?? ""); alterou.current = false; setEntrada(""); setEditando(true); };
+    const concluir = () => {
+        if (alterou.current) onCommit(valorAcumulado25(base.current, entrada, decimais));
+        else setEntrada(String(value ?? ""));
+        alterou.current = false; setEditando(false);
+    };
+    return h25("input", { className: "inp num", style, type: "text", inputMode: decimais ? "decimal" : "numeric", value: entrada, placeholder: editando && base.current ? `Somar a ${base.current}` : placeholder, "aria-label": ariaLabel, title: "Cada novo número é somado ao total. Para corrigir/substituir, digite = antes do valor.", onFocus: iniciar, onChange: e => { alterou.current = true; setEntrada(e.target.value); }, onBlur: concluir, onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { alterou.current = false; e.currentTarget.blur(); } } });
 }
 
 function DraftStatus25({ doc }) {
@@ -2340,16 +2457,21 @@ function EstoqueV25({ itens, onSaveItens }) {
     const set = (n, v) => doc.update(d => ({ itens: { ...(d.itens || {}), [n]: v } }));
     const preenchidos = itens.filter(n => String((doc.data.itens || {})[n] || "").trim() !== "").length;
     const total = itens.reduce((s, n) => s + num((doc.data.itens || {})[n]), 0);
+    const salvarDia = async () => {
+        const faltantes = itens.length - preenchidos;
+        if (faltantes && !confirm(`Ainda existem ${faltantes} item(ns) sem número. Salvar a contagem mesmo assim?\n\nPara indicar que não há estoque, preencha 0.`)) return;
+        await doc.save();
+    };
     return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Itens"), h25("div", { className: "hsub" }, "A contagem permanece neste aparelho até ser salva.")), h25(DraftStatus25, { doc })),
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Itens"), h25("div", { className: "hsub" }, "Cada novo lançamento é somado; a contagem permanece até o salvamento conferido.")), h25(DraftStatus25, { doc })),
         h25(ErrBox, { ...doc }),
         h25("div", { className: "toolbar" },
             h25("div", { className: "tl" },
                 h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })),
                 h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome do item", onChange: e => setBusca(e.target.value) }))),
-            h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: doc.save }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
+            h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: salvarDia }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
         h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Preenchidos"), h25("b", null, `${preenchidos}/${itens.length}`)), h25("div", { className: "tt" }, h25("span", null, "Total de unidades"), h25("b", { className: "hl" }, total.toLocaleString("pt-BR")))),
-        h25("div", { className: "panel" }, filtro.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25("input", { className: "inp num", style: { width: 88 }, inputMode: "decimal", value: (doc.data.itens || {})[n] ?? "", placeholder: "0", onChange: e => set(n, e.target.value) }), h25("span", { className: "un" }, "un")))),
+        h25("div", { className: "panel" }, filtro.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25(CampoContagemAcumulada25, { style: { width: 88 }, value: (doc.data.itens || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.itens || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de ${n}`, onCommit: v => set(n, v) }), h25("span", { className: "un" }, "un")))),
         showM && h25(ModalItens, { itens, onSave: l => { onSaveItens(l); setShowM(false); }, onClose: () => setShowM(false) }));
 }
 
@@ -2361,17 +2483,23 @@ function BalasV25({ balas, onSaveBalas }) {
     const todos = balas.flatMap(c => c.itens);
     const totalKg = todos.reduce((s, n) => s + num((doc.data.pesos || {})[n]), 0);
     const totalPct = todos.reduce((s, n) => s + num((doc.data.pacotes || {})[n]), 0);
+    const preenchidos = todos.reduce((s, n) => s + (String((doc.data.pesos || {})[n] ?? "").trim() !== "" ? 1 : 0) + (String((doc.data.pacotes || {})[n] ?? "").trim() !== "" ? 1 : 0), 0);
+    const salvarDia = async () => {
+        const faltantes = todos.length * 2 - preenchidos;
+        if (faltantes && !confirm(`Ainda existem ${faltantes} campo(s) de peso/pacotes sem número. Salvar a contagem mesmo assim?\n\nPara indicar que não há estoque, preencha 0.`)) return;
+        await doc.save();
+    };
     return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Peso e pacotes ficam guardados neste aparelho até salvar.")), h25(DraftStatus25, { doc })),
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Cada novo peso ou pacote é somado e fica protegido até o salvamento conferido.")), h25(DraftStatus25, { doc })),
         h25(ErrBox, { ...doc }),
         h25("div", { className: "toolbar" },
             h25("div", { className: "tl" }, h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })), h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome da bala", onChange: e => setBusca(e.target.value) }))),
-            h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: doc.save }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
+            h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: salvarDia }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
         h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Peso total"), h25("b", { className: "hl" }, kgF(totalKg))), h25("div", { className: "tt" }, h25("span", null, "Pacotes"), h25("b", null, totalPct.toLocaleString("pt-BR")))),
         h25("div", { className: "panel" }, balas.map(c => {
             const list = c.itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
             if (!list.length) return null;
-            return h25(React.Fragment, { key: c.cat }, h25("div", { className: "cat" }, h25("span", null, c.cat)), list.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25("input", { className: "inp num", style: { width: 94 }, inputMode: "decimal", value: (doc.data.pesos || {})[n] ?? "", placeholder: "0,000", onChange: e => set("pesos", n, e.target.value) }), h25("span", { className: "un" }, "kg"), h25("input", { className: "inp num", style: { width: 72 }, inputMode: "numeric", value: (doc.data.pacotes || {})[n] ?? "", placeholder: "0", onChange: e => set("pacotes", n, e.target.value) }), h25("span", { className: "un" }, "pct"))));
+            return h25(React.Fragment, { key: c.cat }, h25("div", { className: "cat" }, h25("span", null, c.cat)), list.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25(CampoContagemAcumulada25, { style: { width: 94 }, value: (doc.data.pesos || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.pesos || {})[n] ?? "", placeholder: "0,000", decimais: 3, ariaLabel: `Peso de ${n}`, onCommit: v => set("pesos", n, v) }), h25("span", { className: "un" }, "kg"), h25(CampoContagemAcumulada25, { style: { width: 72 }, value: (doc.data.pacotes || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.pacotes || {})[n] ?? "", placeholder: "0", ariaLabel: `Pacotes de ${n}`, onCommit: v => set("pacotes", n, v) }), h25("span", { className: "un" }, "pct"))));
         })),
         showM && h25(ModalBalas, { balas, onSave: l => { onSaveBalas(l); setShowM(false); }, onClose: () => setShowM(false) }));
 }
@@ -2380,8 +2508,9 @@ function ComparativoV25({ itens, balas }) {
     const [datas, setDatas] = useState([]), [data, setData] = useState(""), [res, setRes] = useState(null), [loading, setLoading] = useState(false);
     useEffect(() => { (async () => { try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").get(), db.collection("fini_balas_kg").get()]); const list = [...new Set([...a.docs.map(d => d.id), ...b.docs.map(d => d.id)])].filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort().reverse(); setDatas(list); if (list[0]) setData(list[0]); } catch (e) { console.error(e); } })(); }, []);
     useEffect(() => { if (!data) return; (async () => { setLoading(true); try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").doc(data).get(), db.collection("fini_balas_kg").doc(data).get()]); setRes({ itens: a.exists ? a.data().itens || {} : {}, pesos: b.exists ? b.data().pesos || {} : {}, pacotes: b.exists ? b.data().pacotes || {} : {} }); } catch (e) { console.error(e); setRes(null); } setLoading(false); })(); }, [data]);
-    const balaRows = balas.flatMap(c => c.itens.map(nome => ({ cat: c.cat, nome }))).filter(x => num((res?.pesos || {})[x.nome]) || num((res?.pacotes || {})[x.nome]));
-    const itemRows = itens.filter(n => num((res?.itens || {})[n]));
+    const preenchido = v => String(v ?? "").trim() !== "";
+    const balaRows = balas.flatMap(c => c.itens.map(nome => ({ cat: c.cat, nome }))).filter(x => preenchido((res?.pesos || {})[x.nome]) || preenchido((res?.pacotes || {})[x.nome]));
+    const itemRows = itens.filter(n => preenchido((res?.itens || {})[n]));
     const tabelaItens = res && h25("div", { style: { marginBottom: 14 } },
         h25("div", { className: "cat" }, "Itens do quiosque"),
         h25("div", { className: "panel" }, h25("table", null,
@@ -2394,7 +2523,7 @@ function ComparativoV25({ itens, balas }) {
         h25("div", { className: "panel" }, h25("table", null,
             h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 110, textAlign: "right" } }, "Kg"), h25("th", { style: { width: 100, textAlign: "right" } }, "Pacotes"))),
             h25("tbody", null,
-                balaRows.map(x => h25("tr", { key: x.nome }, h25("td", null, h25("span", { className: "pmini" }, `${x.cat} · `), x.nome), h25("td", { className: "num" }, kgF(res.pesos[x.nome])), h25("td", { className: "num" }, num(res.pacotes[x.nome]) || "—"))),
+                balaRows.map(x => h25("tr", { key: x.nome }, h25("td", null, h25("span", { className: "pmini" }, `${x.cat} · `), x.nome), h25("td", { className: "num" }, preenchido(res.pesos[x.nome]) ? kgF(res.pesos[x.nome]) : "—"), h25("td", { className: "num" }, preenchido(res.pacotes[x.nome]) ? num(res.pacotes[x.nome]).toLocaleString("pt-BR") : "—"))),
                 !balaRows.length && h25("tr", null, h25("td", { colSpan: 3, style: { textAlign: "center" } }, "Sem balas preenchidas."))))));
     return h25(React.Fragment, null,
         h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Consultar contagem"), h25("div", { className: "hsub" }, "Visualização completa de uma única data."))),
@@ -2779,6 +2908,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V28 2026-08-27: importação de vendas por XLS/XLSX/CSV preservando entrada manual -->
+<!-- Versao V29 2026-09-10: contagem acumulada e verificada, fila ordenada, backup final e escala sem folga sexta/sábado -->
 </body>
 </html>
