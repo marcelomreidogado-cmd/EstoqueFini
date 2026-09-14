@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V30</title>
+<title>FINI Petrópolis · Gestão V31</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -61,6 +61,10 @@ input[type=date].inp{color-scheme:light}
 .irow:hover .nm-hint{opacity:1}
 .nm-inp{flex:1;padding:4px 8px;border:1px solid var(--fini);border-radius:8px;font-family:'DM Sans';font-size:13.5px;outline:none;background:#fff}
 .irow .un{font-size:10.5px;color:var(--ink-faint);width:26px}
+.count-entry{display:inline-flex;flex-direction:column;align-items:stretch;gap:2px;flex:0 0 auto}
+.count-entry .inp.correcting{border-color:var(--fini);background:#fff5f8;box-shadow:0 0 0 3px rgba(232,38,110,.12)}
+.count-correct{align-self:center;border:0;background:transparent;color:var(--fini-deep);padding:1px 4px;font-family:'DM Sans';font-size:9.5px;font-weight:700;line-height:1.2;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.count-correct:hover{color:var(--fini)}.count-correct:disabled{color:var(--ink-faint);cursor:default;text-decoration:none}
 .totbar{display:flex;gap:20px;flex-wrap:wrap;background:linear-gradient(110deg,rgba(232,38,110,.07),rgba(255,250,252,.5));border:1px solid var(--line);border-radius:16px;padding:15px 20px;margin-bottom:16px}
 .tt{display:flex;flex-direction:column;gap:3px}
 .tt span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
@@ -240,9 +244,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "10/09/2026 21:54 - V30_MOEDA_VENDAS_CAIXA";
+const FINI_BUILD = "14/09/2026 11:51 - V31_CORRECAO_CONTAGEM";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "10/09/2026 21:54 · V30_MOEDA_VENDAS_CAIXA";
+const APP_VERSION = "14/09/2026 11:51 · V31_CORRECAO_CONTAGEM";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -2469,17 +2473,51 @@ function valorAcumulado25(anterior, lancamento, decimais) {
     return fmtCalcValor(total, decimais, decimais > 0);
 }
 
+function valorCorrecao25(lancamento, decimais) {
+    const raw = String(lancamento ?? "").trim(), conta = somaExpressao(raw);
+    if (!raw || !conta.ok) return null;
+    return fmtCalcValor(Math.max(0, conta.total), decimais, decimais > 0);
+}
+
 function CampoContagemAcumulada25({ value, baseOculta, onCommit, decimais = 0, style, placeholder, ariaLabel }) {
-    const [editando, setEditando] = useState(false), [entrada, setEntrada] = useState(String(value ?? ""));
-    const alterou = useRef(false), base = useRef(String(value ?? ""));
-    useEffect(() => { if (!editando) setEntrada(String(value ?? "")); }, [value, editando]);
-    const iniciar = () => { base.current = String(value ?? "").trim() !== "" ? String(value) : String(baseOculta ?? ""); alterou.current = false; setEntrada(""); setEditando(true); };
-    const concluir = () => {
-        if (alterou.current) onCommit(valorAcumulado25(base.current, entrada, decimais));
-        else setEntrada(String(value ?? ""));
-        alterou.current = false; setEditando(false);
+    const [modo, setModo] = useState("parado"), [entrada, setEntrada] = useState(String(value ?? ""));
+    const alterou = useRef(false), base = useRef(String(value ?? "")), inputRef = useRef(null);
+    const totalAtual = String(value ?? "").trim() !== "" ? String(value) : String(baseOculta ?? "");
+    useEffect(() => { if (modo === "parado") setEntrada(String(value ?? "")); }, [value, modo]);
+    const iniciar = () => {
+        if (modo === "corrigir") return;
+        base.current = totalAtual;
+        alterou.current = false;
+        setEntrada("");
+        setModo("somar");
     };
-    return h25("input", { className: "inp num", style, type: "text", inputMode: decimais ? "decimal" : "numeric", value: entrada, placeholder: editando && base.current ? `Somar a ${base.current}` : placeholder, "aria-label": ariaLabel, title: "Cada novo número é somado ao total. Para corrigir/substituir, digite = antes do valor.", onFocus: iniciar, onChange: e => { alterou.current = true; setEntrada(e.target.value); }, onBlur: concluir, onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { alterou.current = false; e.currentTarget.blur(); } } });
+    const concluir = () => {
+        if (alterou.current) {
+            const novoValor = modo === "corrigir" ? valorCorrecao25(entrada, decimais) : valorAcumulado25(base.current, entrada, decimais);
+            if (novoValor === null) {
+                alert("Digite um número válido para corrigir o total.");
+                setEntrada(String(value ?? ""));
+            } else onCommit(novoValor);
+        } else setEntrada(String(value ?? ""));
+        alterou.current = false;
+        setModo("parado");
+    };
+    const iniciarCorrecao = () => {
+        base.current = totalAtual;
+        alterou.current = false;
+        setEntrada(totalAtual);
+        setModo("corrigir");
+        setTimeout(() => { if (inputRef.current) { inputRef.current.focus(); inputRef.current.select(); } }, 0);
+    };
+    const cancelarCorrecao = () => {
+        alterou.current = false;
+        setEntrada(String(value ?? ""));
+        setModo("parado");
+        if (inputRef.current) inputRef.current.blur();
+    };
+    return h25("div", { className: "count-entry" },
+        h25("input", { ref: inputRef, className: `inp num${modo === "corrigir" ? " correcting" : ""}`, style, type: "text", inputMode: decimais ? "decimal" : "numeric", value: entrada, placeholder: modo === "corrigir" ? "Total correto" : modo === "somar" && base.current ? `Somar a ${base.current}` : placeholder, "aria-label": ariaLabel, title: modo === "corrigir" ? "Digite o total correto; este valor substituirá o anterior." : "Cada novo número é somado ao total. Use Corrigir para substituir um valor errado.", onFocus: iniciar, onChange: e => { alterou.current = true; setEntrada(e.target.value); }, onBlur: concluir, onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { alterou.current = false; setEntrada(String(value ?? "")); setModo("parado"); e.currentTarget.blur(); } } }),
+        (String(totalAtual).trim() !== "" || modo === "corrigir") && h25("button", { type: "button", className: "count-correct", disabled: modo === "somar", "aria-label": `${modo === "corrigir" ? "Cancelar correção de" : "Corrigir"} ${ariaLabel.toLowerCase()}`, title: modo === "corrigir" ? "Cancelar correção" : `Substituir o total atual de ${ariaLabel.toLowerCase()}`, onMouseDown: e => e.preventDefault(), onClick: modo === "corrigir" ? cancelarCorrecao : iniciarCorrecao }, modo === "corrigir" ? "Cancelar" : "Corrigir"));
 }
 
 function DraftStatus25({ doc }) {
@@ -2502,7 +2540,7 @@ function EstoqueV25({ itens, onSaveItens }) {
         await doc.save();
     };
     return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Itens"), h25("div", { className: "hsub" }, "Cada novo lançamento é somado; a contagem permanece até o salvamento conferido.")), h25(DraftStatus25, { doc })),
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Itens"), h25("div", { className: "hsub" }, "Cada novo lançamento é somado. Para substituir um total errado, use Corrigir abaixo do campo.")), h25(DraftStatus25, { doc })),
         h25(ErrBox, { ...doc }),
         h25("div", { className: "toolbar" },
             h25("div", { className: "tl" },
@@ -2529,7 +2567,7 @@ function BalasV25({ balas, onSaveBalas }) {
         await doc.save();
     };
     return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Cada novo peso ou pacote é somado e fica protegido até o salvamento conferido.")), h25(DraftStatus25, { doc })),
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Cada novo peso ou pacote é somado. Para substituir um total errado, use Corrigir abaixo do campo.")), h25(DraftStatus25, { doc })),
         h25(ErrBox, { ...doc }),
         h25("div", { className: "toolbar" },
             h25("div", { className: "tl" }, h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })), h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome da bala", onChange: e => setBusca(e.target.value) }))),
@@ -2953,6 +2991,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V30 2026-09-10: moeda em Vendas/Caixa, TC inteiro, TM automático e tabelas compactas -->
+<!-- Versao V31 2026-09-14: correcao visivel dos totais de Itens e Balas com autosalvamento -->
 </body>
 </html>
