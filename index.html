@@ -7,7 +7,9 @@
   <title>FINI Petrópolis</title>
   <script>
     (function () {
-      var destino = "estoque.html" + window.location.search + window.location.hash;
+      var parametros = new URLSearchParams(window.location.search);
+      parametros.set("v", "39-contagem-valorizada");
+      var destino = "estoque.html?" + parametros.toString() + window.location.hash;
       window.location.replace(destino);
     }());
   </script>

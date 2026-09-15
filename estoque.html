@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V38</title>
+<title>FINI Petrópolis · Gestão V39</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -216,7 +216,10 @@ table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
 .meta-history{margin-top:16px}.meta-history-title{font-family:'Fraunces',serif;font-size:18px;margin-bottom:9px}.meta-history .meta-campaign{box-shadow:none;background:rgba(255,255,255,.55)}
 .meta-empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:28px 18px;text-align:center;color:var(--ink-soft);font-size:13px}.meta-empty strong{display:block;color:var(--ink);font-family:'Fraunces',serif;font-size:18px;margin-bottom:5px}
 .meta-participants{border:1px solid var(--line);border-radius:11px;padding:8px 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:6px}.meta-check{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line-soft);border-radius:9px;padding:7px 9px;font-size:12px;font-weight:700}.meta-check input{accent-color:var(--fini)}
-.bala-count-head,.bala-count-row{display:grid;grid-template-columns:minmax(190px,1fr) 105px 115px 125px 125px;gap:8px;align-items:center}
+.item-count-head,.item-count-row{display:grid;grid-template-columns:minmax(190px,1fr) 125px minmax(230px,.9fr);gap:8px;align-items:center}
+.item-count-head{padding:7px 12px;background:#fff5f8;color:var(--ink-faint);font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.item-count-head span:nth-child(2){text-align:right}
+.item-count-row{padding:8px 12px;border-top:1px solid var(--line-soft)}.item-count-row:hover{background:#fff8fb}.item-count-name{font-size:12.5px;line-height:1.3;font-weight:600;min-width:0}.item-count-qty{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.item-count-qty .count-entry{width:100%}.item-count-qty .inp{width:100%!important}.item-count-note{width:100%!important;min-height:38px;resize:vertical;line-height:1.25}
+.bala-count-head,.bala-count-row{display:grid;grid-template-columns:minmax(190px,1fr) 95px 105px 115px 115px 110px;gap:8px;align-items:center}
 .bala-count-head{padding:7px 12px;background:#fff5f8;color:var(--ink-faint);font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;text-align:right}.bala-count-head span:first-child{text-align:left}
 .bala-count-row{padding:8px 12px;border-top:1px solid var(--line-soft)}.bala-count-row:hover{background:#fff8fb}.bala-product{font-size:12.5px;line-height:1.3;font-weight:600;min-width:0}.bala-cell{min-width:0;text-align:right}.bala-cell .count-entry{width:100%}.bala-cell .inp{width:100%!important}
 .bala-auto{display:block;border:1px solid var(--line-soft);background:#fff;border-radius:9px;padding:8px 7px;font:700 12px 'DM Mono';white-space:nowrap}.bala-auto.net{background:#fff1f6;border-color:#f4cad9;color:var(--fini-deep)}.bala-legacy{display:block;font-size:8.5px;color:var(--ink-faint);margin-top:2px}
@@ -224,7 +227,7 @@ table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
 .catalog-modes{display:inline-flex;gap:3px;padding:4px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}.catalog-modes button{border:0;background:transparent;color:var(--ink-soft);border-radius:8px;padding:8px 12px;font:700 12px 'DM Sans';cursor:pointer}.catalog-modes button.on{background:var(--fini);color:#fff}.link-help{background:#fff9e8;border:1px solid #f1db94;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;color:#6e5411;line-height:1.45}.link-overview{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:8px;margin-bottom:10px}.link-overview>div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.link-overview span{display:block;color:var(--ink-faint);font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.link-overview strong{font:700 18px 'DM Mono'}.link-overview .pending strong{color:#a46d08}.link-overview .done strong{color:var(--green)}.link-tabs{display:inline-flex;gap:3px;padding:3px;background:#fff;border:1px solid var(--line);border-radius:10px}.link-tabs button{border:0;background:transparent;border-radius:7px;padding:7px 10px;color:var(--ink-soft);font:700 11px 'DM Sans';cursor:pointer}.link-tabs button.on{background:#ffeaf2;color:var(--fini-deep)}.link-work-table{min-width:1080px}.link-work-table th,.link-work-table td{padding:8px 9px;vertical-align:middle}.link-work-table .link-name-cell{min-width:225px;white-space:normal}.link-work-table .link-product-cell{min-width:350px}.link-product-search{width:100%;min-width:300px}.link-product-note{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;font-size:9.5px;color:var(--ink-faint)}.link-suggestion{display:inline-flex;border-radius:999px;padding:3px 6px;background:#fff4d6;color:#8a6100;font-size:8px;font-weight:800;text-transform:uppercase}.link-suggestion.high{background:#e9f7ee;color:var(--green)}.link-confirmed{display:inline-flex;border-radius:999px;padding:3px 6px;background:#e9f7ee;color:var(--green);font-size:8px;font-weight:800;text-transform:uppercase}.link-number{width:94px!important}.link-actions{white-space:nowrap}.link-row-message{display:block;max-width:190px;margin-top:4px;color:var(--fini-deep);font-size:9px;font-weight:700;white-space:normal}.link-type{display:inline-flex;border-radius:999px;padding:3px 7px;background:#eef4ff;color:var(--blue);font-size:9px;font-weight:800;text-transform:uppercase}.link-type.bala{background:#fff1f6;color:var(--fini-deep)}.link-ok{color:var(--green);font-size:10px;font-weight:800}.purchase-summary{display:grid;grid-template-columns:repeat(4,minmax(145px,1fr));gap:8px;margin-bottom:12px}.purchase-kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 12px}.purchase-kpi span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:4px}.purchase-kpi strong{font:700 18px 'DM Mono'}.purchase-kpi.primary strong{color:var(--fini-deep)}.purchase-table{min-width:1080px}.purchase-table th,.purchase-table td{white-space:nowrap}.purchase-table td:first-child{white-space:normal;min-width:220px}.purchase-table .buy-qty,.purchase-table .buy-cost{color:var(--fini-deep);font-weight:800}.purchase-method{background:#eef4ff;border:1px solid #cbdcf4;color:#315d91;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.5}.purchase-alert{color:#9a6b00;font-size:10px;font-weight:700}.goal-card.goal-mensal{border-color:#adc5e5;background:#f6f9ff}.goal-card.goal-intermediaria{border-color:#eed083;background:#fffaf0}.goal-card.goal-super{border-color:#a9d4b8;background:#f4fbf6}.goal-card.goal-mensal .progress>span{background:var(--blue)}.goal-card.goal-intermediaria .progress>span{background:#d89619}.goal-card.goal-super .progress>span{background:var(--green)}.goal-card.goal-mensal label{color:var(--blue)}.goal-card.goal-intermediaria label{color:#a46d08}.goal-card.goal-super label{color:var(--green)}
 
 @media(max-width:820px){
-  body{font-size:13px}.app{display:block}.side{position:sticky;top:0;z-index:50;height:auto;padding:10px 10px 8px;display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:5px;border-bottom:1px solid #351522}.side .logo{min-width:max-content;margin:0 8px 0 2px;align-self:center;font-size:17px}.side .subtt,.side .sp,.side .fb{display:none}.navb{width:auto;min-width:max-content;padding:8px 10px;font-size:12px}.navb .ic{width:auto}.main{padding:14px 10px calc(54px + env(safe-area-inset-bottom))}.htop{align-items:flex-start}.toolbar,.tl{width:100%}.toolbar>.tl:last-child{justify-content:flex-start}.field.search{width:100%}.inp,.btn,td input,td select{font-size:16px}.btn.sm{font-size:13px}.mesatual{font-size:17px;min-width:145px}.irow{padding:7px 10px;gap:6px}.irow .nm{font-size:12px;line-height:1.25}.irow .inp{width:76px!important}.totbar{gap:16px}.summary-grid{grid-template-columns:1fr 1fr}.goal-grid{grid-template-columns:1fr 1fr}.status{font-size:10.5px}.confirm-modal .mbox{padding:18px}.signature-box{grid-template-columns:1fr}.meta-staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bala-count-head{display:none}.bala-count-row{grid-template-columns:1fr 1fr;gap:8px;padding:11px}.bala-product{grid-column:1/-1;font-size:13.5px;padding-bottom:3px}.bala-cell{text-align:left}.bala-cell:before{content:attr(data-label);display:block;font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:800;margin-bottom:3px}.bala-cell .count-entry{align-items:stretch}.bala-auto{text-align:right}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-photo{height:135px}.purchase-summary{grid-template-columns:1fr 1fr}.catalog-modes{display:flex;overflow-x:auto}.catalog-modes button{flex:0 0 auto}.link-work-wrap{border:0;background:transparent;box-shadow:none;overflow:visible}.link-work-table{min-width:0}.link-work-table,.link-work-table tbody,.link-work-table tr,.link-work-table td{display:block;width:100%}.link-work-table thead{display:none}.link-work-table tr{background:var(--card);border:1px solid var(--line);border-radius:13px;margin-bottom:9px;padding:10px}.link-work-table td{border:0!important;padding:5px 0}.link-work-table td:before{content:attr(data-label);display:block;margin-bottom:3px;color:var(--ink-faint);font-size:8.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.link-work-table .link-name-cell,.link-work-table .link-product-cell{min-width:0}.link-product-search{min-width:0;width:100%}.link-number{width:100%!important}.link-actions{display:flex!important;gap:6px;align-items:center;flex-wrap:wrap}.link-actions .btn{flex:1}.link-row-message{max-width:none;width:100%}
+  body{font-size:13px}.app{display:block}.side{position:sticky;top:0;z-index:50;height:auto;padding:10px 10px 8px;display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:5px;border-bottom:1px solid #351522}.side .logo{min-width:max-content;margin:0 8px 0 2px;align-self:center;font-size:17px}.side .subtt,.side .sp,.side .fb{display:none}.navb{width:auto;min-width:max-content;padding:8px 10px;font-size:12px}.navb .ic{width:auto}.main{padding:14px 10px calc(54px + env(safe-area-inset-bottom))}.htop{align-items:flex-start}.toolbar,.tl{width:100%}.toolbar>.tl:last-child{justify-content:flex-start}.field.search{width:100%}.inp,.btn,td input,td select{font-size:16px}.btn.sm{font-size:13px}.mesatual{font-size:17px;min-width:145px}.irow{padding:7px 10px;gap:6px}.irow .nm{font-size:12px;line-height:1.25}.irow .inp{width:76px!important}.item-count-head{display:none}.item-count-row{grid-template-columns:1fr 100px;gap:8px;padding:11px}.item-count-name{font-size:13.5px}.item-count-note{grid-column:1/-1;font-size:16px}.totbar{gap:16px}.summary-grid{grid-template-columns:1fr 1fr}.goal-grid{grid-template-columns:1fr 1fr}.status{font-size:10.5px}.confirm-modal .mbox{padding:18px}.signature-box{grid-template-columns:1fr}.meta-staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bala-count-head{display:none}.bala-count-row{grid-template-columns:1fr 1fr;gap:8px;padding:11px}.bala-product{grid-column:1/-1;font-size:13.5px;padding-bottom:3px}.bala-cell{text-align:left}.bala-cell:before{content:attr(data-label);display:block;font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:800;margin-bottom:3px}.bala-cell .count-entry{align-items:stretch}.bala-auto{text-align:right}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-photo{height:135px}.purchase-summary{grid-template-columns:1fr 1fr}.catalog-modes{display:flex;overflow-x:auto}.catalog-modes button{flex:0 0 auto}.link-work-wrap{border:0;background:transparent;box-shadow:none;overflow:visible}.link-work-table{min-width:0}.link-work-table,.link-work-table tbody,.link-work-table tr,.link-work-table td{display:block;width:100%}.link-work-table thead{display:none}.link-work-table tr{background:var(--card);border:1px solid var(--line);border-radius:13px;margin-bottom:9px;padding:10px}.link-work-table td{border:0!important;padding:5px 0}.link-work-table td:before{content:attr(data-label);display:block;margin-bottom:3px;color:var(--ink-faint);font-size:8.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.link-work-table .link-name-cell,.link-work-table .link-product-cell{min-width:0}.link-product-search{min-width:0;width:100%}.link-number{width:100%!important}.link-actions{display:flex!important;gap:6px;align-items:center;flex-wrap:wrap}.link-actions .btn{flex:1}.link-row-message{max-width:none;width:100%}
 }
 @media(max-width:430px){.summary-grid,.goal-grid,.meta-staff-grid,.catalog-grid,.purchase-summary,.link-overview{grid-template-columns:1fr}.htop h1{font-size:24px}.btn{padding:9px 12px}.navb{padding:8px 9px}.navb .ic{font-size:14px}.meta-campaign{padding:12px}.meta-qty{grid-template-columns:1fr 88px}.meta-qty input{width:88px}.catalog-photo{height:180px}.link-tabs{width:100%;overflow-x:auto}.link-tabs button{flex:1;white-space:nowrap}}
 
@@ -271,9 +274,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "14/09/2026 17:46 - V38_VINCULOS_ASSISTIDOS";
+const FINI_BUILD = "15/09/2026 10:44 - V39_CONTAGEM_VALORIZADA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "14/09/2026 17:46 · V38_VINCULOS_ASSISTIDOS";
+const APP_VERSION = "15/09/2026 10:44 · V39_CONTAGEM_VALORIZADA";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -2509,7 +2512,7 @@ function useLocalDraft25(col, id, blank) {
 
 function contagemConfere25(esperado, remoto) {
     if (!remoto || remoto.rascunho !== false) return false;
-    const grupos = ["itens", "pesos", "pesosBrutos", "baleiros", "pacotes"];
+    const grupos = ["itens", "observacoes", "pesos", "pesosBrutos", "baleiros", "pacotes"];
     return grupos.every(grupo => Object.entries(esperado[grupo] || {}).every(([nome, valor]) => String(((remoto[grupo] || {})[nome]) ?? "") === String(valor ?? "")));
 }
 
@@ -2575,14 +2578,45 @@ function DraftStatus25({ doc }) {
     return h25("span", { className: "draft-pill" }, doc.dirty ? (doc.status === "load" ? "Salvando automaticamente…" : "Rascunho salvo automaticamente") : "Contagem nova");
 }
 
+function useValorizacaoCatalogo25() {
+    const catalogo = useFireDoc("fini_catalogo_compras", "atual", { produtos: D_CATALOGO_COMPRA, atualizadoEm: CATALOGO_COMPRAS_ATUALIZADO_EM });
+    const vinculosDoc = useFireDoc("fini_catalogo_compras", "vinculos", { vinculos: {}, coberturaSemanas: "2" });
+    const produtos = Array.isArray(catalogo.data.produtos) ? catalogo.data.produtos : D_CATALOGO_COMPRA;
+    const produtosPorId = new Map(produtos.map(p => [String(p.id), p]));
+    const obter = (tipo, nome) => {
+        const vinculo = (vinculosDoc.data.vinculos || {})[chaveVinculoCompra(tipo, nome)];
+        const produto = vinculo ? produtosPorId.get(String(vinculo.catalogoId)) : null;
+        return vinculo && produto ? { vinculo, produto } : null;
+    };
+    const custoItem = (nome, quantidade) => {
+        const base = obter("item", nome), fator = num(base?.vinculo?.fator);
+        if (!base || fator <= 0) return { valor: null, parcial: false, produto: base?.produto || null };
+        return { valor: num(quantidade) / fator * num(base.produto.preco), parcial: false, produto: base.produto };
+    };
+    const custoBala = (nome, pesoLiquido, pacotes) => {
+        const base = obter("bala", nome);
+        if (!base) return { valor: null, parcial: false, produto: null };
+        const fator = num(base.vinculo.fator), kg = num(pesoLiquido), fechados = num(pacotes), preco = num(base.produto.preco);
+        const valorFechados = fechados * preco, valorAberto = fator > 0 ? kg / fator * preco : 0;
+        const parcial = kg > 0 && fator <= 0;
+        return { valor: valorAberto + valorFechados, parcial, produto: base.produto };
+    };
+    return { custoItem, custoBala, catalogo, vinculosDoc };
+}
+
 function EstoqueV25({ itens, onSaveItens }) {
     const [data, setData] = useState(HOJE), [busca, setBusca] = useState(""), [showM, setShowM] = useState(false);
-    const blank = useMemo(() => ({ data, itens: {} }), [data]);
+    const custos = useValorizacaoCatalogo25();
+    const blank = useMemo(() => ({ data, itens: {}, observacoes: {} }), [data]);
     const doc = useLocalDraft25("fini_estoque_quiosque", data, blank);
-    const filtro = itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
+    const filtro = itens.filter(n => `${n} ${(doc.data.observacoes || {})[n] || ""}`.toLowerCase().includes(busca.toLowerCase()));
     const set = (n, v) => doc.update(d => ({ itens: { ...(d.itens || {}), [n]: v } }));
+    const setObs = (n, v) => doc.update(d => ({ observacoes: { ...(d.observacoes || {}), [n]: v } }));
     const preenchidos = itens.filter(n => String((doc.data.itens || {})[n] || "").trim() !== "").length;
     const total = itens.reduce((s, n) => s + num((doc.data.itens || {})[n]), 0);
+    const custosItens = itens.map(n => ({ nome: n, ...custos.custoItem(n, (doc.data.itens || {})[n]) }));
+    const valorEstoque = custosItens.reduce((s, x) => s + (x.valor === null ? 0 : x.valor), 0);
+    const valorizados = itens.filter(n => String((doc.data.itens || {})[n] ?? "").trim() !== "" && custos.custoItem(n, (doc.data.itens || {})[n]).valor !== null).length;
     const salvarDia = async () => {
         const faltantes = itens.length - preenchidos;
         if (faltantes && !confirm(`Ainda existem ${faltantes} item(ns) sem número. Salvar a contagem mesmo assim?\n\nPara indicar que não há estoque, preencha 0.`)) return;
@@ -2596,13 +2630,19 @@ function EstoqueV25({ itens, onSaveItens }) {
                 h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })),
                 h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome do item", onChange: e => setBusca(e.target.value) }))),
             h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Gerir catálogo"), h25("button", { className: "btn primary", disabled: !doc.dirty || doc.status === "load", onClick: salvarDia }, doc.status === "load" ? "Salvando…" : "Salvar o dia"))),
-        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Preenchidos"), h25("b", null, `${preenchidos}/${itens.length}`)), h25("div", { className: "tt" }, h25("span", null, "Total de unidades"), h25("b", { className: "hl" }, total.toLocaleString("pt-BR")))),
-        h25("div", { className: "panel" }, filtro.map(n => h25("div", { className: "irow", key: n }, h25("span", { className: "nm" }, n), h25(CampoContagemAcumulada25, { style: { width: 88 }, value: (doc.data.itens || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.itens || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de ${n}`, onCommit: v => set(n, v) }), h25("span", { className: "un" }, "un")))),
+        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Preenchidos"), h25("b", null, `${preenchidos}/${itens.length}`)), h25("div", { className: "tt" }, h25("span", null, "Total de unidades"), h25("b", { className: "hl" }, total.toLocaleString("pt-BR"))), h25("div", { className: "tt" }, h25("span", null, "Valor de custo conhecido"), h25("b", { className: "hl" }, brl(valorEstoque)), h25("small", { className: "clean-note" }, `${valorizados}/${preenchidos} preenchidos com vínculo confirmado`))),
+        h25("div", { className: "panel" },
+            h25("div", { className: "item-count-head" }, h25("span", null, "Produto"), h25("span", null, "Quantidade"), h25("span", null, "Observação / detalhamento")),
+            filtro.map(n => h25("div", { className: "item-count-row", key: n },
+                h25("span", { className: "item-count-name" }, n),
+                h25("div", { className: "item-count-qty" }, h25(CampoContagemAcumulada25, { value: (doc.data.itens || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.itens || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de ${n}`, onCommit: v => set(n, v) }), h25("span", { className: "un" }, "un")),
+                h25("textarea", { className: "inp item-count-note", rows: 1, value: (doc.data.observacoes || {})[n] || "", placeholder: "Ex.: total de copos e quantidade de cada modelo", "aria-label": `Observação de ${n}`, onChange: e => setObs(n, e.target.value) })))),
         showM && h25(ModalItens, { itens, onSave: l => { onSaveItens(l); setShowM(false); }, onClose: () => setShowM(false) }));
 }
 
 function BalasV25({ balas, onSaveBalas }) {
     const [data, setData] = useState(HOJE), [busca, setBusca] = useState(""), [showM, setShowM] = useState(false);
+    const custos = useValorizacaoCatalogo25();
     const blank = useMemo(() => ({ data, baleiros: {}, pesosBrutos: {}, pesos: {}, pacotes: {} }), [data]);
     const doc = useLocalDraft25("fini_balas_kg", data, blank);
     const todos = balas.flatMap(c => c.itens);
@@ -2610,27 +2650,35 @@ function BalasV25({ balas, onSaveBalas }) {
     const usaModeloNovo = (n, d = doc.data) => presente((d.baleiros || {})[n]) || presente((d.pesosBrutos || {})[n]);
     const pesoLiquido = (n, d = doc.data) => usaModeloNovo(n, d) ? pesoLiquidoBala25((d.pesosBrutos || {})[n], (d.baleiros || {})[n]) : num((d.pesos || {})[n]);
     const atualizar = (n, grupo, valor) => doc.update(d => {
-        const baleiros = { ...(d.baleiros || {}) }, pesosBrutos = { ...(d.pesosBrutos || {}) };
+        const baleiros = { ...(d.baleiros || {}) }, pesosBrutos = { ...(d.pesosBrutos || {}) }, pacotes = { ...(d.pacotes || {}) };
         if (grupo === "baleiros") baleiros[n] = valor;
         if (grupo === "pesosBrutos") pesosBrutos[n] = valor;
-        const liquido = fmtCalcValor(pesoLiquidoBala25(pesosBrutos[n], baleiros[n]), 3, true);
-        return { baleiros, pesosBrutos, pesos: { ...(d.pesos || {}), [n]: liquido } };
+        if (grupo === "pacotes") pacotes[n] = valor;
+        const pesos = { ...(d.pesos || {}) };
+        if (grupo !== "pacotes" || presente(baleiros[n]) || presente(pesosBrutos[n])) pesos[n] = fmtCalcValor(pesoLiquidoBala25(pesosBrutos[n], baleiros[n]), 3, true);
+        return { baleiros, pesosBrutos, pacotes, pesos };
     });
     const totalBaleiros = todos.reduce((s, n) => s + num((doc.data.baleiros || {})[n]), 0);
     const totalBruto = todos.reduce((s, n) => s + num((doc.data.pesosBrutos || {})[n]), 0);
     const totalTara = totalBaleiros * TARA_BALEIRO_KG;
     const totalLiquido = todos.reduce((s, n) => s + pesoLiquido(n), 0);
+    const totalPacotes = todos.reduce((s, n) => s + num((doc.data.pacotes || {})[n]), 0);
+    const custosBalas = todos.map(n => ({ nome: n, ...custos.custoBala(n, pesoLiquido(n), (doc.data.pacotes || {})[n]) }));
+    const valorEstoque = custosBalas.reduce((s, x) => s + (x.valor === null ? 0 : x.valor), 0);
+    const comContagem = todos.filter(n => presente((doc.data.pesos || {})[n]) || presente((doc.data.pesosBrutos || {})[n]) || presente((doc.data.baleiros || {})[n]) || presente((doc.data.pacotes || {})[n]));
+    const valorizados = comContagem.filter(n => custos.custoBala(n, pesoLiquido(n), (doc.data.pacotes || {})[n]).valor !== null).length;
+    const parciais = comContagem.filter(n => custos.custoBala(n, pesoLiquido(n), (doc.data.pacotes || {})[n]).parcial).length;
     const preenchidos = todos.reduce((s, n) => {
-        if (!usaModeloNovo(n) && presente((doc.data.pesos || {})[n])) return s + 2;
-        return s + (presente((doc.data.baleiros || {})[n]) ? 1 : 0) + (presente((doc.data.pesosBrutos || {})[n]) ? 1 : 0);
+        const parteKg = !usaModeloNovo(n) && presente((doc.data.pesos || {})[n]) ? 2 : (presente((doc.data.baleiros || {})[n]) ? 1 : 0) + (presente((doc.data.pesosBrutos || {})[n]) ? 1 : 0);
+        return s + parteKg + (presente((doc.data.pacotes || {})[n]) ? 1 : 0);
     }, 0);
     const salvarDia = async () => {
-        const faltantes = todos.length * 2 - preenchidos;
-        if (faltantes && !confirm(`Ainda existem ${faltantes} campo(s) de quantidade de baleiros/peso bruto sem número. Salvar a contagem mesmo assim?\n\nPara indicar que não há estoque, preencha 0.`)) return;
+        const faltantes = todos.length * 3 - preenchidos;
+        if (faltantes && !confirm(`Ainda existem ${faltantes} campo(s) de baleiros, peso bruto ou pacotes/potes sem número. Salvar a contagem mesmo assim?\n\nPara indicar que não há estoque, preencha 0.`)) return;
         await doc.save();
     };
     return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Informe a quantidade de baleiros e o peso bruto; o peso líquido é calculado automaticamente.")), h25(DraftStatus25, { doc })),
+        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Contagem · Balas"), h25("div", { className: "hsub" }, "Informe baleiros, peso bruto e pacotes/potes fechados; o peso líquido é calculado automaticamente.")), h25(DraftStatus25, { doc })),
         h25(ErrBox, { ...doc }),
         h25("div", { className: "toolbar" },
             h25("div", { className: "tl" }, h25("div", { className: "field" }, h25("label", null, "Data"), h25("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })), h25("div", { className: "field search" }, h25("label", null, "Buscar"), h25("input", { className: "inp", value: busca, placeholder: "Nome da bala", onChange: e => setBusca(e.target.value) }))),
@@ -2639,14 +2687,16 @@ function BalasV25({ balas, onSaveBalas }) {
             h25("div", { className: "tt" }, h25("span", null, "Baleiros"), h25("b", null, totalBaleiros.toLocaleString("pt-BR"))),
             h25("div", { className: "tt" }, h25("span", null, "Tara · 0,760 kg cada"), h25("b", null, kgF(totalTara))),
             h25("div", { className: "tt" }, h25("span", null, "Peso bruto"), h25("b", null, kgF(totalBruto))),
-            h25("div", { className: "tt" }, h25("span", null, "Peso líquido"), h25("b", { className: "hl" }, kgF(totalLiquido)))),
+            h25("div", { className: "tt" }, h25("span", null, "Peso líquido"), h25("b", { className: "hl" }, kgF(totalLiquido))),
+            h25("div", { className: "tt" }, h25("span", null, "Pacotes / potes"), h25("b", null, totalPacotes.toLocaleString("pt-BR"))),
+            h25("div", { className: "tt" }, h25("span", null, "Valor de custo conhecido"), h25("b", { className: "hl" }, brl(valorEstoque)), h25("small", { className: "clean-note" }, `${valorizados}/${comContagem.length} produtos vinculados${parciais ? ` · ${parciais} parcial(is)` : ""}`))),
         h25("div", { className: "panel" }, balas.map(c => {
             const list = c.itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
             if (!list.length) return null;
-            const qtdCat = c.itens.reduce((s, n) => s + num((doc.data.baleiros || {})[n]), 0), liquidoCat = c.itens.reduce((s, n) => s + pesoLiquido(n), 0);
+            const qtdCat = c.itens.reduce((s, n) => s + num((doc.data.baleiros || {})[n]), 0), liquidoCat = c.itens.reduce((s, n) => s + pesoLiquido(n), 0), pacotesCat = c.itens.reduce((s, n) => s + num((doc.data.pacotes || {})[n]), 0);
             return h25(React.Fragment, { key: c.cat },
-                h25("div", { className: "cat" }, h25("span", null, c.cat), h25("span", { className: "ct" }, `${qtdCat.toLocaleString("pt-BR")} baleiro(s) · ${kgF(liquidoCat)}`)),
-                h25("div", { className: "bala-count-head" }, h25("span", null, "Produto"), h25("span", null, "Qtd. baleiros"), h25("span", null, "Tara automática"), h25("span", null, "Peso bruto"), h25("span", null, "Peso líquido")),
+                h25("div", { className: "cat" }, h25("span", null, c.cat), h25("span", { className: "ct" }, `${qtdCat.toLocaleString("pt-BR")} baleiro(s) · ${kgF(liquidoCat)} · ${pacotesCat.toLocaleString("pt-BR")} pacote(s)/pote(s)`)),
+                h25("div", { className: "bala-count-head" }, h25("span", null, "Produto"), h25("span", null, "Qtd. baleiros"), h25("span", null, "Tara automática"), h25("span", null, "Peso bruto"), h25("span", null, "Peso líquido"), h25("span", null, "Pacotes / potes")),
                 list.map(n => {
                     const qtd = num((doc.data.baleiros || {})[n]), tara = qtd * TARA_BALEIRO_KG, liquido = pesoLiquido(n), legado = !usaModeloNovo(n) && presente((doc.data.pesos || {})[n]);
                     return h25("div", { className: "bala-count-row", key: n },
@@ -2654,7 +2704,8 @@ function BalasV25({ balas, onSaveBalas }) {
                         h25("div", { className: "bala-cell", "data-label": "Quantidade de baleiros" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.baleiros || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.baleiros || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de baleiros de ${n}`, onCommit: v => atualizar(n, "baleiros", v) })),
                         h25("div", { className: "bala-cell", "data-label": "Tara automática" }, h25("span", { className: "bala-auto" }, kgF(tara))),
                         h25("div", { className: "bala-cell", "data-label": "Peso bruto contado" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.pesosBrutos || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.pesosBrutos || {})[n] ?? "", placeholder: "0,000", decimais: 3, ariaLabel: `Peso bruto contado de ${n}`, onCommit: v => atualizar(n, "pesosBrutos", v) })),
-                        h25("div", { className: "bala-cell", "data-label": "Peso líquido automático" }, h25("span", { className: "bala-auto net", title: "Calculado automaticamente: peso bruto menos a tara dos baleiros" }, kgF(liquido)), legado && h25("small", { className: "bala-legacy" }, "Contagem anterior preservada")));
+                        h25("div", { className: "bala-cell", "data-label": "Peso líquido automático" }, h25("span", { className: "bala-auto net", title: "Calculado automaticamente: peso bruto menos a tara dos baleiros" }, kgF(liquido)), legado && h25("small", { className: "bala-legacy" }, "Contagem anterior preservada")),
+                        h25("div", { className: "bala-cell", "data-label": "Pacotes ou potes fechados" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.pacotes || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.pacotes || {})[n] ?? "", placeholder: "0", ariaLabel: `Pacotes ou potes fechados de ${n}`, onCommit: v => atualizar(n, "pacotes", v) })));
                 }));
         })),
         showM && h25(ModalBalas, { balas, onSave: l => { onSaveBalas(l); setShowM(false); }, onClose: () => setShowM(false) }));
@@ -2662,39 +2713,50 @@ function BalasV25({ balas, onSaveBalas }) {
 
 function ComparativoV25({ itens, balas }) {
     const [datas, setDatas] = useState([]), [data, setData] = useState(""), [res, setRes] = useState(null), [loading, setLoading] = useState(false), [busca, setBusca] = useState("");
+    const custos = useValorizacaoCatalogo25();
     useEffect(() => { (async () => { try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").get(), db.collection("fini_balas_kg").get()]); const list = [...new Set([...a.docs.map(d => d.id), ...b.docs.map(d => d.id)])].filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).sort().reverse(); setDatas(list); if (list[0]) setData(list[0]); } catch (e) { console.error(e); } })(); }, []);
-    useEffect(() => { if (!data) return; (async () => { setLoading(true); try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").doc(data).get(), db.collection("fini_balas_kg").doc(data).get()]); const bd = b.exists ? b.data() : {}; setRes({ itens: a.exists ? a.data().itens || {} : {}, pesos: bd.pesos || {}, pesosBrutos: bd.pesosBrutos || {}, baleiros: bd.baleiros || {}, pacotes: bd.pacotes || {} }); } catch (e) { console.error(e); setRes(null); } setLoading(false); })(); }, [data]);
+    useEffect(() => { if (!data) return; (async () => { setLoading(true); try { const [a, b] = await Promise.all([db.collection("fini_estoque_quiosque").doc(data).get(), db.collection("fini_balas_kg").doc(data).get()]); const ad = a.exists ? a.data() : {}, bd = b.exists ? b.data() : {}; setRes({ itens: ad.itens || {}, observacoes: ad.observacoes || {}, pesos: bd.pesos || {}, pesosBrutos: bd.pesosBrutos || {}, baleiros: bd.baleiros || {}, pacotes: bd.pacotes || {} }); } catch (e) { console.error(e); setRes(null); } setLoading(false); })(); }, [data]);
     const preenchido = v => String(v ?? "").trim() !== "";
     const normalizaBusca = v => String(v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
     const termo = normalizaBusca(busca.trim());
-    const todasBalaRows = balas.flatMap(c => c.itens.map(nome => ({ cat: c.cat, nome }))).filter(x => preenchido((res?.pesos || {})[x.nome]) || preenchido((res?.pesosBrutos || {})[x.nome]) || preenchido((res?.baleiros || {})[x.nome]));
-    const todosItemRows = itens.filter(n => preenchido((res?.itens || {})[n]));
+    const todasBalaRows = balas.flatMap(c => c.itens.map(nome => ({ cat: c.cat, nome }))).filter(x => preenchido((res?.pesos || {})[x.nome]) || preenchido((res?.pesosBrutos || {})[x.nome]) || preenchido((res?.baleiros || {})[x.nome]) || preenchido((res?.pacotes || {})[x.nome]));
+    const todosItemRows = itens.filter(n => preenchido((res?.itens || {})[n]) || preenchido((res?.observacoes || {})[n]));
     const balaRows = todasBalaRows.filter(x => !termo || normalizaBusca(`${x.cat} ${x.nome}`).includes(termo));
-    const itemRows = todosItemRows.filter(n => !termo || normalizaBusca(n).includes(termo));
-    const linhaBala = (x, prefixo = "") => { const qtd = num(res.baleiros[x.nome]), temNovo = preenchido(res.baleiros[x.nome]) || preenchido(res.pesosBrutos[x.nome]); return h25("tr", { key: `${prefixo}${x.nome}` }, h25("td", null, h25("span", { className: "pmini" }, `${x.cat} · `), x.nome), h25("td", { className: "num" }, temNovo ? qtd.toLocaleString("pt-BR") : "—"), h25("td", { className: "num" }, temNovo ? kgF(qtd * TARA_BALEIRO_KG) : "—"), h25("td", { className: "num" }, preenchido(res.pesosBrutos[x.nome]) ? kgF(res.pesosBrutos[x.nome]) : "—"), h25("td", { className: "num" }, preenchido(res.pesos[x.nome]) ? kgF(res.pesos[x.nome]) : "—")); };
+    const itemRows = todosItemRows.filter(n => !termo || normalizaBusca(`${n} ${(res?.observacoes || {})[n] || ""}`).includes(termo));
+    const liquidoBala = nome => preenchido((res?.pesos || {})[nome]) ? num(res.pesos[nome]) : pesoLiquidoBala25((res?.pesosBrutos || {})[nome], (res?.baleiros || {})[nome]);
+    const custoLinhaBala = nome => custos.custoBala(nome, liquidoBala(nome), (res?.pacotes || {})[nome]);
+    const custoLinhaItem = nome => custos.custoItem(nome, (res?.itens || {})[nome]);
+    const custosItens = todosItemRows.map(custoLinhaItem), custosBalas = todasBalaRows.map(x => custoLinhaBala(x.nome));
+    const valorItens = custosItens.reduce((s, x) => s + (x.valor === null ? 0 : x.valor), 0), valorBalas = custosBalas.reduce((s, x) => s + (x.valor === null ? 0 : x.valor), 0);
+    const coberturaItens = custosItens.filter(x => x.valor !== null).length, coberturaBalas = custosBalas.filter(x => x.valor !== null).length, parciais = custosBalas.filter(x => x.parcial).length;
+    const exibirCusto = c => c.valor === null ? "Sem vínculo" : `${brl(c.valor)}${c.parcial ? " *" : ""}`;
+    const linhaBala = (x, prefixo = "") => {
+        const qtd = num(res.baleiros[x.nome]), temNovo = preenchido(res.baleiros[x.nome]) || preenchido(res.pesosBrutos[x.nome]), liquido = liquidoBala(x.nome), custo = custoLinhaBala(x.nome);
+        return h25("tr", { key: `${prefixo}${x.nome}` }, h25("td", null, h25("span", { className: "pmini" }, `${x.cat} · `), x.nome), h25("td", { className: "num" }, temNovo ? qtd.toLocaleString("pt-BR") : "—"), h25("td", { className: "num" }, temNovo ? kgF(qtd * TARA_BALEIRO_KG) : "—"), h25("td", { className: "num" }, preenchido(res.pesosBrutos[x.nome]) ? kgF(res.pesosBrutos[x.nome]) : "—"), h25("td", { className: "num" }, preenchido(res.pesos[x.nome]) || temNovo ? kgF(liquido) : "—"), h25("td", { className: "num" }, preenchido(res.pacotes[x.nome]) ? num(res.pacotes[x.nome]).toLocaleString("pt-BR") : "—"), h25("td", { className: "num" }, exibirCusto(custo)));
+    };
     const tabelaItens = res && h25("div", { style: { marginBottom: 14 } },
         h25("div", { className: "cat" }, "Itens do quiosque"),
         h25("div", { className: "panel" }, h25("table", { className: "count-screen-items" },
-            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 120, textAlign: "right" } }, "Quantidade"))),
+            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 100, textAlign: "right" } }, "Quantidade"), h25("th", null, "Observação / detalhamento"), h25("th", { style: { width: 125, textAlign: "right" } }, "Valor de custo"))),
             h25("tbody", null,
-                itemRows.map(n => h25("tr", { key: n }, h25("td", null, n), h25("td", { className: "num" }, num(res.itens[n]).toLocaleString("pt-BR")))),
-                !itemRows.length && h25("tr", null, h25("td", { colSpan: 2, style: { textAlign: "center" } }, termo ? "Nenhum item encontrado." : "Sem itens preenchidos."))))));
+                itemRows.map(n => h25("tr", { key: n }, h25("td", null, n), h25("td", { className: "num" }, preenchido(res.itens[n]) ? num(res.itens[n]).toLocaleString("pt-BR") : "—"), h25("td", null, (res.observacoes || {})[n] || "—"), h25("td", { className: "num" }, exibirCusto(custoLinhaItem(n))))),
+                !itemRows.length && h25("tr", null, h25("td", { colSpan: 4, style: { textAlign: "center" } }, termo ? "Nenhum item encontrado." : "Sem itens preenchidos."))))));
     const tabelaBalas = res && h25("div", null,
         h25("div", { className: "cat" }, "Balas a granel"),
         h25("div", { className: "panel" }, h25("table", { className: "count-screen-balas" },
-            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 90, textAlign: "right" } }, "Baleiros"), h25("th", { style: { width: 110, textAlign: "right" } }, "Tara"), h25("th", { style: { width: 110, textAlign: "right" } }, "Peso bruto"), h25("th", { style: { width: 110, textAlign: "right" } }, "Peso líquido"))),
+            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: 75, textAlign: "right" } }, "Baleiros"), h25("th", { style: { width: 90, textAlign: "right" } }, "Tara"), h25("th", { style: { width: 95, textAlign: "right" } }, "Peso bruto"), h25("th", { style: { width: 95, textAlign: "right" } }, "Peso líquido"), h25("th", { style: { width: 85, textAlign: "right" } }, "Pcts./potes"), h25("th", { style: { width: 125, textAlign: "right" } }, "Valor de custo"))),
             h25("tbody", null,
                 balaRows.map(x => linhaBala(x, "tela-")),
-                !balaRows.length && h25("tr", null, h25("td", { colSpan: 5, style: { textAlign: "center" } }, termo ? "Nenhuma bala encontrada." : "Sem balas preenchidas."))))));
+                !balaRows.length && h25("tr", null, h25("td", { colSpan: 7, style: { textAlign: "center" } }, termo ? "Nenhuma bala encontrada." : "Sem balas preenchidas."))))));
     const relatorioImpressao = res && h25("section", { className: "print-area count-print", "aria-label": "Relatório impresso da contagem" },
         h25("div", { className: "print-title" }, "Contagem Geral de Estoque"),
-        h25("div", { className: "print-subtitle" }, `FINI Petrópolis · Data: ${fmtD(data)} · ${todosItemRows.length} itens · ${todasBalaRows.length} balas`),
+        h25("div", { className: "print-subtitle" }, `FINI Petrópolis · Data: ${fmtD(data)} · Custo conhecido: ${brl(valorItens + valorBalas)} · ${coberturaItens + coberturaBalas}/${todosItemRows.length + todasBalaRows.length} produtos valorizados${parciais ? " · * valor parcial" : ""}`),
         h25("div", { className: "count-print-section" }, h25("h2", null, "Itens do quiosque"), h25("table", null,
-            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: "28mm", textAlign: "right" } }, "Quantidade"))),
-            h25("tbody", null, todosItemRows.map(n => h25("tr", { key: `print-${n}` }, h25("td", null, n), h25("td", { className: "num" }, num(res.itens[n]).toLocaleString("pt-BR")))), !todosItemRows.length && h25("tr", null, h25("td", { colSpan: 2 }, "Sem itens preenchidos."))))),
+            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: "22mm", textAlign: "right" } }, "Quantidade"), h25("th", { style: { width: "58mm" } }, "Observação / detalhamento"), h25("th", { style: { width: "28mm", textAlign: "right" } }, "Custo"))),
+            h25("tbody", null, todosItemRows.map(n => h25("tr", { key: `print-${n}` }, h25("td", null, n), h25("td", { className: "num" }, preenchido(res.itens[n]) ? num(res.itens[n]).toLocaleString("pt-BR") : "—"), h25("td", null, (res.observacoes || {})[n] || "—"), h25("td", { className: "num" }, exibirCusto(custoLinhaItem(n))))), !todosItemRows.length && h25("tr", null, h25("td", { colSpan: 4 }, "Sem itens preenchidos."))))),
         h25("div", { className: "count-print-section" }, h25("h2", null, "Balas a granel"), h25("table", null,
-            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: "18mm", textAlign: "right" } }, "Baleiros"), h25("th", { style: { width: "22mm", textAlign: "right" } }, "Tara"), h25("th", { style: { width: "24mm", textAlign: "right" } }, "Peso bruto"), h25("th", { style: { width: "24mm", textAlign: "right" } }, "Peso líquido"))),
-            h25("tbody", null, todasBalaRows.map(x => linhaBala(x, "print-")), !todasBalaRows.length && h25("tr", null, h25("td", { colSpan: 5 }, "Sem balas preenchidas."))))));
+            h25("thead", null, h25("tr", null, h25("th", null, "Produto"), h25("th", { style: { width: "15mm", textAlign: "right" } }, "Baleiros"), h25("th", { style: { width: "18mm", textAlign: "right" } }, "Tara"), h25("th", { style: { width: "20mm", textAlign: "right" } }, "Bruto"), h25("th", { style: { width: "20mm", textAlign: "right" } }, "Líquido"), h25("th", { style: { width: "18mm", textAlign: "right" } }, "Pcts./potes"), h25("th", { style: { width: "25mm", textAlign: "right" } }, "Custo"))),
+            h25("tbody", null, todasBalaRows.map(x => linhaBala(x, "print-")), !todasBalaRows.length && h25("tr", null, h25("td", { colSpan: 7 }, "Sem balas preenchidas."))))));
     const resumo = loading ? "Carregando…" : !data ? "Nenhuma contagem selecionada" : termo ? `${itemRows.length + balaRows.length} resultado(s) de ${todosItemRows.length + todasBalaRows.length}` : `${todosItemRows.length} itens e ${todasBalaRows.length} balas preenchidos`;
     return h25(React.Fragment, null,
         h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Consultar contagem"), h25("div", { className: "hsub" }, "Visualização completa de uma única data."))),
@@ -2703,6 +2765,11 @@ function ComparativoV25({ itens, balas }) {
             h25("div", { className: "field search" }, h25("label", { htmlFor: "busca-contagem-geral" }, "Pesquisar produto"), h25("input", { id: "busca-contagem-geral", className: "inp", value: busca, placeholder: "Nome do item ou bala", onChange: e => setBusca(e.target.value) })),
             h25("div", { className: "tl" }, h25("button", { className: "btn ghost", disabled: !res || loading || !data, onClick: () => imprimir25("contagem") }, "Imprimir contagem")),
             h25("span", { className: "clean-note" }, resumo)),
+        res && h25("div", { className: "totbar" },
+            h25("div", { className: "tt" }, h25("span", null, "Custo conhecido · Itens"), h25("b", null, brl(valorItens))),
+            h25("div", { className: "tt" }, h25("span", null, "Custo conhecido · Balas"), h25("b", null, brl(valorBalas))),
+            h25("div", { className: "tt" }, h25("span", null, "Estoque valorizado"), h25("b", { className: "hl" }, brl(valorItens + valorBalas))),
+            h25("div", { className: "tt" }, h25("span", null, "Cobertura dos vínculos"), h25("b", null, `${coberturaItens + coberturaBalas}/${todosItemRows.length + todasBalaRows.length}`), parciais ? h25("small", { className: "clean-note" }, `${parciais} valor(es) parcial(is): falta kg por compra`) : null)),
         tabelaItens,
         tabelaBalas,
         relatorioImpressao);
@@ -3317,7 +3384,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
                         h25("div", { className: "link-product-note" },
                             salvo ? h25("span", { className: "link-confirmed" }, "Confirmado") : eSugestao ? h25("span", { className: `link-suggestion${sugestao.confianca === "alta" ? " high" : ""}` }, `Sugestão · ${sugestao.confianca}`) : produto ? h25("span", { className: "link-suggestion" }, "Escolha manual") : h25("span", null, sugestao ? "Apague o texto para pesquisar outra opção." : "Sem sugestão segura; pesquise manualmente."),
                             produto && h25("span", null, `${brl(produto.preco)} · Ref. ${produto.referencia || "—"}`))),
-                    h25("td", { "data-label": c.tipo === "bala" ? "Kg por compra" : "Conteúdo por compra" }, h25("input", { className: "inp num link-number", inputMode: "decimal", value: edicao.fator, placeholder: c.tipo === "bala" ? "0,500" : "1", "aria-label": `${c.tipo === "bala" ? "Kg" : "Conteúdo"} por compra de ${c.nome}`, onChange: e => atualizarEdicao(c, { fator: e.target.value }) })),
+                    h25("td", { "data-label": c.tipo === "bala" ? "Kg por pacote/pote" : "Conteúdo por compra" }, h25("input", { className: "inp num link-number", inputMode: "decimal", value: edicao.fator, placeholder: c.tipo === "bala" ? "0,500" : "1", "aria-label": `${c.tipo === "bala" ? "Kg por pacote ou pote" : "Conteúdo por compra"} de ${c.nome}`, onChange: e => atualizarEdicao(c, { fator: e.target.value }) })),
                     h25("td", { "data-label": "Estoque segurança" }, h25("input", { className: "inp num link-number", inputMode: "decimal", value: edicao.seguranca, placeholder: "0", "aria-label": `Estoque de segurança de ${c.nome}`, onChange: e => atualizarEdicao(c, { seguranca: e.target.value }) })),
                     h25("td", { className: "link-actions", "data-label": "Ação" },
                         h25("button", { className: "btn primary sm", onClick: () => salvar(c) }, salvo ? "Salvar correção" : "Confirmar"),
@@ -3337,11 +3404,15 @@ function SugestaoCompraV37({ produtos, vinculosDoc }) {
     } catch (e) { console.error("Erro ao analisar contagens", e); setErro("Não foi possível carregar as contagens salvas."); } setLoading(false); })(); }, []);
     const vinculos = Object.values(vinculosDoc.data.vinculos || {});
     const linhas = vinculos.map(v => {
-        const produto = produtos.find(p => p.id === v.catalogoId), docs = v.tipo === "bala" ? historico.balas : historico.itens, campo = v.tipo === "bala" ? "pesos" : "itens";
-        const serie = docs.map(d => ({ data: d.data, valor: d.dados?.[campo]?.[v.nomeContagem] })).filter(x => String(x.valor ?? "").trim() !== "").map(x => ({ data: x.data, valor: num(x.valor) })).slice(-5);
+        const produto = produtos.find(p => p.id === v.catalogoId), docs = v.tipo === "bala" ? historico.balas : historico.itens, fator = num(v.fator);
+        const serie = docs.map(d => {
+            if (v.tipo !== "bala") return { data: d.data, valor: d.dados?.itens?.[v.nomeContagem], presente: String(d.dados?.itens?.[v.nomeContagem] ?? "").trim() !== "" };
+            const peso = d.dados?.pesos?.[v.nomeContagem], pacotes = d.dados?.pacotes?.[v.nomeContagem], temPeso = String(peso ?? "").trim() !== "", temPacotes = String(pacotes ?? "").trim() !== "";
+            return { data: d.data, valor: num(peso) + (fator > 0 ? num(pacotes) * fator : 0), presente: temPeso || temPacotes };
+        }).filter(x => x.presente).map(x => ({ data: x.data, valor: num(x.valor) })).slice(-5);
         const consumos = [];
         for (let i = 1; i < serie.length; i++) { const dias = Math.max(1, Math.round((new Date(`${serie[i].data}T12:00:00`) - new Date(`${serie[i - 1].data}T12:00:00`)) / 86400000)), queda = serie[i - 1].valor - serie[i].valor; if (queda > 0) consumos.push(queda * 7 / dias); }
-        const consumoSemanal = medianaCompra(consumos), atual = serie.length ? serie[serie.length - 1].valor : null, seguranca = Math.max(0, num(v.estoqueSeguranca)), fator = num(v.fator), alvo = atual === null ? null : consumoSemanal * cobertura + seguranca;
+        const consumoSemanal = medianaCompra(consumos), atual = serie.length ? serie[serie.length - 1].valor : null, seguranca = Math.max(0, num(v.estoqueSeguranca)), alvo = atual === null ? null : consumoSemanal * cobertura + seguranca;
         const necessidade = alvo === null ? 0 : Math.max(0, alvo - atual), multiplo = Math.max(1, num(produto?.multiplo) || 1), bruto = fator > 0 ? necessidade / fator : 0, quantidadeCompra = necessidade > 0 && fator > 0 ? Math.ceil(bruto / multiplo) * multiplo : 0, custo = quantidadeCompra * num(produto?.preco);
         const status = !produto ? "Produto fora do catálogo" : serie.length < 2 ? "Histórico insuficiente" : fator <= 0 ? "Fator não informado" : quantidadeCompra > 0 ? "Comprar" : "Estoque suficiente";
         return { ...v, produto, serie, atual, consumoSemanal, seguranca, alvo, multiplo, quantidadeCompra, custo, status, ultimaData: serie[serie.length - 1]?.data || "" };
@@ -3448,6 +3519,6 @@ catch (e) {
 }
 
 </script>
-<!-- Versao V38 2026-09-14: lista completa de vínculos, sugestões assistidas e pesquisa por produto -->
+<!-- Versao V39 2026-09-15: pacotes/potes restaurados, observacoes por item e estoque valorizado pelo catalogo -->
 </body>
 </html>
