@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V46</title>
+<title>FINI Petrópolis · Gestão V47</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -280,9 +280,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "05/10/2026 20:00 - V46_PREMIOS_VENDAS";
+const FINI_BUILD = "05/10/2026 20:30 - V47_CUSTO_UNITARIO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "05/10/2026 20:00 · V46_PREMIOS_VENDAS";
+const APP_VERSION = "05/10/2026 20:30 · V47_CUSTO_UNITARIO";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -2744,7 +2744,7 @@ function useValorizacaoCatalogo25() {
     const obter = (tipo, nome) => {
         const vinculo = (vinculosDoc.data.vinculos || {})[chaveVinculoCompra(tipo, nome)];
         const brutoCatalogo = vinculo?.catalogoId ? produtosPorId.get(String(vinculo.catalogoId)) : null;
-        const catalogado = brutoCatalogo ? { ...brutoCatalogo, preco: dadosUnitariosCompra(brutoCatalogo).precoUnitario } : null;
+        const catalogado = brutoCatalogo ? { ...brutoCatalogo, preco: tipo === "item" ? dadosUnitariosCompra(brutoCatalogo).precoUnitario : num(brutoCatalogo.preco) } : null;
         const produto = catalogado || (vinculo?.origem === "manual" && num(vinculo.precoManual) > 0 ? { id: `manual-${tipo}-${nome}`, nome: vinculo.nomeProdutoManual || nome, referencia: "Custo manual", preco: num(vinculo.precoManual), multiplo: num(vinculo.multiploCompra) || 1, origem: "manual" } : null);
         return vinculo && produto ? { vinculo, produto } : null;
     };
@@ -3402,15 +3402,18 @@ function MetaItensV32({ funcEsc, itens, balas }) {
 function chaveVinculoCompra(tipo, nome) { return `${tipo}::${nome}`; }
 function numeroDecimalCompra(v) { const n = Number(String(v ?? "").replace(",", ".")); return Number.isFinite(n) ? n : 0; }
 function dadosUnitariosCompra(produto) {
-    const nome = String(produto?.nome || ""), precoPortal = num(produto?.preco);
+    const nome = String(produto?.nome || ""), categoria = String(produto?.categoria || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase(), precoPortal = num(produto?.preco);
     const unitario = nome.match(/valor\s+unit[aá]rio\s+R\$\s*([0-9.,]+)/i);
     const caixa = nome.match(/(?:caixa\s+com\s+)?m[uú]ltiplo\s+de\s+(\d+)/i);
     const pacote = nome.match(/pcte\s+com\s+(\d+)\s+uni/i);
-    const multiploNome = Number(caixa?.[1] || pacote?.[1] || 0);
+    const unidadesNome = categoria === "UNITARIO" ? nome.match(/(?:^|\s)(\d+)\s*(?:UN|U)\b/i) : null;
+    const caixaX = categoria === "UNITARIO" ? nome.match(/(?:^|\s)(\d+)\s*X\s*\d+(?:[.,]\d+)?\s*G\b/i) : null;
+    const conteudoPreco = Number(pacote?.[1] || unidadesNome?.[1] || caixaX?.[1] || 0);
+    const multiploNome = Number(caixa?.[1] || pacote?.[1] || unidadesNome?.[1] || caixaX?.[1] || 0);
     const multiplo = Math.max(1, num(produto?.multiplo) || multiploNome || 1);
     let precoUnitario = unitario ? numeroMoeda25(unitario[1]) : precoPortal;
-    if (!unitario && pacote && !num(produto?.multiplo) && multiploNome > 0) precoUnitario = precoPortal / multiploNome;
-    return { precoUnitario, multiplo, precoPortal, normalizado: !!unitario || (!!pacote && !num(produto?.multiplo)) };
+    if (!unitario && conteudoPreco > 0) precoUnitario = precoPortal / conteudoPreco;
+    return { precoUnitario, multiplo, precoPortal, unidadesPorCompra: conteudoPreco || multiplo, normalizado: !!unitario || conteudoPreco > 0 };
 }
 function inferirConteudoCompra(produto, tipo) {
     if (tipo === "item") return dadosUnitariosCompra(produto).multiplo;
@@ -3584,7 +3587,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
                         h25("div", { className: "link-product-note" },
                             salvo ? h25("span", { className: "link-confirmed" }, edicao.manual ? "Custo manual" : "Confirmado") : eSugestao ? h25("span", { className: `link-suggestion${sugestao.confianca === "alta" ? " high" : ""}` }, `Sugestão · ${sugestao.confianca}`) : produto ? h25("span", { className: "link-suggestion" }, "Escolha manual") : !edicao.manual && h25("span", null, sugestao ? "Apague o texto para pesquisar outra opção." : "Sem sugestão segura; pesquise manualmente."),
                             edicao.manual && h25("span", null, c.tipo === "bala" ? "Informe o custo de cada pacote/pote." : "Informe o custo por unidade."),
-                            produto && !edicao.manual && h25("span", null, `${brl(dadosUnitariosCompra(produto).precoUnitario)} por unidade · Ref. ${produto.referencia || "—"}`),
+                            produto && !edicao.manual && h25("span", null, c.tipo === "item" ? `${brl(dadosUnitariosCompra(produto).precoUnitario)} por unidade · Ref. ${produto.referencia || "—"}` : `${brl(produto.preco)} por pacote/pote · Ref. ${produto.referencia || "—"}`),
                             h25("button", { type: "button", className: "link-manual-toggle", onClick: () => alternarManual(c) }, edicao.manual ? "Usar produto do portal" : "Produto externo / custo manual"))),
                     h25("td", { "data-label": c.tipo === "bala" ? "Kg por pacote/pote" : "Múltiplo real do pedido" }, h25("input", { className: "inp num link-number", inputMode: "decimal", value: edicao.fator, placeholder: c.tipo === "bala" ? "0,500" : "1", "aria-label": `${c.tipo === "bala" ? "Kg por pacote ou pote" : "Múltiplo real do pedido"} de ${c.nome}`, onChange: e => atualizarEdicao(c, { fator: e.target.value }) })),
                     h25("td", { "data-label": "Estoque segurança" }, h25("input", { className: "inp num link-number", inputMode: "decimal", value: edicao.seguranca, placeholder: "0", "aria-label": `Estoque de segurança de ${c.nome}`, onChange: e => atualizarEdicao(c, { seguranca: e.target.value }) })),
@@ -3607,7 +3610,7 @@ function SugestaoCompraV37({ itens, balas, produtos, vinculosDoc }) {
     const chavesAtuais = new Set([...itens.map(nome => chaveVinculoCompra("item", nome)), ...balas.flatMap(c => c.itens.map(nome => chaveVinculoCompra("bala", nome)))]);
     const vinculos = Object.entries(vinculosDoc.data.vinculos || {}).filter(([key]) => chavesAtuais.has(key)).map(([, v]) => v);
     const linhas = vinculos.map(v => {
-        const brutoCatalogo = produtos.find(p => String(p.id) === String(v.catalogoId)), catalogado = brutoCatalogo ? { ...brutoCatalogo, preco: dadosUnitariosCompra(brutoCatalogo).precoUnitario, multiplo: dadosUnitariosCompra(brutoCatalogo).multiplo } : null, produto = catalogado || (v.origem === "manual" && num(v.precoManual) > 0 ? { id: `manual-${v.tipo}-${v.nomeContagem}`, nome: v.nomeProdutoManual || v.nomeContagem, referencia: "Custo manual", preco: num(v.precoManual), multiplo: num(v.multiploCompra) || 1, origem: "manual" } : null), docs = v.tipo === "bala" ? historico.balas : historico.itens, fator = num(v.fator);
+        const brutoCatalogo = produtos.find(p => String(p.id) === String(v.catalogoId)), dadosCompra = brutoCatalogo ? dadosUnitariosCompra(brutoCatalogo) : null, catalogado = brutoCatalogo ? { ...brutoCatalogo, preco: v.tipo === "item" ? dadosCompra.precoUnitario : num(brutoCatalogo.preco), multiplo: dadosCompra.multiplo } : null, produto = catalogado || (v.origem === "manual" && num(v.precoManual) > 0 ? { id: `manual-${v.tipo}-${v.nomeContagem}`, nome: v.nomeProdutoManual || v.nomeContagem, referencia: "Custo manual", preco: num(v.precoManual), multiplo: num(v.multiploCompra) || 1, origem: "manual" } : null), docs = v.tipo === "bala" ? historico.balas : historico.itens, fator = num(v.fator);
         const nomes = [...new Set([v.nomeContagem, ...(v.aliases || [])].filter(Boolean))];
         const localizar = grupo => { for (const nome of nomes) { const valor = grupo?.[nome]; if (String(valor ?? "").trim() !== "") return valor; } return undefined; };
         const serie = docs.map(d => {
@@ -3749,5 +3752,6 @@ catch (e) {
 <!-- Versao V44 2026-10-05: campos de calendario separados para datas de Atestado e Falta -->
 <!-- Versao V45 2026-10-05: valor manual de recompensa por funcionaria em cada campanha de Meta Itens -->
 <!-- Versao V46 2026-10-05: valores manuais de recompensa por nivel de meta em Vendas Diarias -->
+<!-- Versao V47 2026-10-05: cache atualizado e custo unitario calculado para caixas 100UN, 200UN e formatos NxG -->
 </body>
 </html>
