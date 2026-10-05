@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V44</title>
+<title>FINI Petrópolis · Gestão V46</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -202,6 +202,7 @@ table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
 .cash-table{width:100%;min-width:820px;table-layout:fixed}.cash-table th{text-align:center;font-size:12px}.cash-table td{padding:4px 6px}.cash-table .money-input{width:100%;min-width:0}.cash-summary{justify-content:center}.cash-summary .tt{text-align:center}
 .consumo-table{width:100%;min-width:900px;table-layout:fixed}.consumo-table th{white-space:nowrap}.consumo-table th:nth-child(1){width:140px}.consumo-table th:nth-child(2){width:125px}.consumo-table th:nth-child(3){width:280px}.consumo-table th:nth-child(4){width:120px}.consumo-table th:nth-child(5){width:135px}.consumo-table th:nth-child(6){width:120px}.consumo-table th:nth-child(7){width:42px}.consumo-table td{vertical-align:middle}.consumo-table input,.consumo-table select{width:100%;min-width:0}.consumo-product-type{display:flex;align-items:center;gap:6px;margin-top:4px}.consumo-product-type select{width:auto;max-width:126px;padding:4px 7px!important;font-size:10.5px!important;background:#fff!important}.consumo-product-note{min-width:0;color:var(--ink-faint);font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.consumo-amount{font-family:'DM Mono'!important;text-align:right!important}.consumo-price .money-input{width:100%}.consumo-fixed-price,.consumo-line-total{display:block;text-align:right;font-family:'DM Mono';font-weight:700;white-space:nowrap}.consumo-fixed-price small{display:block;color:var(--ink-faint);font:500 9px 'DM Sans';margin-top:2px}
 .goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px}.goal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px}.goal-card label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);font-weight:700;margin-bottom:5px}.goal-card input,.goal-card select{width:100%}.progress{height:7px;background:var(--line-soft);border-radius:999px;overflow:hidden;margin-top:7px}.progress>span{display:block;height:100%;background:var(--fini);border-radius:inherit;max-width:100%}
+.goal-reward{margin-top:9px;padding-top:8px;border-top:1px solid var(--line-soft)}.goal-reward label{margin-bottom:4px!important}.goal-reward-status{display:block;margin-top:4px;font-size:10px;font-weight:800;color:var(--ink-soft)}.goal-card.reached .goal-reward-status{color:var(--green)}
 .draft-pill{display:inline-flex;align-items:center;gap:5px;background:#fff7db;color:#795500;border:1px solid #f0d98b;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:700}
 .confirm-modal .mbox{max-width:420px}.confirm-time{font-family:'DM Mono';font-size:30px;color:var(--fini);text-align:center;padding:10px 0}.confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.confirm-grid div{background:#fff;border:1px solid var(--line-soft);border-radius:9px;padding:8px}.confirm-grid span{display:block;color:var(--ink-faint);font-size:9px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
 .waste-kpi{display:flex;align-items:baseline;gap:6px}.waste-kpi small{color:var(--ink-faint);font-size:10px}
@@ -217,6 +218,7 @@ table{font-size:12.5px}th{padding:8px 10px}td{padding:5px 10px}
 .meta-staff-top{display:flex;align-items:center;gap:8px;margin-bottom:9px}.meta-avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--fini);color:#fff;font-family:'Fraunces',serif;font-weight:800;flex-shrink:0}.meta-staff-name{font-weight:800;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis}.meta-badge{margin-left:auto;border-radius:999px;padding:3px 6px;font-size:8.5px;font-weight:800;text-transform:uppercase;background:#fff1f6;color:var(--fini-deep);white-space:nowrap}.meta-badge.hit{background:#fff2bb;color:#735600}
 .meta-card-item{font-size:10.5px;color:var(--fini-deep);font-weight:700;margin:-3px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .meta-qty{display:grid;grid-template-columns:1fr 76px;gap:7px;align-items:end}.meta-qty label{font-size:9px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.05em}.meta-qty input{width:76px}.meta-result{font-size:10.5px;color:var(--ink-soft);margin-top:6px;display:flex;justify-content:space-between;gap:6px}.meta-result strong{color:var(--ink)}
+.meta-reward{display:grid;grid-template-columns:1fr 105px;gap:7px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft)}.meta-reward label{font-size:9px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.05em;line-height:1.25}.meta-reward .money-input{width:105px!important;min-width:0!important;padding:6px 7px!important;font-size:11px!important}.meta-reward-value{text-align:right;font-family:'DM Mono';font-size:11px;font-weight:800;color:var(--fini-deep);white-space:nowrap}
 .meta-history{margin-top:16px}.meta-history-title{font-family:'Fraunces',serif;font-size:18px;margin-bottom:9px}.meta-history .meta-campaign{box-shadow:none;background:rgba(255,255,255,.55)}
 .meta-empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:28px 18px;text-align:center;color:var(--ink-soft);font-size:13px}.meta-empty strong{display:block;color:var(--ink);font-family:'Fraunces',serif;font-size:18px;margin-bottom:5px}
 .meta-participants{border:1px solid var(--line);border-radius:11px;padding:8px 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:6px}.meta-check{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line-soft);border-radius:9px;padding:7px 9px;font-size:12px;font-weight:700}.meta-check input{accent-color:var(--fini)}
@@ -278,9 +280,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "05/10/2026 19:00 - V44_DATAS_ATESTADO_FALTA";
+const FINI_BUILD = "05/10/2026 20:00 - V46_PREMIOS_VENDAS";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "05/10/2026 19:00 · V44_DATAS_ATESTADO_FALTA";
+const APP_VERSION = "05/10/2026 20:00 · V46_PREMIOS_VENDAS";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -3052,15 +3054,17 @@ function VendasV25() {
     const [ano, setAno] = useState(Math.max(2026, hjD.getFullYear())), [mes, setMes] = useState(hjD.getFullYear() === 2026 ? Math.max(7, hjD.getMonth()) : hjD.getMonth());
     const [importMsg, setImportMsg] = useState(""), [importando, setImportando] = useState(false), arquivoRef = useRef(null);
     useEffect(() => { if (ano < 2026 || (ano === 2026 && mes < 7)) { setAno(2026); setMes(7); } }, [ano, mes]);
-    const doc = useFireDoc("fini_vendas_diarias", keyMes(ano, mes), { dias: {}, metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "" } });
-    const dias = doc.data.dias || {}, metas = { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(doc.data.metas || {}) };
+    const doc = useFireDoc("fini_vendas_diarias", keyMes(ano, mes), { dias: {}, metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "", premios: { mensal: "", intermediaria: "", super: "" } } });
+    const dias = doc.data.dias || {}, metas = { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(doc.data.metas || {}) }, premios = { mensal: "", intermediaria: "", super: "", ...((doc.data.metas || {}).premios || {}) };
     const setDia = (dd, k, v) => doc.update(d => ({ dias: { ...(d.dias || {}), [dd]: { ...((d.dias || {})[dd] || {}), [k]: v } } }));
-    const setMeta = (k, v) => doc.update(d => ({ metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(d.metas || {}), [k]: v } }));
+    const setMeta = (k, v) => doc.update(d => ({ metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "", premios: { mensal: "", intermediaria: "", super: "" }, ...(d.metas || {}), [k]: v } }));
+    const setPremio = (k, v) => doc.update(d => ({ metas: { tipo: "faturamento", mensal: "", intermediaria: "", super: "", ...(d.metas || {}), premios: { mensal: "", intermediaria: "", super: "", ...(((d.metas || {}).premios) || {}), [k]: v } } }));
     const rows = Array.from({ length: diMes(ano, mes) }, (_, i) => { const dd = pad(i + 1), d = dias[dd] || {}, vendas = num(d.vendas), tc = num(d.tc); return { dd, vendas: d.vendas ?? "", tc: d.tc ?? "", tm: tc ? vendas / tc : 0, obs: d.obs || "" }; });
     const totalVendas = rows.reduce((s, r) => s + num(r.vendas), 0), totalTC = rows.reduce((s, r) => s + num(r.tc), 0), tm = totalTC ? totalVendas / totalTC : 0;
     const atual = metas.tipo === "tm" ? tm : totalVendas;
     const fmt = v => metas.tipo === "tm" || metas.tipo === "faturamento" ? brl(v) : String(v);
     const labels = { mensal: "Meta mensal", intermediaria: "Meta intermediária", super: "Super meta" };
+    const premioAlcancado = ["mensal", "intermediaria", "super"].map(k => ({ k, alvo: num(metas[k]), premio: numeroMoeda25(premios[k]) })).filter(x => x.alvo > 0 && atual >= x.alvo && x.premio > 0).sort((a, b) => b.alvo - a.alvo)[0] || null;
     const importarArquivo = async (e) => {
         const file = e.target.files && e.target.files[0];
         e.target.value = "";
@@ -3095,8 +3099,8 @@ function VendasV25() {
         importMsg && h25("div", { className: "clean-note", style: { marginBottom: 12 } }, importMsg),
         h25("div", { className: "goal-grid" },
             h25("div", { className: "goal-card" }, h25("label", null, "Acompanhar metas por"), h25("select", { className: "inp", value: metas.tipo, onChange: e => setMeta("tipo", e.target.value) }, h25("option", { value: "faturamento" }, "Faturamento total"), h25("option", { value: "tm" }, "Ticket médio (TM)"))),
-            ["mensal", "intermediaria", "super"].map(k => { const alvo = num(metas[k]), pct = alvo ? Math.min(100, atual / alvo * 100) : 0; return h25("div", { className: `goal-card goal-${k}`, key: k }, h25("label", null, labels[k]), h25(CampoMoeda25, { className: "inp", value: metas[k], ariaLabel: labels[k], onChange: v => setMeta(k, v) }), h25("div", { className: "clean-note" }, alvo ? `${fmt(atual)} de ${fmt(alvo)} · ${pct.toFixed(0)}%` : "Defina a meta"), h25("div", { className: "progress" }, h25("span", { style: { width: `${pct}%` } }))); })),
-        h25("div", { className: "totbar sales-width sales-summary" }, h25("div", { className: "tt" }, h25("span", null, "Vendas"), h25("b", { className: "hl" }, brl(totalVendas))), h25("div", { className: "tt" }, h25("span", null, "TC · quantidade"), h25("b", null, totalTC.toLocaleString("pt-BR"))), h25("div", { className: "tt" }, h25("span", null, "TM · automático"), h25("b", null, brl(tm)))),
+            ["mensal", "intermediaria", "super"].map(k => { const alvo = num(metas[k]), premio = numeroMoeda25(premios[k]), atingiu = alvo > 0 && atual >= alvo, pct = alvo ? Math.min(100, atual / alvo * 100) : 0; return h25("div", { className: `goal-card goal-${k}${atingiu ? " reached" : ""}`, key: k }, h25("label", null, labels[k]), h25(CampoMoeda25, { className: "inp", value: metas[k], ariaLabel: labels[k], onChange: v => setMeta(k, v) }), h25("div", { className: "clean-note" }, alvo ? `${fmt(atual)} de ${fmt(alvo)} · ${pct.toFixed(0)}%` : "Defina a meta"), h25("div", { className: "progress" }, h25("span", { style: { width: `${pct}%` } })), h25("div", { className: "goal-reward" }, h25("label", null, "Valor da recompensa"), h25(CampoMoeda25, { className: "inp", value: premios[k], ariaLabel: `Recompensa da ${labels[k]}`, onChange: v => setPremio(k, v) }), h25("span", { className: "goal-reward-status" }, atingiu ? (premio ? `Atingida · recompensa ${brl(premio)}` : "Atingida · informe a recompensa") : (premio ? `${brl(premio)} ao atingir` : "Informe o valor")))); })),
+        h25("div", { className: "totbar sales-width sales-summary" }, h25("div", { className: "tt" }, h25("span", null, "Vendas"), h25("b", { className: "hl" }, brl(totalVendas))), h25("div", { className: "tt" }, h25("span", null, "TC · quantidade"), h25("b", null, totalTC.toLocaleString("pt-BR"))), h25("div", { className: "tt" }, h25("span", null, "TM · automático"), h25("b", null, brl(tm))), h25("div", { className: "tt" }, h25("span", null, "Recompensa alcançada"), h25("b", { className: premioAlcancado ? "psaldo-pos" : "" }, premioAlcancado ? brl(premioAlcancado.premio) : "—"))),
         h25("div", { className: "panel table-wrap sales-width" }, h25("table", { className: "sales-table" }, h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Vendas (R$)"), h25("th", null, "TC (quantidade)"), h25("th", null, "TM automático"), h25("th", null, "Observação"))), h25("tbody", null, rows.map(r => { const dt = new Date(ano, mes, Number(r.dd)); return h25("tr", { key: r.dd, className: dt.getDay() === 0 ? "wd-dom" : "" }, h25("td", null, `${r.dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`), h25("td", null, h25(CampoMoeda25, { value: r.vendas, ariaLabel: `Vendas de ${r.dd}/${pad(mes + 1)}`, onChange: v => setDia(r.dd, "vendas", v) })), h25("td", null, h25("input", { className: "tc-input", type: "text", inputMode: "numeric", pattern: "[0-9]*", value: r.tc, placeholder: "0", "aria-label": `TC de ${r.dd}/${pad(mes + 1)}`, onChange: e => setDia(r.dd, "tc", e.target.value.replace(/\D/g, "")) })), h25("td", null, h25("span", { className: "tm-auto", title: "Calculado automaticamente: Vendas ÷ TC" }, r.tm ? brl(r.tm) : "—")), h25("td", null, h25("input", { className: "obs-input", value: r.obs, placeholder: "Opcional", onChange: e => setDia(r.dd, "obs", e.target.value) }))); })))));
 }
 
@@ -3297,7 +3301,7 @@ function ModalCampanhaItens({ campanha, funcs, produtos, onSave, onClose }) {
         const participantes = selecionados.map(id => {
             const f = funcs.find(x => String(x.id) === String(id));
             const anterior = anteriores.find(x => String(x.id) === String(id));
-            return { id: String(id), nome: f?.nome || anterior?.nome || "Funcionária", quantidade: String(anterior?.quantidade ?? "") };
+            return { id: String(id), nome: f?.nome || anterior?.nome || "Funcionária", quantidade: String(anterior?.quantidade ?? ""), valorPremio: String(anterior?.valorPremio ?? "") };
         });
         onSave({
             ...(campanha || {}),
@@ -3350,6 +3354,9 @@ function MetaItensV32({ funcEsc, itens, balas }) {
     const atualizarQuantidade = (campanhaId, funcId, valor) => doc.update(d => ({
         campanhas: (d.campanhas || []).map(c => c.id !== campanhaId ? c : { ...c, atualizadaEm: new Date().toISOString(), participantes: (c.participantes || []).map(p => String(p.id) === String(funcId) ? { ...p, quantidade: valor } : p) })
     }));
+    const atualizarValorPremio = (campanhaId, funcId, valor) => doc.update(d => ({
+        campanhas: (d.campanhas || []).map(c => c.id !== campanhaId ? c : { ...c, atualizadaEm: new Date().toISOString(), participantes: (c.participantes || []).map(p => String(p.id) === String(funcId) ? { ...p, valorPremio: valor } : p) })
+    }));
     const encerrar = campanha => {
         if (!confirm(`Encerrar a campanha “${campanha.nome}”?\n\nOs resultados serão guardados no histórico.`)) return;
         doc.update(d => ({ campanhas: (d.campanhas || []).map(c => c.id === campanha.id ? { ...c, status: "encerrada", encerradaEm: new Date().toISOString() } : c) }));
@@ -3366,13 +3373,18 @@ function MetaItensV32({ funcEsc, itens, balas }) {
                         h25("span", null, "Período", h25("b", null, `${fmtD(campanha.inicio)} a ${fmtD(campanha.fim)}`)))),
                 !somenteLeitura && h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setModal(campanha) }, "Editar"), h25("button", { className: "btn primary sm", onClick: () => encerrar(campanha) }, "Encerrar campanha"))),
             h25("div", { className: "meta-staff-grid" }, (campanha.participantes || []).map(p => {
-                const quantidade = num(p.quantidade), atingiu = quantidade >= meta, faltam = Math.max(0, meta - quantidade), progresso = Math.min(100, Math.round((quantidade / meta) * 100));
+                const quantidade = num(p.quantidade), valorPremio = numeroMoeda25(p.valorPremio), atingiu = quantidade >= meta, faltam = Math.max(0, meta - quantidade), progresso = Math.min(100, Math.round((quantidade / meta) * 100));
                 return h25("div", { className: `meta-staff-card${atingiu ? " winner" : ""}`, key: p.id },
                     h25("div", { className: "meta-staff-top" }, h25("span", { className: "meta-avatar" }, String(p.nome || "F").trim().charAt(0).toUpperCase()), h25("span", { className: "meta-staff-name" }, p.nome), h25("span", { className: `meta-badge${atingiu ? " hit" : ""}` }, atingiu ? "Meta atingida" : "Em andamento")),
                     h25("div", { className: "meta-card-item", title: campanha.item }, campanha.item),
                     h25("div", { className: "meta-qty" }, h25("label", null, somenteLeitura ? "Quantidade final" : "Quantidade vendida"), somenteLeitura ? h25("strong", { className: "num", style: { textAlign: "right" } }, quantidade.toLocaleString("pt-BR")) : h25("input", { className: "inp num", inputMode: "numeric", value: p.quantidade ?? "", placeholder: "0", "aria-label": `Quantidade vendida por ${p.nome} na campanha ${campanha.nome}`, onChange: e => atualizarQuantidade(campanha.id, p.id, e.target.value.replace(/\D/g, "").slice(0, 7)) })),
+                    h25("div", { className: "meta-reward" },
+                        h25("label", null, somenteLeitura ? "Valor da recompensa" : "Valor se bater a meta"),
+                        somenteLeitura
+                            ? h25("span", { className: "meta-reward-value" }, valorPremio ? brl(valorPremio) : "—")
+                            : h25(CampoMoeda25, { value: p.valorPremio, onChange: valor => atualizarValorPremio(campanha.id, p.id, valor), placeholder: "R$ 0,00", ariaLabel: `Valor da recompensa de ${p.nome}` })),
                     h25("div", { className: "progress", "aria-label": `${progresso}% da meta` }, h25("span", { style: { width: `${progresso}%` } })),
-                    h25("div", { className: "meta-result" }, h25("span", null, `${quantidade.toLocaleString("pt-BR")} de ${meta.toLocaleString("pt-BR")}`), h25("strong", null, atingiu ? "Ganhou a recompensa" : `Faltam ${faltam.toLocaleString("pt-BR")}`)));
+                    h25("div", { className: "meta-result" }, h25("span", null, `${quantidade.toLocaleString("pt-BR")} de ${meta.toLocaleString("pt-BR")}`), h25("strong", null, atingiu ? (valorPremio ? `Recebe ${brl(valorPremio)}` : "Meta atingida") : `Faltam ${faltam.toLocaleString("pt-BR")}`)));
             })));
     };
     return h25(React.Fragment, null,
@@ -3735,5 +3747,7 @@ catch (e) {
 <!-- Versao V42 2026-10-05: atestados e faltas registrados por data na Folha de Ponto -->
 <!-- Versao V43 2026-10-05: consumo de balas usa uma unica opcao GRANEL, sem nomes individuais -->
 <!-- Versao V44 2026-10-05: campos de calendario separados para datas de Atestado e Falta -->
+<!-- Versao V45 2026-10-05: valor manual de recompensa por funcionaria em cada campanha de Meta Itens -->
+<!-- Versao V46 2026-10-05: valores manuais de recompensa por nivel de meta em Vendas Diarias -->
 </body>
 </html>
