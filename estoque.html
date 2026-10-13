@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V50</title>
+<title>FINI Petrópolis · Gestão V51</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -280,9 +280,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "13/10/2026 21:05 - V50_PEDIDO_PORTAL";
+const FINI_BUILD = "13/10/2026 21:05 - V51_PEDIDO_RAPIDO_UNIDADE";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "13/10/2026 21:05 · V50_PEDIDO_PORTAL";
+const APP_VERSION = "13/10/2026 21:05 · V51_PEDIDO_RAPIDO_UNIDADE";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -3677,7 +3677,7 @@ async function buscarCatalogoComExtensao() {
 }
 async function enviarPedidoComExtensao(itens) {
     await mensagemExtensaoCatalogo("PING", 1800);
-    return mensagemExtensaoCatalogo("ENVIAR_PEDIDO", 360000, { itens });
+    return mensagemExtensaoCatalogo("ENVIAR_PEDIDO", 180000, { itens });
 }
 function mesclarCatalogoManual(produtosAtuais, importados) {
     const verificadoEm = new Date().toISOString();
@@ -3711,7 +3711,7 @@ function quantidadePedidoCatalogo(produto, valor) {
     const multiplo = Math.max(1, Math.round(num(produto?.multiplo) || 1));
     return quantidade > 0 ? Math.ceil(quantidade / multiplo) * multiplo : 0;
 }
-function CatalogoComprasV50({ itens, balas }) {
+function CatalogoComprasV51({ itens, balas }) {
     const catalogo = useFireDoc("fini_catalogo_compras", "atual", { produtos: D_CATALOGO_COMPRA, atualizadoEm: CATALOGO_COMPRAS_ATUALIZADO_EM });
     const vinculosDoc = useFireDoc("fini_catalogo_compras", "vinculos", { vinculos: {}, coberturaSemanas: "2" });
     const pedidoDoc = useFireDoc("fini_catalogo_compras", "pedido_rascunho", { quantidades: {} });
@@ -3747,10 +3747,16 @@ function CatalogoComprasV50({ itens, balas }) {
         const ajuste = disponiveisPedido.some(x => Number(quantidadesPedido[x.produto.id]) !== x.quantidade);
         const avisoIndisponiveis = indisponiveisPedido.length ? `\n\n${indisponiveisPedido.length} produto(s) indisponível(is) não serão enviados.` : "";
         const avisoMultiplo = ajuste ? "\nAs quantidades serão arredondadas para o múltiplo aceito pelo portal." : "";
-        if (!confirm(`Adicionar ${disponiveisPedido.length} produto(s) ao carrinho do portal FINI?\n\nValor estimado: ${brl(valorPedido)}${avisoMultiplo}${avisoIndisponiveis}\n\nO pedido NÃO será finalizado. Revise o carrinho no portal antes de continuar.`)) return;
+        if (!confirm(`Adicionar ${disponiveisPedido.length} produto(s) ao carrinho do portal FINI?\n\nUnidade obrigatória: 70270F | Pátio Petrópolis Shopping\nValor estimado: ${brl(valorPedido)}${avisoMultiplo}${avisoIndisponiveis}\n\nO pedido NÃO será finalizado. Revise o carrinho no portal antes de continuar.`)) return;
         setEnviandoPedido(true);
         try {
-            const itensPortal = disponiveisPedido.map(x => ({ id: String(x.produto.id), nome: x.produto.nome, quantidade: x.quantidade, multiplo: Math.max(1, Math.round(num(x.produto.multiplo) || 1)) }));
+            const itensPortal = disponiveisPedido.map(x => ({
+                id: String(x.produto.id),
+                nome: x.produto.nome,
+                quantidade: x.quantidade,
+                multiplo: Math.max(1, Math.round(num(x.produto.multiplo) || 1)),
+                paginaPortal: Math.max(0, Math.round(num(x.produto.paginaPortal) || 0))
+            }));
             const resposta = await enviarPedidoComExtensao(itensPortal);
             const adicionados = Array.isArray(resposta.adicionados) ? resposta.adicionados : [];
             const idsAdicionados = new Set(adicionados.map(x => String(x.id ?? x)));
@@ -3772,6 +3778,7 @@ function CatalogoComprasV50({ itens, balas }) {
             if (e?.codigo === "EXTENSAO_NAO_INSTALADA") alert("A extensão FINI precisa ser atualizada e recarregada no Chrome antes de enviar o pedido.");
             else if (e?.codigo === "PORTAL_NAO_ABERTO") alert("Abra o módulo de pedidos da FINI, faça login e tente novamente.");
             else if (e?.codigo === "PORTAL_SEM_LOGIN") alert("A sessão do portal FINI não está autenticada. Faça login e tente novamente.");
+            else if (e?.codigo === "UNIDADE_INCORRETA" || e?.codigo === "UNIDADE_NAO_IDENTIFICADA") alert(e.message);
             else alert(`Não foi possível montar o carrinho. ${e?.message || "Revise o portal e tente novamente."}`);
         }
         finally { setEnviandoPedido(false); }
@@ -3798,6 +3805,7 @@ function CatalogoComprasV50({ itens, balas }) {
             if (e?.codigo === "EXTENSAO_NAO_INSTALADA") alert("A extensão Atualizador do Catálogo FINI não está instalada ou está desativada neste computador. Instale a extensão uma única vez no Chrome e tente novamente.");
             else if (e?.codigo === "PORTAL_NAO_ABERTO") alert("Abra o módulo de pedidos da FINI, faça login e depois clique novamente em Atualizar catálogo.");
             else if (e?.codigo === "PORTAL_SEM_LOGIN") alert("A sessão do portal FINI não está autenticada. Faça login no portal e tente novamente.");
+            else if (e?.codigo === "UNIDADE_INCORRETA" || e?.codigo === "UNIDADE_NAO_IDENTIFICADA") alert(e.message);
             else alert(`Não foi possível atualizar o catálogo. ${e?.message || "Verifique se o portal está aberto e tente novamente."}`);
         }
         finally { setAtualizandoCatalogo(false); }
@@ -3877,7 +3885,7 @@ function App() {
             aba === "estoque" && React.createElement(EstoqueV25, { itens: itens, onSaveItens: saveItens }),
             aba === "balas" && React.createElement(BalasV25, { balas: balas, onSaveBalas: saveBalas }),
             aba === "comp" && React.createElement(ConsultarV26, { itens: itens, balas: balas }),
-            aba === "catalogo" && React.createElement(CatalogoComprasV50, { itens: itens, balas: balas }),
+            aba === "catalogo" && React.createElement(CatalogoComprasV51, { itens: itens, balas: balas }),
             aba === "desp" && React.createElement(DesperdicioV25, null),
             aba === "vendas" && React.createElement(VendasV25, null),
             aba === "metaitens" && React.createElement(MetaItensV32, { funcEsc: funcEsc, itens: itens, balas: balas }),
@@ -3907,5 +3915,6 @@ catch (e) {
 <!-- Versao V45 2026-10-05: valor manual de recompensa por funcionaria em cada campanha de Meta Itens -->
 <!-- Versao V46 2026-10-05: valores manuais de recompensa por nivel de meta em Vendas Diarias -->
 <!-- Versao V50 2026-10-13: catalogo com disponibilidade, pedido assistido e envio seguro ao carrinho do portal -->
+<!-- Versao V51 2026-10-13: pedido rapido por paginas e bloqueio para a unidade 70270F Patio Petropolis Shopping -->
 </body>
 </html>
