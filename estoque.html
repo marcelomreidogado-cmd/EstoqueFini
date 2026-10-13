@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V47</title>
+<title>FINI Petrópolis · Gestão V48</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -280,9 +280,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "05/10/2026 20:30 - V47_CUSTO_UNITARIO";
+const FINI_BUILD = "13/10/2026 20:15 - V48_CATALOGO_MANUAL";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "05/10/2026 20:30 · V47_CUSTO_UNITARIO";
+const APP_VERSION = "13/10/2026 20:15 · V48_CATALOGO_MANUAL";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -3645,16 +3645,163 @@ function SugestaoCompraV37({ itens, balas, produtos, vinculosDoc }) {
         h25("div", { className: "clean-note", style: { marginTop: 10 } }, "Estimativa gerencial: como o sistema ainda não registra cada entrada de compra, reposições entre duas contagens podem reduzir o consumo aparente. Revise a sugestão antes de fechar o pedido."));
 }
 
-function CatalogoComprasV37({ itens, balas }) {
+function normalizarCatalogoManual(valor) {
+    return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR");
+}
+function numeroCatalogoManual(valor) {
+    const limpo = String(valor || "").replace(/[^\d,.-]/g, "");
+    if (!limpo) return 0;
+    if (limpo.includes(",")) return Number(limpo.replace(/\./g, "").replace(",", ".")) || 0;
+    return Number(limpo) || 0;
+}
+async function lerAreaTransferenciaCatalogo() {
+    let html = "", texto = "";
+    if (navigator.clipboard?.read) {
+        const itens = await navigator.clipboard.read();
+        for (const item of itens) {
+            if (!html && item.types.includes("text/html")) html = await (await item.getType("text/html")).text();
+            if (!texto && item.types.includes("text/plain")) texto = await (await item.getType("text/plain")).text();
+        }
+    }
+    if (!texto && navigator.clipboard?.readText) texto = await navigator.clipboard.readText();
+    return { html, texto };
+}
+function extrairCatalogoCopiado(html, texto, produtosAtuais) {
+    const atuaisPorId = new Map(produtosAtuais.map(p => [String(p.id), p]));
+    const atuaisPorNome = new Map(produtosAtuais.map(p => [normalizarCatalogoManual(p.nome), p]));
+    const categorias = [...new Set([...produtosAtuais.map(p => p.categoria), "ALGODÃO", "EMBALAGENS E SAQUINHOS", "GRANEL", "PRESENTEÁVEL", "UNITÁRIO", "ZERO AÇUCAR", "Sem categoria"].filter(Boolean))];
+    const categoriaPorChave = new Map(categorias.map(c => [normalizarCatalogoManual(c), c]));
+    const encontrados = new Map();
+    const linhasLimpas = valor => String(valor || "").split(/\r?\n/).map(x => x.replace(/\s+/g, " ").trim()).filter(Boolean);
+    const ehLinhaAuxiliar = linha => /^(comprar|valores dispon[ií]veis|ver produto|produto indispon[ií]vel|adicionar|quantidade)$/i.test(linha) || /^R\$/i.test(linha) || /vendido em m[uú]ltipl/i.test(linha);
+    const analisarBloco = (id, bloco, imagem = "") => {
+        const atual = atuaisPorId.get(String(id));
+        const linhas = linhasLimpas(bloco);
+        const textoBloco = linhas.join("\n");
+        const precoMatch = textoBloco.match(/R\$\s*([\d.]+(?:,\d{1,2})?)/i);
+        if (!precoMatch) return;
+        const multiploMatch = textoBloco.match(/m[uú]ltipl(?:o|os)\s*(?:de)?\s*([\d.]+)/i);
+        const preco = numeroCatalogoManual(precoMatch[1]);
+        let categoria = atual?.categoria || "Sem categoria";
+        for (const linha of linhas) {
+            const encontrada = categoriaPorChave.get(normalizarCatalogoManual(linha));
+            if (encontrada) { categoria = encontrada; break; }
+        }
+        let nome = "";
+        const indicePreco = linhas.findIndex(l => /R\$\s*[\d.]+(?:,\d{1,2})?/i.test(l));
+        if (indicePreco >= 0) {
+            const antesDoPreco = linhas[indicePreco].split(/R\$/i)[0].trim();
+            if (antesDoPreco && !categoriaPorChave.has(normalizarCatalogoManual(antesDoPreco)) && !ehLinhaAuxiliar(antesDoPreco)) nome = antesDoPreco;
+            for (let i = indicePreco - 1; !nome && i >= 0; i--) {
+                if (!categoriaPorChave.has(normalizarCatalogoManual(linhas[i])) && !ehLinhaAuxiliar(linhas[i]) && linhas[i].length > 2) nome = linhas[i];
+            }
+        }
+        if (!nome) nome = atual?.nome || "";
+        if (!id && nome) id = atuaisPorNome.get(normalizarCatalogoManual(nome))?.id || "";
+        if (!id || !nome || preco <= 0) return;
+        const anterior = encontrados.get(String(id));
+        const produto = {
+            id: String(id),
+            nome,
+            categoria,
+            referencia: atual?.referencia || "",
+            preco,
+            imagem: imagem || atual?.imagem || "",
+            multiplo: multiploMatch ? String(Math.max(1, Math.round(numeroCatalogoManual(multiploMatch[1])))) : (atual?.multiplo || "")
+        };
+        if (!anterior || textoBloco.length > anterior.__tamanho) encontrados.set(String(id), { ...produto, __tamanho: textoBloco.length });
+    };
+    if (html) {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        [...doc.querySelectorAll('a[href*="/comercial/compras/produto/"]')].forEach(link => {
+            const match = String(link.getAttribute("href") || "").match(/\/comercial\/compras\/produto\/(\d+)/);
+            if (!match) return;
+            let bloco = link;
+            for (let i = 0; i < 9 && bloco.parentElement; i++) {
+                bloco = bloco.parentElement;
+                if (/R\$\s*[\d.]+(?:,\d{1,2})?/i.test(bloco.innerText || bloco.textContent || "")) break;
+            }
+            const imagem = bloco.querySelector?.("img")?.getAttribute("src") || "";
+            analisarBloco(match[1], bloco.innerText || bloco.textContent || "", imagem);
+        });
+    }
+    if (!encontrados.size && texto) {
+        const linhas = linhasLimpas(texto);
+        linhas.forEach((linha, indice) => {
+            if (!/R\$\s*[\d.]+(?:,\d{1,2})?/i.test(linha)) return;
+            const antesDoPreco = linha.split(/R\$/i)[0].trim();
+            let nome = antesDoPreco;
+            for (let i = indice - 1; !nome && i >= Math.max(0, indice - 4); i--) {
+                if (!categoriaPorChave.has(normalizarCatalogoManual(linhas[i])) && !ehLinhaAuxiliar(linhas[i])) nome = linhas[i];
+            }
+            const atual = atuaisPorNome.get(normalizarCatalogoManual(nome));
+            if (!atual) return;
+            analisarBloco(atual.id, [atual.categoria, nome, linha, linhas[indice + 1] || ""].join("\n"), atual.imagem);
+        });
+    }
+    return [...encontrados.values()].map(({ __tamanho, ...produto }) => produto);
+}
+function mesclarCatalogoManual(produtosAtuais, importados) {
+    const resultado = produtosAtuais.map(p => ({ ...p }));
+    const indicePorId = new Map(resultado.map((p, i) => [String(p.id), i]));
+    let novos = 0, alterados = 0;
+    importados.forEach(novo => {
+        const indice = indicePorId.get(String(novo.id));
+        if (indice === undefined) {
+            resultado.push(novo);
+            indicePorId.set(String(novo.id), resultado.length - 1);
+            novos++;
+            return;
+        }
+        const anterior = resultado[indice];
+        const atualizado = { ...anterior, ...novo, referencia: novo.referencia || anterior.referencia || "", imagem: novo.imagem || anterior.imagem || "", multiplo: novo.multiplo || anterior.multiplo || "" };
+        const campos = ["nome", "categoria", "referencia", "preco", "imagem", "multiplo"];
+        if (campos.some(c => String(anterior[c] ?? "") !== String(atualizado[c] ?? ""))) alterados++;
+        resultado[indice] = atualizado;
+    });
+    return { produtos: resultado, novos, alterados };
+}
+
+function CatalogoComprasV48({ itens, balas }) {
     const catalogo = useFireDoc("fini_catalogo_compras", "atual", { produtos: D_CATALOGO_COMPRA, atualizadoEm: CATALOGO_COMPRAS_ATUALIZADO_EM });
     const vinculosDoc = useFireDoc("fini_catalogo_compras", "vinculos", { vinculos: {}, coberturaSemanas: "2" });
     const [modo, setModo] = useState("catalogo"), [busca, setBusca] = useState(""), [categoria, setCategoria] = useState("todas");
+    const [atualizandoCatalogo, setAtualizandoCatalogo] = useState(false);
     const produtos = Array.isArray(catalogo.data.produtos) ? catalogo.data.produtos : D_CATALOGO_COMPRA;
     const normaliza = v => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
     const termo = normaliza(busca.trim());
     const categorias = [...new Set(produtos.map(p => p.categoria || "Sem categoria"))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     const exibidos = produtos.filter(p => (categoria === "todas" || p.categoria === categoria) && (!termo || normaliza(`${p.nome} ${p.referencia} ${p.categoria}`).includes(termo))).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
     const atualizadoEm = catalogo.data.atualizadoEm || CATALOGO_COMPRAS_ATUALIZADO_EM;
+    const atualizarCatalogoManual = async () => {
+        if (atualizandoCatalogo) return;
+        if (!navigator.onLine) { alert("Conecte o aparelho à internet para atualizar o catálogo."); return; }
+        setAtualizandoCatalogo(true);
+        try {
+            const copiado = await lerAreaTransferenciaCatalogo();
+            const importados = extrairCatalogoCopiado(copiado.html, copiado.texto, produtos);
+            if (!importados.length) {
+                const abrir = confirm("Nenhuma lista de produtos do portal foi encontrada na área de transferência.\n\n1. Abra o portal FINI e deixe os produtos desejados visíveis.\n2. Selecione a página inteira (Ctrl+A ou ⌘A) e copie (Ctrl+C ou ⌘C).\n3. Volte ao sistema e clique novamente em Atualizar catálogo.\n\nDeseja abrir o portal agora?");
+                if (abrir) window.open(PORTAL_COMPRAS_FINI, "_blank", "noopener,noreferrer");
+                return;
+            }
+            const mesclado = mesclarCatalogoManual(produtos, importados);
+            const iguais = Math.max(0, importados.length - mesclado.novos - mesclado.alterados);
+            const confirmar = confirm(`${importados.length} produto(s) identificado(s) no portal.\n\n${mesclado.alterados} com alteração\n${mesclado.novos} novo(s)\n${iguais} sem mudança\n\nOs demais produtos do catálogo serão mantidos. Deseja gravar esta atualização?`);
+            if (!confirmar) return;
+            await salvarDocumentoSeguro("fini_backups_catalogo", `atualizacao_manual_${Date.now()}`, { anterior: copiaSegura(catalogo.data), importados: copiaSegura(importados), versao: FINI_BUILD }, "BACKUP_CATALOGO_MANUAL");
+            const agora = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+            const ok = await catalogo.save({ ...catalogo.data, produtos: mesclado.produtos, atualizadoEm: agora, atualizacao: { tipo: "manual", produtosLidos: importados.length, alterados: mesclado.alterados, novos: mesclado.novos, data: new Date().toISOString() } });
+            if (!ok) throw new Error("Não foi possível gravar os dados.");
+            alert(`Catálogo atualizado com segurança.\n${mesclado.alterados} produto(s) alterado(s) e ${mesclado.novos} novo(s).`);
+        }
+        catch (e) {
+            console.error("Erro na atualização manual do catálogo", e);
+            const detalhe = /NotAllowed|permission|denied/i.test(String(e?.name || e?.message || "")) ? "Permita o acesso à área de transferência no navegador e tente novamente." : (e?.message || "Copie novamente a lista de produtos do portal e tente outra vez.");
+            alert(`Não foi possível atualizar o catálogo. ${detalhe}`);
+        }
+        finally { setAtualizandoCatalogo(false); }
+    };
     return h25(React.Fragment, null,
         h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Catálogo e compras"), h25("div", { className: "hsub" }, "Catálogo do portal, vínculos com a contagem e sugestão de reposição semanal."))),
         h25("div", { className: "catalog-modes", role: "group", "aria-label": "Área de catálogo e compras" },
@@ -3665,7 +3812,9 @@ function CatalogoComprasV37({ itens, balas }) {
             h25("div", { className: "toolbar" },
                 h25("div", { className: "field search" }, h25("label", { htmlFor: "catalogo-busca" }, "Pesquisar produto"), h25("input", { id: "catalogo-busca", className: "inp", value: busca, placeholder: "Nome ou referência", onChange: e => setBusca(e.target.value) })),
                 h25("div", { className: "field" }, h25("label", { htmlFor: "catalogo-categoria" }, "Categoria"), h25("select", { id: "catalogo-categoria", className: "inp", value: categoria, onChange: e => setCategoria(e.target.value) }, h25("option", { value: "todas" }, "Todas as categorias"), categorias.map(c => h25("option", { key: c, value: c }, c)))),
-                h25("div", { className: "tl" }, h25("a", { className: "btn ghost catalog-portal-btn", href: PORTAL_COMPRAS_FINI, target: "_blank", rel: "noopener noreferrer" }, "Abrir portal FINI")),
+                h25("div", { className: "tl" },
+                    h25("a", { className: "btn ghost catalog-portal-btn", href: PORTAL_COMPRAS_FINI, target: "_blank", rel: "noopener noreferrer" }, "Abrir portal FINI"),
+                    h25("button", { className: "btn catalog-update-btn", type: "button", disabled: atualizandoCatalogo, onClick: atualizarCatalogoManual }, atualizandoCatalogo ? "Atualizando…" : "Atualizar catálogo")),
                 h25("div", { className: "clean-note" }, `${exibidos.length} de ${produtos.length} produtos`, h25("span", { className: "catalog-updated" }, `Atualizado em ${atualizadoEm}. Confirme o preço no portal antes do pedido.`))),
             exibidos.length ? h25("div", { className: "catalog-grid" }, exibidos.map(p => h25("article", { className: "catalog-card", key: p.id },
                 h25("div", { className: `catalog-photo${p.imagem ? "" : " empty"}` }, p.imagem && h25("img", { src: p.imagem, alt: p.nome, loading: "lazy", onError: e => e.currentTarget.parentElement.classList.add("missing") })),
@@ -3723,7 +3872,7 @@ function App() {
             aba === "estoque" && React.createElement(EstoqueV25, { itens: itens, onSaveItens: saveItens }),
             aba === "balas" && React.createElement(BalasV25, { balas: balas, onSaveBalas: saveBalas }),
             aba === "comp" && React.createElement(ConsultarV26, { itens: itens, balas: balas }),
-            aba === "catalogo" && React.createElement(CatalogoComprasV37, { itens: itens, balas: balas }),
+            aba === "catalogo" && React.createElement(CatalogoComprasV48, { itens: itens, balas: balas }),
             aba === "desp" && React.createElement(DesperdicioV25, null),
             aba === "vendas" && React.createElement(VendasV25, null),
             aba === "metaitens" && React.createElement(MetaItensV32, { funcEsc: funcEsc, itens: itens, balas: balas }),
@@ -3752,6 +3901,6 @@ catch (e) {
 <!-- Versao V44 2026-10-05: campos de calendario separados para datas de Atestado e Falta -->
 <!-- Versao V45 2026-10-05: valor manual de recompensa por funcionaria em cada campanha de Meta Itens -->
 <!-- Versao V46 2026-10-05: valores manuais de recompensa por nivel de meta em Vendas Diarias -->
-<!-- Versao V47 2026-10-05: cache atualizado e custo unitario calculado para caixas 100UN, 200UN e formatos NxG -->
+<!-- Versao V48 2026-10-13: atualizacao automatica removida e atualizacao manual segura adicionada ao catalogo -->
 </body>
 </html>
