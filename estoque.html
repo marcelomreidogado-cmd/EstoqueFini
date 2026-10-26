@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V51</title>
+<title>FINI Petrópolis · Gestão V52</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -280,9 +280,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "13/10/2026 21:05 - V51_PEDIDO_RAPIDO_UNIDADE";
+const FINI_BUILD = "26/10/2026 - V52_ESCALA_FUNCIONARIAS_DINAMICA";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "13/10/2026 21:05 · V51_PEDIDO_RAPIDO_UNIDADE";
+const APP_VERSION = "26/10/2026 · V52_ESCALA_FUNCIONARIAS_DINAMICA";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -889,7 +889,12 @@ const listaFuncionarias = arr => {
 };
 const corFunc = (funcs, nome) => { var _a; return ((_a = funcs.find(f => f.nome === nome)) === null || _a === void 0 ? void 0 : _a.cor) || "#d8c1ca"; };
 const horariosPadrao = especial => especial ? H_DOM_FER : H_SEMANA;
-const escalaBase = (especial, funcs) => ({ folga: "", slots: horariosPadrao(especial).map(h => ({ hora: h, nome: "" })) });
+const horariosEscalaPorFuncionarias = (especial, funcs) => {
+    const padrao = horariosPadrao(especial);
+    const quantidade = Math.max(padrao.length, (funcs || []).length);
+    return Array.from({ length: quantidade }, (_, i) => padrao[Math.min(i, padrao.length - 1)] || "");
+};
+const escalaBase = (especial, funcs) => ({ folga: "", slots: horariosEscalaPorFuncionarias(especial, funcs).map(h => ({ hora: h, nome: "" })) });
 function normalizarEscalaDia(raw, especial, funcs) {
     const base = escalaBase(especial, funcs);
     if (!raw)
@@ -904,7 +909,12 @@ function normalizarEscalaDia(raw, especial, funcs) {
         folga = raw.folga || raw.folgaNome || "";
         slots = Array.isArray(raw.slots) ? raw.slots.map(s => ({ hora: s.hora || "", nome: s.nome || "" })) : [];
     }
-    slots = base.slots.map((def, i) => { var _a, _b; return ({ hora: def.hora, nome: (_b = (_a = slots[i]) === null || _a === void 0 ? void 0 : _a.nome) !== null && _b !== void 0 ? _b : def.nome }); });
+    const quantidade = Math.max(base.slots.length, slots.length);
+    slots = Array.from({ length: quantidade }, (_, i) => {
+        const anterior = slots[i] || {};
+        const def = base.slots[i] || base.slots[base.slots.length - 1] || { hora: "", nome: "" };
+        return { hora: anterior.hora || def.hora, nome: anterior.nome !== undefined ? anterior.nome : def.nome };
+    });
     return { folga, slots, tipoFolga: raw && raw.tipoFolga || "", feriadoOrigem: raw && raw.feriadoOrigem || "" };
 }
 function conflitosEscalaDia(esc) {
@@ -1657,7 +1667,7 @@ function gerarSugestaoEscalaMes25(ano, mes, funcsOriginais, feriadosMes = {}) {
     });
     const dias = {};
     for (let dia = 1; dia <= nd; dia++) {
-        const dd = pad(dia), dt = new Date(ano, mes, dia), iso = isoDia(ano, mes, dia), horas = horariosPadrao(dt.getDay() === 0 || Boolean(feriadosMes[iso]));
+        const dd = pad(dia), dt = new Date(ano, mes, dia), iso = isoDia(ano, mes, dia), horas = horariosEscalaPorFuncionarias(dt.getDay() === 0 || Boolean(feriadosMes[iso]), funcs);
         const folgaDia = folgas[dia] || { nome: "", tipoFolga: "", feriadoOrigem: "" };
         const disponiveis = funcs.filter(f => f.nome !== folgaDia.nome);
         const inicio = disponiveis.length ? (dia + mes) % disponiveis.length : 0;
@@ -3916,5 +3926,6 @@ catch (e) {
 <!-- Versao V46 2026-10-05: valores manuais de recompensa por nivel de meta em Vendas Diarias -->
 <!-- Versao V50 2026-10-13: catalogo com disponibilidade, pedido assistido e envio seguro ao carrinho do portal -->
 <!-- Versao V51 2026-10-13: pedido rapido por paginas e bloqueio para a unidade 70270F Patio Petropolis Shopping -->
+<!-- Versao V52 2026-10-26: escala amplia os campos diarios conforme novas funcionarias sem perder preenchimentos -->
 </body>
 </html>
