@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V52</title>
+<title>FINI Petrópolis · Gestão V53</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -280,9 +280,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "26/10/2026 - V52_ESCALA_FUNCIONARIAS_DINAMICA";
+const FINI_BUILD = "29/10/2026 - V53_CONSUMO_CUSTO_VINCULADO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "26/10/2026 · V52_ESCALA_FUNCIONARIAS_DINAMICA";
+const APP_VERSION = "29/10/2026 · V53_CONSUMO_CUSTO_VINCULADO";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -348,7 +348,7 @@ function numeroMoeda25(v) {
     const n = Number(s);
     return Number.isFinite(n) ? n : 0;
 }
-function CampoMoeda25({ value, onChange, className = "", style, placeholder = "R$ 0,00", ariaLabel }) {
+function CampoMoeda25({ value, onChange, className = "", style, placeholder = "R$ 0,00", ariaLabel, readOnly = false, title }) {
     const vazio = value === undefined || value === null || String(value).trim() === "";
     const [editando, setEditando] = useState(false), [entrada, setEntrada] = useState("");
     useEffect(() => {
@@ -360,10 +360,10 @@ function CampoMoeda25({ value, onChange, className = "", style, placeholder = "R
         setEditando(false);
     };
     return React.createElement("input", {
-        className: `money-input ${className}`.trim(), style, type: "text", inputMode: "decimal", value: editando ? entrada : (vazio ? "" : brl(numeroMoeda25(value))), placeholder, "aria-label": ariaLabel,
-        onFocus: e => { setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 })); setEditando(true); setTimeout(() => e.target.select(), 0); },
-        onChange: e => setEntrada(e.target.value), onBlur: confirmar,
-        onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 })); e.currentTarget.blur(); } }
+        className: `money-input ${className}`.trim(), style, type: "text", inputMode: "decimal", value: editando ? entrada : (vazio ? "" : brl(numeroMoeda25(value))), placeholder, "aria-label": ariaLabel, readOnly, title,
+        onFocus: e => { if (readOnly) { setTimeout(() => e.target.select(), 0); return; } setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 })); setEditando(true); setTimeout(() => e.target.select(), 0); },
+        onChange: readOnly ? undefined : e => setEntrada(e.target.value), onBlur: readOnly ? undefined : confirmar,
+        onKeyDown: readOnly ? undefined : e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { setEntrada(vazio ? "" : numeroMoeda25(value).toLocaleString("pt-BR", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 })); e.currentTarget.blur(); } }
     });
 }
 function somaExpressao(v) {
@@ -1488,12 +1488,23 @@ function Consumo({ funcCon, onSaveFuncCon, itens }) {
     const [mes, setMes] = useState(hjD.getMonth());
     const [showM, setShowM] = useState(false);
     const doc = useFireDoc("fini_consumo", keyMes(ano, mes), { entradas: [] });
+    const custos = useValorizacaoCatalogo25();
     const ents = doc.data.entradas || [];
     const nomesItens = Array.isArray(itens) ? itens : D_ITENS;
     const normalizarNome = v => String(v || "").trim().toLocaleLowerCase("pt-BR");
     const mapaItens = useMemo(() => new Map(nomesItens.map(nome => [normalizarNome(nome), nome])), [nomesItens]);
     const tipoEntrada = e => e.tipo === "un" || (!e.tipo && mapaItens.has(normalizarNome(e.produto))) ? "un" : "kg";
-    const valorEntrada = e => tipoEntrada(e) === "kg" ? num(e.peso) * PRECO_CONSUMO_KG : num(e.qtd) * numeroMoeda25(e.valorUnitario);
+    const custoVinculado = e => {
+        if (tipoEntrada(e) !== "un") return null;
+        const nomeItem = mapaItens.get(normalizarNome(e.produto));
+        if (!nomeItem) return null;
+        return custos.custoItem(nomeItem, 1).valor;
+    };
+    const valorUnitarioEntrada = e => {
+        const automatico = custoVinculado(e);
+        return automatico === null ? numeroMoeda25(e.valorUnitario) : automatico;
+    };
+    const valorEntrada = e => tipoEntrada(e) === "kg" ? num(e.peso) * PRECO_CONSUMO_KG : num(e.qtd) * valorUnitarioEntrada(e);
     const add = () => doc.update(d => ({ entradas: [...(d.entradas || []), { func: funcCon[0] || "", data: HOJE, produto: "", tipo: "un", peso: "", qtd: "", valorUnitario: "" }] }));
     const updMuitos = (i, alteracao) => doc.update(d => { const e = [...(d.entradas || [])]; e[i] = { ...e[i], ...alteracao }; return { entradas: e }; });
     const upd = (i, k, v) => updMuitos(i, { [k]: v });
@@ -1552,7 +1563,7 @@ function Consumo({ funcCon, onSaveFuncCon, itens }) {
                         React.createElement("th", null))),
                 React.createElement("tbody", null,
                     ents.map((e, i) => {
-                        const tipo = tipoEntrada(e), itemConhecido = mapaItens.has(normalizarNome(e.produto)), ehGranel = normalizarNome(e.produto) === "granel", total = valorEntrada(e);
+                        const tipo = tipoEntrada(e), itemConhecido = mapaItens.has(normalizarNome(e.produto)), ehGranel = normalizarNome(e.produto) === "granel", custoAutomatico = custoVinculado(e), total = valorEntrada(e);
                         return React.createElement("tr", { key: i },
                             React.createElement("td", null,
                                 React.createElement("select", { value: e.func || "", onChange: ev => upd(i, "func", ev.target.value) }, funcCon.map(f => React.createElement("option", { key: f }, f)))),
@@ -1572,7 +1583,7 @@ function Consumo({ funcCon, onSaveFuncCon, itens }) {
                             React.createElement("td", { className: "consumo-price" },
                                 tipo === "kg"
                                     ? React.createElement("span", { className: "consumo-fixed-price" }, brl(PRECO_CONSUMO_KG), React.createElement("small", null, "por kg \u00B7 autom\u00E1tico"))
-                                    : React.createElement(CampoMoeda25, { value: e.valorUnitario, onChange: v => upd(i, "valorUnitario", v), placeholder: "R$ 0,00", ariaLabel: `Valor unit\u00E1rio de ${e.produto || "item"}` })),
+                                    : React.createElement(CampoMoeda25, { value: custoAutomatico === null ? e.valorUnitario : custoAutomatico, onChange: v => upd(i, "valorUnitario", v), readOnly: custoAutomatico !== null, title: custoAutomatico === null ? "Informe o custo manual porque este item ainda não possui custo vinculado." : "Custo automático do vínculo confirmado no Catálogo/Contagem.", placeholder: "R$ 0,00", ariaLabel: `Valor unit\u00E1rio de ${e.produto || "item"}${custoAutomatico === null ? "" : " (autom\u00E1tico)"}` })),
                             React.createElement("td", null, React.createElement("span", { className: "consumo-line-total" }, brl(total))),
                             React.createElement("td", null,
                                 React.createElement("button", { className: "rm", onClick: () => del(i), "aria-label": "Excluir lan\u00E7amento" }, "\u2715")));
@@ -1584,7 +1595,7 @@ function Consumo({ funcCon, onSaveFuncCon, itens }) {
             React.createElement("b", null,
                 "fini_consumo/",
                 keyMes(ano, mes)),
-            ". Itens usam quantidade \u00D7 valor unit\u00E1rio; granel usa peso \u00D7 ",
+            ". Itens usam quantidade \u00D7 custo vinculado ao Cat\u00E1logo/Contagem; sem v\u00EDnculo, o valor pode ser informado manualmente. Granel usa peso \u00D7 ",
             brl(PRECO_CONSUMO_KG),
             "/kg."),
         showM && React.createElement(ModalFuncCon, { funcs: funcCon, onSave: l => { onSaveFuncCon(l); setShowM(false); }, onClose: () => setShowM(false) }));
@@ -3926,6 +3937,6 @@ catch (e) {
 <!-- Versao V46 2026-10-05: valores manuais de recompensa por nivel de meta em Vendas Diarias -->
 <!-- Versao V50 2026-10-13: catalogo com disponibilidade, pedido assistido e envio seguro ao carrinho do portal -->
 <!-- Versao V51 2026-10-13: pedido rapido por paginas e bloqueio para a unidade 70270F Patio Petropolis Shopping -->
-<!-- Versao V52 2026-10-26: escala amplia os campos diarios conforme novas funcionarias sem perder preenchimentos -->
+<!-- Versao V53 2026-10-29: consumo usa o custo unitario vinculado ao catalogo/contagem; granel permanece com preco por kg -->
 </body>
 </html>
