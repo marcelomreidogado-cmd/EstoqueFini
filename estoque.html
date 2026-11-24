@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V56</title>
+<title>FINI Petrópolis · Gestão V57</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -274,6 +274,32 @@ body{font-variant-numeric:tabular-nums}
 /* Escala: seta menor nos seletores dos dias para o texto caber (antes ficava "Escolh…") */
 .ce-select{-webkit-appearance:none;appearance:none;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237a1d43' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 4px center/9px 6px;padding-right:16px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;cursor:pointer}
 .ce-select:focus{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237a1d43' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 4px center/9px 6px}
+/* ── V57: contagens e catálogo revisados ── */
+.draft-pill.ok{background:#e9f7ee;color:var(--green);border-color:#bfe3cb}
+.bala-resumo{display:none}
+.catalog-photo{height:130px}
+.catalog-review{align-self:flex-start;border-radius:999px;padding:4px 8px;background:#fff4e8;color:#a34e22;font-size:8.5px;font-weight:800;text-transform:uppercase}
+.catalog-unit{font-size:9.5px;color:var(--ink-soft);margin-top:2px}
+@media(max-width:820px){
+  .bala-count-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 8px;padding:9px 11px}
+  .bala-count-row .bala-cell.auto{display:none}
+  .bala-resumo{display:block;font-size:10.5px;font-weight:600;color:var(--fini-deep);margin-top:2px}
+  .bala-product{padding-bottom:1px}
+  .item-count-row{gap:6px 8px;padding:9px 11px}
+  .item-count-note{min-height:34px}
+}
+@media(max-width:430px){
+  .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .catalog-photo{height:96px;padding:6px}
+  .catalog-body{padding:9px;gap:5px}
+  .catalog-name{font-size:11.5px;min-height:0}
+  .catalog-price strong{font-size:15px}
+  .catalog-buy{flex-direction:column;align-items:flex-start;gap:2px}
+  .catalog-multiple{text-align:left}
+  .catalog-order{grid-template-columns:1fr;gap:4px}
+  .catalog-order input{width:100%!important}
+  .catalog-link{font-size:10px}
+}
 </style>
 <script>
 window.addEventListener('error', function(e){
@@ -288,9 +314,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "15/11/2026 - V56_POLIMENTO_VISUAL";
+const FINI_BUILD = "23/11/2026 - V57_CONTAGEM_CATALOGO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "15/11/2026 · V56_POLIMENTO_VISUAL";
+const APP_VERSION = "23/11/2026 · V57_CONTAGEM_CATALOGO";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -326,7 +352,6 @@ const WD = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const PONTO_OCORRENCIAS = ["Feriado", "Folga", "Folga extra", "Atestado", "Falta"];
 const PONTO_JORNADAS = ["7:20h"];
 const PONTO_REGIMES = ["6x1"];
-const TARA_ACRILICO_PADRAO = 0.760;
 const TARA_BALEIRO_KG = 0.760;
 const PESO_BALA_MAXIMO_SEM_REVISAO_KG = 50;
 const PORTAL_COMPRAS_FINI = "https://fini.sults.com.br/comercial/compras/produto?ctx=compras-list&u=272";
@@ -391,23 +416,6 @@ function fmtCalcValor(v, dec = 3, fixo = false) {
     if (!fixo && s.includes(","))
         s = s.replace(/0+$/, " ").replace(/,\s$/, " ").trim();
     return s;
-}
-function normalizaSomaCampo(v, dec = 0) {
-    const r = somaExpressao(v);
-    if (!r.ok)
-        return String(v !== null && v !== void 0 ? v : "");
-    return fmtCalcValor(r.total, dec, dec > 0);
-}
-function normalizaKgCampo(v, tara = TARA_ACRILICO_PADRAO, descontar = true) {
-    const r = somaExpressao(v);
-    if (!r.ok)
-        return String(v !== null && v !== void 0 ? v : "");
-    let total = r.total;
-    if (descontar) {
-        const qtdTara = r.termos.filter(n => n > tara).length;
-        total = Math.max(0, total - (qtdTara * tara));
-    }
-    return fmtCalcValor(total, 3, true);
 }
 function pesoLiquidoBala25(pesoBruto, quantidadeBaleiros) {
     return Math.max(0, num(pesoBruto) - (num(quantidadeBaleiros) * TARA_BALEIRO_KG));
@@ -662,13 +670,6 @@ function ErrBox({ status, erro }) { return status === "err" ? React.createElemen
     React.createElement("span", { style: { fontSize: 11, opacity: .75 } },
         "Vers\u00E3o: ",
         FINI_BUILD)) : null; }
-function moverItemLista(lista, indice, direcao) {
-    const destino = indice + direcao;
-    if (!Array.isArray(lista) || indice < 0 || indice >= lista.length || destino < 0 || destino >= lista.length) return [...(lista || [])];
-    const nova = [...lista];
-    [nova[indice], nova[destino]] = [nova[destino], nova[indice]];
-    return nova;
-}
 function moverItemParaPosicao(lista, indice, destino) {
     if (!Array.isArray(lista) || indice < 0 || indice >= lista.length || destino < 0 || destino >= lista.length || indice === destino) return [...(lista || [])];
     const nova = [...lista], [item] = nova.splice(indice, 1);
@@ -972,207 +973,7 @@ function EscalaFolgaRow({ nome, funcs, onChange, alerta }) {
         alerta && React.createElement("span", { className: "ce-alert", title: alerta }, "\u26A0")));
 }
 /* ══ ESTOQUE ══ */
-function Estoque({ itens, onSaveItens }) {
-    const [data, setData] = useState(HOJE);
-    const [busca, setBusca] = useState("");
-    const [showM, setShowM] = useState(false);
-    const [editKey, setEditKey] = useState(null);
-    const [editVal, setEditVal] = useState("");
-    const doc = useFireDoc("fini_estoque_quiosque", data, { data, itens: {} });
-    const filtro = itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
-    const totalUn = itens.reduce((s, n) => { var _a; return s + num((_a = doc.data.itens) === null || _a === void 0 ? void 0 : _a[n]); }, 0);
-    const preench = itens.filter(n => { var _a; return num((_a = doc.data.itens) === null || _a === void 0 ? void 0 : _a[n]) > 0; }).length;
-    const set = (n, v) => doc.update(d => ({ itens: { ...d.itens, [n]: v } }));
-    const startRename = n => { setEditKey(n); setEditVal(n); };
-    const confirmRename = () => { if (editKey && editVal.trim() && editVal.trim() !== editKey)
-        onSaveItens(itens.map(x => x === editKey ? editVal.trim().toUpperCase() : x)); setEditKey(null); };
-    const excluirContagem = async () => {
-        const temDados = itens.some(n => { var _a; return num((_a = doc.data.itens) === null || _a === void 0 ? void 0 : _a[n]) > 0; });
-        const aviso = temDados ? `Excluir a contagem de ${fmtD(data)}? Os números preenchidos desta data serão apagados do Firebase.` : `Não há valores preenchidos na tela. Mesmo assim deseja apagar qualquer contagem salva em ${fmtD(data)}?`;
-        if (!confirm(aviso))
-            return;
-        await doc.deleteDoc();
-    };
-    const salvarELimpar = async () => {
-        const ok = await doc.save();
-        if (ok) {
-            const zerados = Object.fromEntries(itens.map(n => [n, "0"]));
-            doc.clearLocal({ data, itens: zerados });
-        }
-    };
-    return React.createElement(React.Fragment, null,
-        React.createElement("div", { className: "htop" },
-            React.createElement("div", null,
-                React.createElement("h1", null, "Itens do Quiosque"),
-                React.createElement("div", { className: "hsub" },
-                    "Contagem unit\u00E1ria \u00B7 ",
-                    itens.length,
-                    " itens \u00B7 ",
-                    React.createElement("span", { style: { color: "var(--fini)" } }, "duplo clique na linha para renomear"))),
-            React.createElement(Status, { ...doc })),
-        React.createElement(ErrBox, { ...doc }),
-        React.createElement("div", { className: "toolbar" },
-            React.createElement("div", { className: "tl" },
-                React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Data da contagem"),
-                    React.createElement("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })),
-                React.createElement("div", { className: "field search" },
-                    React.createElement("label", null, "Buscar item"),
-                    React.createElement("input", { className: "inp", placeholder: "parte do nome\u2026", value: busca, onChange: e => setBusca(e.target.value) }))),
-            React.createElement("div", { className: "tl" },
-                React.createElement("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "\u2699\uFE0F Gerir Cat\u00E1logo"),
-                React.createElement("button", { className: "btn ghost sm danger", onClick: excluirContagem, disabled: doc.status === "load" }, "\uD83D\uDDD1\uFE0F Excluir contagem"),
-                React.createElement("button", { className: "btn primary", onClick: salvarELimpar, disabled: !doc.dirty || doc.status === "load" }, "\uD83D\uDCBE Salvar contagem"))),
-        React.createElement("div", { className: "totbar" },
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Itens preenchidos"),
-                React.createElement("b", null,
-                    preench,
-                    "/",
-                    itens.length)),
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Total unidades"),
-                React.createElement("b", { className: "hl" }, totalUn.toLocaleString("pt-BR")))),
-        React.createElement("div", { className: "panel" },
-            filtro.map(n => {
-                var _a, _b;
-                return (React.createElement("div", { className: "irow", key: n, onDoubleClick: e => { if (e.target.closest("input,select,button"))
-                        return; startRename(n); }, title: "Duplo clique na linha para renomear" },
-                    editKey === n
-                        ? React.createElement("input", { className: "nm-inp", value: editVal, onChange: e => setEditVal(e.target.value), onBlur: confirmRename, onKeyDown: e => { e.key === "Enter" && confirmRename(); e.key === "Escape" && setEditKey(null); }, autoFocus: true })
-                        : React.createElement("span", { className: "nm editable", title: "Duplo clique na linha para renomear" }, n),
-                    React.createElement("input", { className: "inp num", style: { width: 90 }, type: "text", inputMode: "decimal", value: (_b = (_a = doc.data.itens) === null || _a === void 0 ? void 0 : _a[n]) !== null && _b !== void 0 ? _b : "", placeholder: "0", onChange: e => set(n, e.target.value), onBlur: e => set(n, normalizaSomaCampo(e.target.value, 0)), title: "Pode digitar soma: 1+1" }),
-                    React.createElement("span", { className: "un" }, "un")));
-            }),
-            !filtro.length && React.createElement("div", { className: "irow" },
-                React.createElement("span", { className: "nm", style: { color: "var(--ink-faint)" } }, "Nenhum item encontrado."))),
-        React.createElement("div", { className: "foot" },
-            "Salvo em ",
-            React.createElement("b", null,
-                "fini_estoque_quiosque/",
-                data),
-            ". Ap\u00F3s salvar, a tela zera para a pr\u00F3xima contagem. Use \u201CExcluir contagem\u201D para apagar somente a contagem da data selecionada."),
-        showM && React.createElement(ModalItens, { itens: itens, onSave: l => { onSaveItens(l); setShowM(false); }, onClose: () => setShowM(false) }));
-}
 /* ══ BALAS KG ══ */
-function Balas({ balas, onSaveBalas }) {
-    const [data, setData] = useState(HOJE);
-    const [busca, setBusca] = useState("");
-    const [showM, setShowM] = useState(false);
-    const [descontarTara, setDescontarTara] = useState(true);
-    const [taraAcrilico, setTaraAcrilico] = useState("0,760");
-    const [editKey, setEditKey] = useState(null); // {cat, name}
-    const [editVal, setEditVal] = useState("");
-    const doc = useFireDoc("fini_balas_kg", data, { data, pesos: {}, pacotes: {} });
-    const totalKg = balas.reduce((s, c) => s + c.itens.reduce((a, n) => { var _a; return a + num((_a = doc.data.pesos) === null || _a === void 0 ? void 0 : _a[n]); }, 0), 0);
-    const totalPct = balas.reduce((s, c) => s + c.itens.reduce((a, n) => { var _a; return a + num((_a = doc.data.pacotes) === null || _a === void 0 ? void 0 : _a[n]); }, 0), 0);
-    const setKg = (n, v) => doc.update(d => ({ pesos: { ...d.pesos, [n]: v } }));
-    const setPct = (n, v) => doc.update(d => ({ pacotes: { ...d.pacotes, [n]: v } }));
-    const startRename = (cat, name) => { setEditKey({ cat, name }); setEditVal(name); };
-    const confirmRename = () => { if (editKey && editVal.trim() && editVal.trim() !== editKey.name)
-        onSaveBalas(balas.map(c => c.cat === editKey.cat ? { ...c, itens: c.itens.map(x => x === editKey.name ? editVal.trim() : x) } : c)); setEditKey(null); };
-    const excluirContagem = async () => {
-        const temDados = balas.some(c => c.itens.some(n => { var _a, _b; return num((_a = doc.data.pesos) === null || _a === void 0 ? void 0 : _a[n]) > 0 || num((_b = doc.data.pacotes) === null || _b === void 0 ? void 0 : _b[n]) > 0; }));
-        const aviso = temDados ? `Excluir a contagem de balas de ${fmtD(data)}? Os pesos e pacotes desta data serão apagados do Firebase.` : `Não há valores preenchidos na tela. Mesmo assim deseja apagar qualquer contagem de balas salva em ${fmtD(data)}?`;
-        if (!confirm(aviso))
-            return;
-        await doc.deleteDoc();
-    };
-    const salvarELimpar = async () => {
-        const ok = await doc.save();
-        if (ok) {
-            const pesos = {}, pacotes = {};
-            balas.forEach(c => c.itens.forEach(n => { pesos[n] = "0"; pacotes[n] = "0"; }));
-            doc.clearLocal({ data, pesos, pacotes });
-        }
-    };
-    return React.createElement(React.Fragment, null,
-        React.createElement("div", { className: "htop" },
-            React.createElement("div", null,
-                React.createElement("h1", null, "Balas a Granel (Kg)"),
-                React.createElement("div", { className: "hsub" },
-                    "Peso + pacotes \u00B7 ",
-                    balas.reduce((s, c) => s + c.itens.length, 0),
-                    " itens \u00B7 ",
-                    React.createElement("span", { style: { color: "var(--fini)" } }, "duplo clique na linha para renomear"))),
-            React.createElement(Status, { ...doc })),
-        React.createElement(ErrBox, { ...doc }),
-        React.createElement("div", { className: "toolbar" },
-            React.createElement("div", { className: "tl" },
-                React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Data da contagem"),
-                    React.createElement("input", { className: "inp", type: "date", value: data, onChange: e => setData(e.target.value) })),
-                React.createElement("div", { className: "field search" },
-                    React.createElement("label", null, "Buscar bala"),
-                    React.createElement("input", { className: "inp", placeholder: "parte do nome\u2026", value: busca, onChange: e => setBusca(e.target.value) }))),
-            React.createElement("div", { className: "tl" },
-                React.createElement("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "\u2699\uFE0F Gerir Cat\u00E1logo"),
-                React.createElement("button", { className: "btn ghost sm danger", onClick: excluirContagem, disabled: doc.status === "load" }, "\uD83D\uDDD1\uFE0F Excluir contagem"),
-                React.createElement("button", { className: "btn primary", onClick: salvarELimpar, disabled: !doc.dirty || doc.status === "load" }, "\uD83D\uDCBE Salvar contagem"))),
-        React.createElement("div", { className: "totbar" },
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Total em KG"),
-                React.createElement("b", { className: "hl" }, kgF(totalKg))),
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Total Pacotes"),
-                React.createElement("b", null, totalPct.toLocaleString("pt-BR"))),
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Tara acr\u00EDlico"),
-                React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 4 } },
-                    React.createElement("label", { style: { display: "flex", gap: 5, alignItems: "center", fontSize: 12, color: "var(--ink-soft)", fontWeight: 700 } },
-                        React.createElement("input", { type: "checkbox", checked: descontarTara, onChange: e => setDescontarTara(e.target.checked) }),
-                        " descontar"),
-                    React.createElement("input", { className: "inp pinput-mini", style: { width: 78 }, value: taraAcrilico, onChange: e => setTaraAcrilico(e.target.value), title: "Peso do acr\u00EDlico em kg" })))),
-        React.createElement("div", { className: "ponto-help", style: { marginTop: -4 } },
-            "No campo ",
-            React.createElement("b", null, "KG"),
-            ", pode digitar soma como ",
-            React.createElement("b", null, "1,450+0,098"),
-            ". Com \u201Cdescontar tara\u201D ativo, o sistema desconta ",
-            React.createElement("b", null, "0,760 kg"),
-            " de cada pesagem maior que a tara, para registrar o peso l\u00EDquido da bala."),
-        React.createElement("div", { className: "panel" },
-            React.createElement("div", { className: "cat" },
-                React.createElement("span", null, "Produto"),
-                React.createElement("div", { style: { display: "flex", gap: 18, fontSize: 10, color: "var(--ink-faint)", fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase" } },
-                    React.createElement("span", { style: { width: 95, textAlign: "right" } }, "KG"),
-                    React.createElement("span", { style: { width: 78, textAlign: "right" } }, "Pacotes"))),
-            balas.map(c => {
-                const its = c.itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
-                if (!its.length)
-                    return null;
-                const skKg = c.itens.reduce((a, n) => { var _a; return a + num((_a = doc.data.pesos) === null || _a === void 0 ? void 0 : _a[n]); }, 0), skPct = c.itens.reduce((a, n) => { var _a; return a + num((_a = doc.data.pacotes) === null || _a === void 0 ? void 0 : _a[n]); }, 0);
-                return React.createElement(React.Fragment, { key: c.cat },
-                    React.createElement("div", { className: "cat" },
-                        React.createElement("span", null, c.cat),
-                        React.createElement("span", { className: "ct" },
-                            kgF(skKg),
-                            " \u00B7 ",
-                            skPct,
-                            " pct")),
-                    its.map(n => {
-                        var _a, _b, _c, _d;
-                        const isEdit = editKey && editKey.cat === c.cat && editKey.name === n;
-                        return React.createElement("div", { className: "irow", key: n, onDoubleClick: e => { if (e.target.closest("input,select,button"))
-                                return; startRename(c.cat, n); }, title: "Duplo clique na linha para renomear" },
-                            isEdit
-                                ? React.createElement("input", { className: "nm-inp", value: editVal, onChange: e => setEditVal(e.target.value), onBlur: confirmRename, onKeyDown: e => { e.key === "Enter" && confirmRename(); e.key === "Escape" && setEditKey(null); }, autoFocus: true })
-                                : React.createElement("span", { className: "nm editable", title: "Duplo clique na linha para renomear" }, n),
-                            React.createElement("input", { className: "inp num", style: { width: 95 }, type: "text", inputMode: "decimal", value: (_b = (_a = doc.data.pesos) === null || _a === void 0 ? void 0 : _a[n]) !== null && _b !== void 0 ? _b : "", placeholder: "0,000", onChange: e => setKg(n, e.target.value), onFocus: e => { e.currentTarget.dataset.original = e.currentTarget.value; }, onBlur: e => { if (e.currentTarget.value !== e.currentTarget.dataset.original)
-                                    setKg(n, normalizaKgCampo(e.target.value, num(taraAcrilico) || TARA_ACRILICO_PADRAO, descontarTara)); }, title: "Pode digitar soma: 1,450+0,098. Desconta a tara do acr\u00EDlico se ativo." }),
-                            React.createElement("span", { className: "un" }, "kg"),
-                            React.createElement("input", { className: "inp num", style: { width: 78 }, type: "text", inputMode: "decimal", value: (_d = (_c = doc.data.pacotes) === null || _c === void 0 ? void 0 : _c[n]) !== null && _d !== void 0 ? _d : "", placeholder: "0", onChange: e => setPct(n, e.target.value), onBlur: e => setPct(n, normalizaSomaCampo(e.target.value, 0)), title: "Pode digitar soma: 1+1" }),
-                            React.createElement("span", { className: "un" }, "pct"));
-                    }));
-            })),
-        React.createElement("div", { className: "foot" },
-            "Salvo em ",
-            React.createElement("b", null,
-                "fini_balas_kg/",
-                data),
-            ". Ap\u00F3s salvar, a tela zera para a pr\u00F3xima contagem. Use \u201CExcluir contagem\u201D para apagar somente a contagem da data selecionada."),
-        showM && React.createElement(ModalBalas, { balas: balas, onSave: n => { onSaveBalas(n); setShowM(false); }, onClose: () => setShowM(false) }));
-}
 /* ══ COMPARATIVO ══ */
 function Comparativo({ itens, balas }) {
     const [datas, setDatas] = useState([]);
@@ -1293,73 +1094,6 @@ function Comparativo({ itens, balas }) {
         React.createElement("div", { className: "foot" }, "Diferen\u00E7a = A \u2212 B. \uD83D\uDFE2 Positivo = consumido/vendido. \uD83D\uDD35 Negativo = reabastecido."));
 }
 /* ══ DESPERDÍCIO ══ */
-function Desperdicio() {
-    const [ano, setAno] = useState(hjD.getFullYear());
-    const [mes, setMes] = useState(hjD.getMonth());
-    const doc = useFireDoc("fini_desperdicio", keyMes(ano, mes), { entradas: [] });
-    const ents = doc.data.entradas || [];
-    const add = () => doc.update(d => ({ entradas: [...(d.entradas || []), { data: HOJE, produto: "", quantidade: "", unidade: "UN", motivo: MOTIVOS[0], responsavel: "" }] }));
-    const upd = (i, k, v) => doc.update(d => { const e = [...d.entradas]; e[i] = { ...e[i], [k]: v }; return { entradas: e }; });
-    const del = i => doc.update(d => ({ entradas: d.entradas.filter((_, j) => j !== i) }));
-    return React.createElement(React.Fragment, null,
-        React.createElement("div", { className: "htop" },
-            React.createElement("div", null,
-                React.createElement("h1", null, "Desperd\u00EDcio"),
-                React.createElement("div", { className: "hsub" }, "Registro de perdas por produto")),
-            React.createElement(Status, { ...doc })),
-        React.createElement(ErrBox, { ...doc }),
-        React.createElement("div", { className: "toolbar" },
-            React.createElement(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }),
-            React.createElement("div", { className: "tl" },
-                React.createElement("button", { className: "btn ghost", onClick: add }, "\uFF0B Registrar Perda"),
-                React.createElement("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "\uD83D\uDCBE Salvar m\u00EAs"))),
-        React.createElement("div", { className: "totbar" },
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Hoje"),
-                React.createElement("b", { className: "hl" }, ents.filter(e => e.data === HOJE).length)),
-            React.createElement("div", { className: "tt" },
-                React.createElement("span", null, "Total no m\u00EAs"),
-                React.createElement("b", null, ents.length))),
-        React.createElement("div", { className: "panel" },
-            React.createElement("table", null,
-                React.createElement("thead", null,
-                    React.createElement("tr", null,
-                        React.createElement("th", { style: { width: 130 } }, "Data"),
-                        React.createElement("th", null, "Produto"),
-                        React.createElement("th", { style: { width: 90 } }, "Qtd"),
-                        React.createElement("th", { style: { width: 70 } }, "Un."),
-                        React.createElement("th", { style: { width: 155 } }, "Motivo"),
-                        React.createElement("th", null, "Respons\u00E1vel"),
-                        React.createElement("th", { style: { width: 34 } }))),
-                React.createElement("tbody", null,
-                    ents.map((e, i) => React.createElement("tr", { key: i },
-                        React.createElement("td", null,
-                            React.createElement("input", { type: "date", value: e.data || HOJE, onChange: ev => upd(i, "data", ev.target.value) })),
-                        React.createElement("td", null,
-                            React.createElement("input", { value: e.produto || "", placeholder: "produto", onChange: ev => upd(i, "produto", ev.target.value) })),
-                        React.createElement("td", null,
-                            React.createElement("input", { className: "num", type: "number", step: "0.001", value: e.quantidade || "", placeholder: "0", onChange: ev => upd(i, "quantidade", ev.target.value) })),
-                        React.createElement("td", null,
-                            React.createElement("select", { value: e.unidade || "UN", onChange: ev => upd(i, "unidade", ev.target.value) },
-                                React.createElement("option", null, "UN"),
-                                React.createElement("option", null, "KG"),
-                                React.createElement("option", null, "L"),
-                                React.createElement("option", null, "PCT"))),
-                        React.createElement("td", null,
-                            React.createElement("select", { value: e.motivo || MOTIVOS[0], onChange: ev => upd(i, "motivo", ev.target.value) }, MOTIVOS.map(m => React.createElement("option", { key: m }, m)))),
-                        React.createElement("td", null,
-                            React.createElement("input", { value: e.responsavel || "", placeholder: "funcion\u00E1rio", onChange: ev => upd(i, "responsavel", ev.target.value) })),
-                        React.createElement("td", null,
-                            React.createElement("button", { className: "rm", onClick: () => del(i) }, "\u2715")))),
-                    !ents.length && React.createElement("tr", null,
-                        React.createElement("td", { colSpan: "7", style: { textAlign: "center", padding: 24, color: "var(--ink-faint)" } }, "Nenhum registro. Clique em \"\uFF0B Registrar Perda\"."))))),
-        React.createElement("div", { className: "foot" },
-            "Salvo em ",
-            React.createElement("b", null,
-                "fini_desperdicio/",
-                keyMes(ano, mes)),
-            "."));
-}
 /* ══ CAIXA ══ */
 function Caixa() {
     var _a;
@@ -1969,7 +1703,6 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
         showM && React.createElement(ModalFuncEsc, { funcs: funcs, onSave: l => { onSaveFuncEsc(l); setShowM(false); }, onClose: () => setShowM(false) }));
 }
 /* ══ FOLHA DE PONTO / BANCO DE HORAS ══ */
-const absMin = m => Math.abs(Math.round(m || 0));
 function durToMin(v) {
     if (v === undefined || v === null || v === "")
         return 0;
@@ -2030,11 +1763,8 @@ function normalizeTipoPonto(tipo) {
     return t;
 }
 function jornadaMinFunc(func) { return String((func === null || func === void 0 ? void 0 : func.jornada) || "7:20h") === "7h" ? durToMin("07:00") : durToMin("07:20"); }
-function jornadaStrFunc(func) { return String((func === null || func === void 0 ? void 0 : func.jornada) || "7:20h") === "7h" ? "07:00" : "07:20"; }
 function isFolgaTipo(tipo) { return ["Folga", "Folga extra"].includes(normalizeTipoPonto(tipo)); }
 function isFeriadoTipo(tipo) { return normalizeTipoPonto(tipo) === "Feriado"; }
-function isAtestadoTipo(tipo) { return normalizeTipoPonto(tipo) === "Atestado"; }
-function isDomingoData(ano, mes, dd) { return new Date(ano, mes, Number(dd)).getDay() === 0; }
 function escalaSugeridaPonto(ano, mes, dd, func, tipo) {
     const tp = normalizeTipoPonto(tipo);
     if (tp === "Folga" || tp === "Folga extra" || tp === "Atestado" || tp === "Falta")
@@ -2586,31 +2316,35 @@ const h25 = React.createElement;
 const clone25 = value => JSON.parse(JSON.stringify(value));
 
 function useLocalDraft25(col, id, blank) {
+    // Rascunho da contagem: fica no aparelho (localStorage) e é enviado sozinho ao banco com rascunho:true.
+    // "Salvar o dia" grava rascunho:false, confere o que foi gravado e MANTÉM os números na tela.
     const storageKey = `fini_rascunho:${col}:${id}`;
     const blankJson = JSON.stringify(blank);
     const [data, setData] = useState(() => clone25(blank));
     const [dirty, setDirty] = useState(false);
-    const [status, setStatus] = useState("ok");
+    const [salva, setSalva] = useState(false);
+    const [status, setStatus] = useState("load");
     const [erro, setErro] = useState(null);
     const [online, setOnline] = useState(() => navigator.onLine);
-    const dataRef = useRef(clone25(blank)), revisaoRef = useRef(0), timerRef = useRef(null), filaRef = useRef(Promise.resolve()), finalizandoRef = useRef(false), chaveAtivaRef = useRef(storageKey), baseFinalizadaRef = useRef(null);
+    const dataRef = useRef(clone25(blank)), revisaoRef = useRef(0), timerRef = useRef(null), filaRef = useRef(Promise.resolve()), finalizandoRef = useRef(false), chaveAtivaRef = useRef(storageKey);
     useEffect(() => { dataRef.current = data; }, [data]);
     useEffect(() => {
         let ativo = true;
         chaveAtivaRef.current = storageKey;
         finalizandoRef.current = false;
-        baseFinalizadaRef.current = null;
         clearTimeout(timerRef.current);
         setStatus("load");
         setErro(null);
+        setSalva(false);
         (async () => { try {
-            const saved = localStorage.getItem(storageKey), local = saved ? JSON.parse(saved) : null;
             let remoto = null;
             if (navigator.onLine) {
                 const snap = await db.collection(col).doc(id).get();
                 remoto = snap.exists ? snap.data() : null;
             }
             if (!ativo) return;
+            // Lido DEPOIS da consulta ao banco: o que foi digitado enquanto carregava não se perde.
+            const saved = localStorage.getItem(storageKey), local = saved ? JSON.parse(saved) : null;
             let next = clone25(JSON.parse(blankJson));
             if (remoto) next = mesclarProfundo(next, remoto);
             if (local) next = mesclarProfundo(next, local);
@@ -2618,16 +2352,19 @@ function useLocalDraft25(col, id, blank) {
             setData(next);
             const emEdicao = Boolean(local || (remoto && remoto.rascunho));
             setDirty(emEdicao);
+            setSalva(Boolean(remoto && remoto.rascunho === false && !local));
             if (!local && remoto && remoto.rascunho) localStorage.setItem(storageKey, JSON.stringify(next));
             setStatus(navigator.onLine ? "ok" : "offline");
         }
         catch (e) {
             if (!ativo) return;
-            const fallback = clone25(JSON.parse(blankJson));
+            const saved = localStorage.getItem(storageKey);
+            const fallback = saved ? mesclarProfundo(clone25(JSON.parse(blankJson)), JSON.parse(saved)) : clone25(JSON.parse(blankJson));
             dataRef.current = fallback;
             setData(fallback);
+            setDirty(Boolean(saved));
             if (erroDeRede(e)) setStatus("offline");
-            else { setErro({ titulo: "Rascunho local indisponível", detalhe: String(e.message || e) }); setStatus("err"); }
+            else { setErro({ titulo: "Não foi possível abrir a contagem", detalhe: String(e.message || e) }); setStatus("err"); }
         } })();
         return () => { ativo = false; };
     }, [storageKey, blankJson]);
@@ -2638,15 +2375,14 @@ function useLocalDraft25(col, id, blank) {
     }, []);
     const update = patch => setData(current => {
         if (finalizandoRef.current) return current;
-        const origem = baseFinalizadaRef.current ? mesclarProfundo(clone25(baseFinalizadaRef.current), current) : current;
-        const delta = typeof patch === "function" ? patch(origem) : patch;
-        const next = { ...origem, ...delta };
-        baseFinalizadaRef.current = null;
+        const delta = typeof patch === "function" ? patch(current) : patch;
+        const next = { ...current, ...delta };
         dataRef.current = next;
         revisaoRef.current += 1;
         try { localStorage.setItem(storageKey, JSON.stringify(next)); }
         catch (e) { console.warn("Falha ao salvar rascunho", e); }
         setDirty(true);
+        setSalva(false);
         return next;
     });
     useEffect(() => {
@@ -2694,11 +2430,10 @@ function useLocalDraft25(col, id, blank) {
             }
             if (!contagemConfere25(snapshot, remoto)) throw new Error("A conferência encontrou campos ausentes após o salvamento. A tela foi mantida para nova tentativa.");
             localStorage.removeItem(storageKey);
-            baseFinalizadaRef.current = clone25(snapshot);
-            const limpo = clone25(JSON.parse(blankJson));
-            dataRef.current = limpo;
-            setData(limpo);
+            dataRef.current = snapshot;
+            setData(snapshot);
             setDirty(false);
+            setSalva(true);
             setStatus("ok");
             finalizandoRef.current = false;
             return true;
@@ -2710,7 +2445,7 @@ function useLocalDraft25(col, id, blank) {
             return false;
         }
     };
-    return { data, update, save, dirty, status, erro, baseFinalizada: baseFinalizadaRef.current };
+    return { data, update, save, dirty, salva, status, erro };
 }
 
 function contagemConfere25(esperado, remoto) {
@@ -2734,51 +2469,63 @@ function valorCorrecao25(lancamento, decimais) {
     return fmtCalcValor(Math.max(0, conta.total), decimais, decimais > 0);
 }
 
-function CampoContagemAcumulada25({ value, baseOculta, onCommit, decimais = 0, style, placeholder, ariaLabel }) {
-    const [modo, setModo] = useState("parado"), [entrada, setEntrada] = useState(String(value ?? ""));
-    const alterou = useRef(false), base = useRef(String(value ?? "")), inputRef = useRef(null);
-    const totalAtual = String(value ?? "").trim() !== "" ? String(value) : String(baseOculta ?? "");
-    useEffect(() => { if (modo === "parado") setEntrada(String(value ?? "")); }, [value, modo]);
+function CampoContagemAcumulada25({ value, onCommit, decimais = 0, style, placeholder, ariaLabel }) {
+    // Cada número digitado é SOMADO ao total; "Corrigir" troca o total por um valor novo.
+    // Modo, texto e total ficam também em refs para que toques rápidos (antes da tela redesenhar) não percam a conta.
+    const totalAtual = String(value ?? "");
+    const [modo, setModoEstado] = useState("parado"), [entrada, setEntradaEstado] = useState(totalAtual);
+    const modoRef = useRef("parado"), entradaRef = useRef(totalAtual), alterou = useRef(false), base = useRef(totalAtual), inputRef = useRef(null);
+    const ultimoTotal = useRef(totalAtual), valorVisto = useRef(totalAtual);
+    if (valorVisto.current !== totalAtual) { valorVisto.current = totalAtual; ultimoTotal.current = totalAtual; }
+    const setModo = m => { modoRef.current = m; setModoEstado(m); };
+    const setEntrada = v => { entradaRef.current = v; setEntradaEstado(v); };
+    useEffect(() => { if (modoRef.current === "parado") setEntrada(totalAtual); }, [totalAtual, modo]);
     const iniciar = () => {
-        if (modo === "corrigir") return;
-        base.current = totalAtual;
+        if (modoRef.current === "corrigir") return;
+        base.current = ultimoTotal.current;
         alterou.current = false;
         setEntrada("");
         setModo("somar");
     };
     const concluir = () => {
+        const corrigindo = modoRef.current === "corrigir";
         if (alterou.current) {
-            const novoValor = modo === "corrigir" ? valorCorrecao25(entrada, decimais) : valorAcumulado25(base.current, entrada, decimais);
+            const novoValor = corrigindo ? valorCorrecao25(entradaRef.current, decimais) : valorAcumulado25(base.current, entradaRef.current, decimais);
             if (novoValor === null) {
                 alert("Digite um número válido para corrigir o total.");
-                setEntrada(String(value ?? ""));
-            } else onCommit(novoValor);
-        } else setEntrada(String(value ?? ""));
+                setEntrada(ultimoTotal.current);
+            } else { ultimoTotal.current = novoValor; setEntrada(novoValor); onCommit(novoValor); }
+        } else setEntrada(ultimoTotal.current);
         alterou.current = false;
         setModo("parado");
     };
     const iniciarCorrecao = () => {
-        base.current = totalAtual;
+        base.current = ultimoTotal.current;
         alterou.current = false;
-        setEntrada(totalAtual);
+        setEntrada(ultimoTotal.current);
         setModo("corrigir");
         setTimeout(() => { if (inputRef.current) { inputRef.current.focus(); inputRef.current.select(); } }, 0);
     };
-    const cancelarCorrecao = () => {
+    const cancelar = () => {
         alterou.current = false;
-        setEntrada(String(value ?? ""));
+        setEntrada(ultimoTotal.current);
         setModo("parado");
         if (inputRef.current) inputRef.current.blur();
     };
+    const rotulo = String(ariaLabel || "").toLowerCase();
     return h25("div", { className: "count-entry" },
-        h25("input", { ref: inputRef, className: `inp num${modo === "corrigir" ? " correcting" : ""}`, style, type: "text", inputMode: decimais ? "decimal" : "numeric", value: entrada, placeholder: modo === "corrigir" ? "Total correto" : modo === "somar" && base.current ? `Somar a ${base.current}` : placeholder, "aria-label": ariaLabel, title: modo === "corrigir" ? "Digite o total correto; este valor substituirá o anterior." : "Cada novo número é somado ao total. Use Corrigir para substituir um valor errado.", onFocus: iniciar, onChange: e => { alterou.current = true; setEntrada(e.target.value); }, onBlur: concluir, onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") { alterou.current = false; setEntrada(String(value ?? "")); setModo("parado"); e.currentTarget.blur(); } } }),
-        (String(totalAtual).trim() !== "" || modo === "corrigir") && h25("button", { type: "button", className: "count-correct", disabled: modo === "somar", "aria-label": `${modo === "corrigir" ? "Cancelar correção de" : "Corrigir"} ${ariaLabel.toLowerCase()}`, title: modo === "corrigir" ? "Cancelar correção" : `Substituir o total atual de ${ariaLabel.toLowerCase()}`, onMouseDown: e => e.preventDefault(), onClick: modo === "corrigir" ? cancelarCorrecao : iniciarCorrecao }, modo === "corrigir" ? "Cancelar" : "Corrigir"));
+        h25("input", { ref: inputRef, className: `inp num${modo === "corrigir" ? " correcting" : ""}`, style, type: "text", inputMode: decimais ? "decimal" : "numeric", value: entrada, placeholder: modo === "corrigir" ? "Total correto" : modo === "somar" && base.current ? `Somar a ${base.current}` : placeholder, "aria-label": ariaLabel, title: modo === "corrigir" ? "Digite o total correto; este valor substituirá o anterior." : "Cada novo número é somado ao total. Use Corrigir para substituir um valor errado.", onFocus: iniciar, onChange: e => { alterou.current = true; setEntrada(e.target.value); }, onBlur: concluir, onKeyDown: e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelar(); } }),
+        (totalAtual.trim() !== "" || modo === "corrigir") && h25("button", { type: "button", className: "count-correct", disabled: modo === "somar", "aria-label": `${modo === "corrigir" ? "Cancelar correção de" : "Corrigir"} ${rotulo}`, title: modo === "corrigir" ? "Cancelar correção" : `Substituir o total atual de ${rotulo}`, onMouseDown: e => e.preventDefault(), onClick: modo === "corrigir" ? cancelar : iniciarCorrecao }, modo === "corrigir" ? "Cancelar" : "Corrigir"));
 }
+
+function buscaNormalizada25(v) { return String(v ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").trim(); }
 
 function DraftStatus25({ doc }) {
     if (doc.status === "err") return h25("span", { className: "save-note err" }, "Não foi possível salvar o rascunho");
     if (doc.status === "offline") return h25("span", { className: "draft-pill" }, "Sem internet · rascunho protegido neste aparelho");
-    return h25("span", { className: "draft-pill" }, doc.dirty ? (doc.status === "load" ? "Salvando automaticamente…" : "Rascunho salvo automaticamente") : "Contagem nova");
+    if (doc.status === "load" && !doc.dirty) return h25("span", { className: "draft-pill" }, "Carregando…");
+    if (doc.dirty) return h25("span", { className: "draft-pill" }, doc.status === "load" ? "Salvando rascunho…" : "Rascunho salvo · falta Salvar o dia");
+    return h25("span", { className: `draft-pill${doc.salva ? " ok" : ""}` }, doc.salva ? "✓ Contagem do dia salva" : "Contagem nova");
 }
 
 function useValorizacaoCatalogo25() {
@@ -2818,7 +2565,8 @@ function EstoqueV25({ itens, onSaveItens, alvoCorrecao, onConsumirCorrecao }) {
     const custos = useValorizacaoCatalogo25();
     const blank = useMemo(() => ({ data, itens: {}, observacoes: {} }), [data]);
     const doc = useLocalDraft25("fini_estoque_quiosque", data, blank);
-    const filtro = itens.filter(n => `${n} ${(doc.data.observacoes || {})[n] || ""}`.toLowerCase().includes(busca.toLowerCase()));
+    const termoBusca = buscaNormalizada25(busca);
+    const filtro = itens.filter(n => !termoBusca || buscaNormalizada25(`${n} ${(doc.data.observacoes || {})[n] || ""}`).includes(termoBusca));
     const set = (n, v) => doc.update(d => ({ itens: { ...(d.itens || {}), [n]: v } }));
     const setObs = (n, v) => doc.update(d => ({ observacoes: { ...(d.observacoes || {}), [n]: v } }));
     const preenchidos = itens.filter(n => String((doc.data.itens || {})[n] || "").trim() !== "").length;
@@ -2853,8 +2601,8 @@ function EstoqueV25({ itens, onSaveItens, alvoCorrecao, onConsumirCorrecao }) {
             h25("div", { className: "item-count-head" }, h25("span", null, "Produto"), h25("span", null, "Quantidade"), h25("span", null, "Observação / detalhamento")),
             filtro.map(n => h25("div", { className: `item-count-row${selecionado === n ? " selected" : ""}`, key: n, onClick: () => setSelecionado(n) },
                 h25("span", { className: "item-count-name" }, n),
-                h25("div", { className: "item-count-qty" }, h25(CampoContagemAcumulada25, { value: (doc.data.itens || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.itens || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de ${n}`, onCommit: v => set(n, v) }), h25("span", { className: "un" }, "un")),
-                h25("textarea", { className: "inp item-count-note", rows: 1, value: (doc.data.observacoes || {})[n] || "", placeholder: "Ex.: total de copos e quantidade de cada modelo", "aria-label": `Observação de ${n}`, onChange: e => setObs(n, e.target.value) })))),
+                h25("div", { className: "item-count-qty" }, h25(CampoContagemAcumulada25, { value: (doc.data.itens || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de ${n}`, onCommit: v => set(n, v) }), h25("span", { className: "un" }, "un")),
+                h25("textarea", { className: "inp item-count-note", rows: 1, value: (doc.data.observacoes || {})[n] || "", placeholder: "Observação (opcional)", "aria-label": `Observação de ${n}`, onChange: e => setObs(n, e.target.value) })))),
         showM && h25(ModalItens, { itens, onSave: async (l, renomeacoes) => { const ok = await onSaveItens(l, renomeacoes); if (ok !== false) setShowM(false); }, onClose: () => setShowM(false) }));
 }
 
@@ -2926,7 +2674,7 @@ function BalasV25({ balas, onSaveBalas, alvoCorrecao, onConsumirCorrecao }) {
             h25("div", { className: "tt" }, h25("span", null, "Pacotes / potes"), h25("b", null, totalPacotes.toLocaleString("pt-BR"))),
             h25("div", { className: "tt" }, h25("span", null, "Valor de custo conhecido"), h25("b", { className: "hl" }, brl(valorEstoque)), h25("small", { className: "clean-note" }, `${valorizados}/${comContagem.length} produtos vinculados${parciais ? ` · ${parciais} parcial(is)` : ""}`))),
         h25("div", { className: "panel" }, balas.map(c => {
-            const list = c.itens.filter(n => n.toLowerCase().includes(busca.toLowerCase()));
+            const termoBusca = buscaNormalizada25(busca), list = c.itens.filter(n => !termoBusca || buscaNormalizada25(`${c.cat} ${n}`).includes(termoBusca));
             if (!list.length) return null;
             const qtdCat = c.itens.reduce((s, n) => s + num((doc.data.baleiros || {})[n]), 0), liquidoCat = c.itens.reduce((s, n) => s + pesoLiquido(n), 0), pacotesCat = c.itens.reduce((s, n) => s + num((doc.data.pacotes || {})[n]), 0);
             return h25(React.Fragment, { key: c.cat },
@@ -2935,12 +2683,12 @@ function BalasV25({ balas, onSaveBalas, alvoCorrecao, onConsumirCorrecao }) {
                 list.map(n => {
                     const qtd = num((doc.data.baleiros || {})[n]), tara = qtd * TARA_BALEIRO_KG, liquido = pesoLiquido(n), legado = !usaModeloNovo(n) && presente((doc.data.pesos || {})[n]), anomalia = num((doc.data.pesosBrutos || {})[n]) > PESO_BALA_MAXIMO_SEM_REVISAO_KG || liquido > PESO_BALA_MAXIMO_SEM_REVISAO_KG;
                     return h25("div", { className: `bala-count-row${selecionado === n ? " selected" : ""}${anomalia ? " count-anomaly" : ""}`, key: n, onClick: () => setSelecionado(n) },
-                        h25("div", { className: "bala-product" }, n, anomalia && h25("small", { className: "count-anomaly-note" }, "⚠ Peso acima do limite — corrigir antes de salvar")),
-                        h25("div", { className: "bala-cell", "data-label": "Quantidade de baleiros" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.baleiros || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.baleiros || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de baleiros de ${n}`, onCommit: v => atualizar(n, "baleiros", v) })),
-                        h25("div", { className: "bala-cell", "data-label": "Tara automática" }, h25("span", { className: "bala-auto" }, kgF(tara))),
-                        h25("div", { className: "bala-cell", "data-label": "Peso bruto contado" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.pesosBrutos || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.pesosBrutos || {})[n] ?? "", placeholder: "0,000", decimais: 3, ariaLabel: `Peso bruto contado de ${n}`, onCommit: v => atualizar(n, "pesosBrutos", v) })),
-                        h25("div", { className: "bala-cell", "data-label": "Peso líquido automático" }, h25("span", { className: "bala-auto net", title: "Calculado automaticamente: peso bruto menos a tara dos baleiros" }, kgF(liquido)), legado && h25("small", { className: "bala-legacy" }, "Contagem anterior preservada")),
-                        h25("div", { className: "bala-cell", "data-label": "Pacotes ou potes fechados" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.pacotes || {})[n] ?? "", baseOculta: (doc.baseFinalizada?.pacotes || {})[n] ?? "", placeholder: "0", ariaLabel: `Pacotes ou potes fechados de ${n}`, onCommit: v => atualizar(n, "pacotes", v) })));
+                        h25("div", { className: "bala-product" }, n, h25("small", { className: "bala-resumo" }, `Tara ${kgF(tara)} · Líquido ${kgF(liquido)}`), anomalia && h25("small", { className: "count-anomaly-note" }, "⚠ Peso acima do limite — corrigir antes de salvar")),
+                        h25("div", { className: "bala-cell", "data-label": "Baleiros" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.baleiros || {})[n] ?? "", placeholder: "0", ariaLabel: `Quantidade de baleiros de ${n}`, onCommit: v => atualizar(n, "baleiros", v) })),
+                        h25("div", { className: "bala-cell auto", "data-label": "Tara" }, h25("span", { className: "bala-auto" }, kgF(tara))),
+                        h25("div", { className: "bala-cell", "data-label": "Peso bruto" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.pesosBrutos || {})[n] ?? "", placeholder: "0,000", decimais: 3, ariaLabel: `Peso bruto contado de ${n}`, onCommit: v => atualizar(n, "pesosBrutos", v) })),
+                        h25("div", { className: "bala-cell auto", "data-label": "Peso líquido" }, h25("span", { className: "bala-auto net", title: "Calculado automaticamente: peso bruto menos a tara dos baleiros" }, kgF(liquido)), legado && h25("small", { className: "bala-legacy" }, "Contagem anterior preservada")),
+                        h25("div", { className: "bala-cell", "data-label": "Pacotes/potes" }, h25(CampoContagemAcumulada25, { style: { width: "100%" }, value: (doc.data.pacotes || {})[n] ?? "", placeholder: "0", ariaLabel: `Pacotes ou potes fechados de ${n}`, onCommit: v => atualizar(n, "pacotes", v) })));
                 }));
         })),
         showM && h25(ModalBalas, { balas, onSave: async (l, renomeacoes) => { const ok = await onSaveBalas(l, renomeacoes); if (ok !== false) setShowM(false); }, onClose: () => setShowM(false) }));
@@ -3214,133 +2962,6 @@ function imprimir25(tipo) {
     window.addEventListener("afterprint", limpar);
     setTimeout(() => window.print(), 40);
 }
-function statusEscala25(raw) {
-    if (["Folga", "Folga 6x1"].includes(raw)) return "Folga";
-    if (["Folga extra", "Folga feriado", "Folga compensatória"].includes(raw)) return "Folga feriado";
-    if (raw === "Atestado") return "Atestado";
-    return "Trabalho";
-}
-function sugerirEscala25(ano, mes, funcs) {
-    const quadro = {}, nd = diMes(ano, mes), blocos = [], domingosUsados = new Set();
-    for (let d = 1; d <= nd; d++)
-        quadro[pad(d)] = Object.fromEntries(funcs.map(f => [f.nome, "Trabalho"]));
-    for (let inicio = 1; inicio <= nd; inicio += 7)
-        blocos.push(Array.from({ length: Math.min(7, nd - inicio + 1) }, (_, i) => inicio + i));
-    blocos.forEach((diasBloco, bi) => {
-        const domingo = diasBloco.find(d => new Date(ano, mes, d).getDay() === 0);
-        const candidatos = diasBloco.filter(d => new Date(ano, mes, d).getDay() !== 0);
-        const pessoaDomingo = domingo ? funcs.find((f, offset) => offset === bi % Math.max(1, funcs.length) && !domingosUsados.has(f.nome)) : null;
-        funcs.forEach((f, fi) => {
-            let folga;
-            if (pessoaDomingo && pessoaDomingo.nome === f.nome) {
-                folga = domingo;
-                domingosUsados.add(f.nome);
-            }
-            else {
-                const base = candidatos.length ? candidatos : diasBloco;
-                folga = base[(fi * 2 + bi) % base.length];
-            }
-            quadro[pad(folga)][f.nome] = "Folga";
-        });
-    });
-    return quadro;
-}
-
-function EscalaV25({ funcEsc, onSaveFuncEsc }) {
-    const [ano, setAno] = useState(hjD.getFullYear()), [mes, setMes] = useState(hjD.getMonth()), [showM, setShowM] = useState(false);
-    const doc = useFireDoc("fini_escala", keyMes(ano, mes), { quadro: {}, anotacoes: "" });
-    const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
-    const feriados = useMemo(() => feriadosNacionais25(ano), [ano]);
-    const quadro = doc.data.quadro || {};
-    const get = (dd, nome) => statusEscala25((quadro[dd] || {})[nome]);
-    const set = (dd, nome, value) => doc.update(d => ({ quadro: { ...(d.quadro || {}), [dd]: { ...((d.quadro || {})[dd] || {}), [nome]: value } } }));
-    const sugerir = () => {
-        if (doc.dirty && !confirm("Substituir a escala ainda não salva pela sugestão 6x1?")) return;
-        doc.update({ quadro: sugerirEscala25(ano, mes, funcs) });
-    };
-    const resumo = funcs.map(f => {
-        let trab = 0, folgas = 0, domingos = 0, ferTrab = 0, folgaFer = 0;
-        for (let i = 1; i <= diMes(ano, mes); i++) {
-            const dd = pad(i), st = get(dd, f.nome), iso = isoDia(ano, mes, i), dow = new Date(ano, mes, i).getDay();
-            if (st === "Trabalho") { trab++; if (dow === 0) domingos++; if (feriados[iso]) ferTrab++; }
-            else { folgas++; if (st === "Folga feriado") folgaFer++; }
-        }
-        return { nome: f.nome, trab, folgas, domingos, ferTrab, folgaFer, saldoFer: ferTrab * 2 - folgaFer };
-    });
-    const rows = Array.from({ length: diMes(ano, mes) }, (_, i) => i + 1);
-    const statusOptions = ["Trabalho", "Folga", "Folga feriado", "Atestado"];
-    return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Escala"), h25("div", { className: "hsub" }, "Regra única: 6x1 · 7h20 trabalhadas · 1h de almoço em qualquer dia.")), h25(Status, { ...doc })),
-        h25(ErrBox, { ...doc }),
-        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("div", { className: "tl" }, h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Funcionárias"), h25("button", { className: "btn ghost", onClick: sugerir }, "Sugerir 6x1"), h25("button", { className: "btn ghost", onClick: () => imprimir25("escala") }, "Imprimir tabela"), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar mês"))),
-        h25("div", { className: "clean-note", style: { marginBottom: 10 } }, "A sugestão cria uma folga por funcionária em cada semana, sem repetir domingo para a mesma pessoa no mês. Feriado trabalhado gera saldo de duas folgas."),
-        h25("div", { className: "panel table-wrap" }, h25("table", { className: "schedule-table sticky-first" },
-            h25("thead", null, h25("tr", null, h25("th", null, "Data"), funcs.map(f => h25("th", { key: f.nome }, f.nome)))),
-            h25("tbody", null, rows.map(i => { const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i), fer = feriados[iso]; return h25("tr", { key: dd, className: (fer ? "holiday-row " : "") + (dt.getDay() === 0 ? "sunday-row" : "") },
-                h25("td", null, `${dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`, fer && h25("span", { className: "holiday-name" }, fer)),
-                funcs.map(f => { const st = get(dd, f.nome); return h25("td", { key: f.nome }, h25("select", { className: `schedule-select ${st === "Trabalho" ? "work" : "off"}`, value: st, onChange: e => set(dd, f.nome, e.target.value) }, statusOptions.map(x => h25("option", { key: x }, x)))); })); })))),
-        h25("div", { className: "summary-grid" }, resumo.map(r => h25("div", { className: "summary-card", key: r.nome }, h25("strong", null, r.nome), h25("dl", null, h25("dt", null, "Dias trabalhados"), h25("dd", null, r.trab), h25("dt", null, "Folgas no mês"), h25("dd", null, r.folgas), h25("dt", null, "Domingos trabalhados"), h25("dd", null, r.domingos), h25("dt", null, "Feriados trabalhados"), h25("dd", null, r.ferTrab), h25("dt", null, "Saldo folgas de feriado"), h25("dd", { style: { color: r.saldoFer ? "var(--fini)" : "inherit" } }, r.saldoFer))))),
-        h25("div", { className: "totbar" }, h25("div", { className: "tt", style: { flex: 1 } }, h25("span", null, "Anotações do mês"), h25("textarea", { className: "inp", style: { width: "100%", minHeight: 58, marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Trocas, compensações e avisos", onChange: e => doc.update({ anotacoes: e.target.value }) }))),
-        h25("section", { className: "print-area schedule-print" }, h25("div", { className: "print-title" }, `Escala de Trabalho · ${MESES[mes]} ${ano}`), h25("div", { className: "print-subtitle" }, "FINI Petrópolis · Jornada 6x1 · 7h20 trabalhadas + 1h de almoço"), h25("table", null, h25("thead", null, h25("tr", null, h25("th", { style: { width: "24%" } }, "Data"), funcs.map(f => h25("th", { key: f.nome }, f.nome)))), h25("tbody", null, rows.map(i => { const dd = pad(i), dt = new Date(ano, mes, i), iso = isoDia(ano, mes, i), fer = feriados[iso]; return h25("tr", { key: dd, className: fer ? "holiday-print" : "" }, h25("td", null, `${dd}/${pad(mes + 1)} · ${WD[dt.getDay()]}`, fer ? ` · ${fer}` : ""), funcs.map(f => { const st = get(dd, f.nome); return h25("td", { className: st === "Trabalho" ? "" : "off-print", key: f.nome }, st === "Trabalho" ? "Trabalho · 7h20 + 1h" : st); })); })))),
-        showM && h25(ModalFuncEsc, { funcs, onSave: l => { onSaveFuncEsc(l.map(f => ({ ...f, jornada: "7:20h", regime: "6x1" }))); setShowM(false); }, onClose: () => setShowM(false) }));
-}
-
-function calcPonto25(row, tipo) {
-    const st = statusEscala25(tipo);
-    if (st !== "Trabalho") return { trab: 0, saldo: 0 };
-    const intervalo = row.saidaAlmoco && row.retornoAlmoco ? diffHora(row.saidaAlmoco, row.retornoAlmoco) : 60;
-    const trab = row.entrada && row.saida ? Math.max(0, diffHora(row.entrada, row.saida) - intervalo) : 0;
-    return { trab, saldo: trab ? trab - 440 + durToMin(row.ajuste) : 0 };
-}
-function FolhaPontoV25({ funcEsc, onSaveFuncEsc }) {
-    const [ano, setAno] = useState(hjD.getFullYear()), [mes, setMes] = useState(hjD.getMonth()), [funcNome, setFuncNome] = useState(""), [pontoId, setPontoId] = useState(""), [confirmacao, setConfirmacao] = useState(null), [msg, setMsg] = useState(""), [showM, setShowM] = useState(false);
-    const doc = useFireDoc("fini_folha_ponto", keyMes(ano, mes), { funcionarias: {}, anotacoes: "", status: "Aberto" });
-    const escala = useFireDoc("fini_escala", keyMes(ano, mes), { quadro: {} });
-    const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
-    useEffect(() => { if (!funcNome && funcs[0]) setFuncNome(funcs[0].nome); }, [funcs, funcNome]);
-    const func = funcs.find(f => f.nome === funcNome) || funcs[0] || { nome: "", id: "" };
-    const fd = (doc.data.funcionarias || {})[func.nome] || { dias: {} }, dias = fd.dias || {}, feriados = feriadosNacionais25(ano), nd = diMes(ano, mes);
-    const tipoDia = dd => { const iso = `${keyMes(ano, mes)}-${dd}`, st = statusEscala25((((escala.data.quadro || {})[dd] || {})[func.nome])); if (st !== "Trabalho") return st; return feriados[iso] ? "Feriado" : "Trabalho"; };
-    const getRow = dd => { const saved = dias[dd] || {}; return { entrada: "", saidaAlmoco: "", retornoAlmoco: "", saida: "", ajuste: "", obs: "", ...saved, tipo: saved.tipoManual ? saved.tipo : tipoDia(dd) }; };
-    const setDia = (dd, k, value) => doc.update(d => { const all = d.funcionarias || {}, atual = all[func.nome] || { dias: {} }, row = { ...((atual.dias || {})[dd] || {}), [k]: value, ...(k === "tipo" ? { tipoManual: true } : {}) }; return { funcionarias: { ...all, [func.nome]: { ...atual, dias: { ...(atual.dias || {}), [dd]: row } } } }; });
-    const setTipoDia = (dd, value) => value === "__AUTO__" ? doc.update(d => { const all = d.funcionarias || {}, atual = all[func.nome] || { dias: {} }, row = { ...((atual.dias || {})[dd] || {}), tipoManual: false }; return { funcionarias: { ...all, [func.nome]: { ...atual, dias: { ...(atual.dias || {}), [dd]: row } } } }; }) : setDia(dd, "tipo", value);
-    const prepararPonto = () => {
-        const f = funcs.find(x => String(x.id) === String(pontoId).trim());
-        if (!f) { setMsg("ID não encontrado."); return; }
-        const agora = new Date(), mesmoMes = agora.getFullYear() === ano && agora.getMonth() === mes, dd = pad(mesmoMes ? agora.getDate() : 1);
-        const row = { tipo: "Trabalho", ...((((doc.data.funcionarias || {})[f.nome] || {}).dias || {})[dd] || {}) };
-        const st = statusEscala25(((((escala.data.quadro || {})[dd] || {})[f.nome])) || row.tipo);
-        if (st !== "Trabalho") { setMsg(`${f.nome} está marcada como ${st} em ${fmtD(`${keyMes(ano, mes)}-${dd}`)}.`); return; }
-        const campo = CAMPOS_PONTO.find(c => !row[c]);
-        if (!campo) { setMsg(`${f.nome} já possui os quatro horários do dia.`); return; }
-        setConfirmacao({ f, dd, campo, hora: agoraHHMM(), row }); setMsg("");
-    };
-    const confirmarPonto = async () => {
-        const c = confirmacao; if (!c) return;
-        const all = doc.data.funcionarias || {}, atual = all[c.f.nome] || { dias: {} }, row = { ...c.row, [c.campo]: c.hora, registrosPonto: [...(c.row.registrosPonto || []), { campo: c.campo, hora: c.hora, registradoEm: new Date().toISOString(), id: c.f.id }] };
-        const next = { ...doc.data, funcionarias: { ...all, [c.f.nome]: { ...atual, dias: { ...(atual.dias || {}), [c.dd]: row } } } };
-        setConfirmacao(null); setMsg("Salvando ponto…");
-        const ok = await doc.save(next); if (ok) { setFuncNome(c.f.nome); setPontoId(""); setMsg(`${ROTULOS_PONTO[c.campo]} registrada às ${c.hora}.`); }
-    };
-    const rows = Array.from({ length: nd }, (_, i) => { const dd = pad(i + 1), row = getRow(dd), tipo = row.tipo || tipoDia(dd), calc = calcPonto25(row, tipo); return { dd, row, tipo, calc, dt: new Date(ano, mes, i + 1) }; });
-    const totalTrab = rows.reduce((s, r) => s + r.calc.trab, 0), totalSaldo = rows.reduce((s, r) => s + r.calc.saldo, 0), ferTrab = rows.filter(r => feriados[`${keyMes(ano, mes)}-${r.dd}`] && statusEscala25(r.tipo) === "Trabalho").length, folgasFer = rows.filter(r => statusEscala25(r.tipo) === "Folga feriado").length;
-    return h25(React.Fragment, null,
-        h25("div", { className: "htop" }, h25("div", null, h25("h1", null, "Folha de Ponto"), h25("div", { className: "hsub" }, "Jornada única 7h20 + 1h · horários, observações e anotações sem trava.")), h25(Status, { ...doc })),
-        h25(ErrBox, { ...doc }),
-        h25("div", { className: "toolbar" }, h25(MonthNav, { ano, mes, setAno, setMes, dirty: doc.dirty }), h25("div", { className: "tl" }, h25("div", { className: "func-chips" }, funcs.map(f => h25("button", { className: "func-chip" + (f.nome === func.nome ? " on" : ""), key: f.nome, onClick: () => setFuncNome(f.nome) }, f.nome))), h25("button", { className: "btn ghost sm", onClick: () => setShowM(true) }, "Funcionárias"), h25("button", { className: "btn ghost", onClick: () => imprimir25("ponto") }, "Imprimir folha"), h25("button", { className: "btn primary", onClick: () => doc.save(), disabled: !doc.dirty || doc.status === "load" }, "Salvar ajustes"))),
-        h25("div", { className: "toolbar" }, h25("div", { className: "field" }, h25("label", null, "ID da funcionária"), h25("input", { className: "inp", inputMode: "numeric", style: { width: 120, textAlign: "center", fontWeight: 700 }, value: pontoId, placeholder: "ID", onChange: e => setPontoId(e.target.value.replace(/\D/g, "")), onKeyDown: e => e.key === "Enter" && prepararPonto() })), h25("button", { className: "btn primary", onClick: prepararPonto }, "Registrar próximo ponto"), msg && h25("span", { className: "save-note ok" }, msg)),
-        h25("div", { className: "totbar" }, h25("div", { className: "tt" }, h25("span", null, "Horas trabalhadas"), h25("b", null, minToDur(totalTrab))), h25("div", { className: "tt" }, h25("span", null, "Saldo de horas"), h25("b", { className: corSaldo(totalSaldo) }, minToDur(totalSaldo))), h25("div", { className: "tt" }, h25("span", null, "Feriados trabalhados"), h25("b", null, ferTrab)), h25("div", { className: "tt" }, h25("span", null, "Saldo de folgas feriado"), h25("b", { className: "hl" }, ferTrab * 2 - folgasFer))),
-        h25("div", { className: "panel table-wrap" }, h25("table", { className: "point-table-v25" }, h25("thead", null, h25("tr", null, h25("th", null, "Data"), h25("th", null, "Situação"), h25("th", null, "Entrada"), h25("th", null, "Saída almoço"), h25("th", null, "Retorno"), h25("th", null, "Saída"), h25("th", null, "Trabalhadas"), h25("th", null, "Saldo"), h25("th", null, "Observação"))), h25("tbody", null, rows.map(r => h25("tr", { key: r.dd, className: feriados[`${keyMes(ano, mes)}-${r.dd}`] ? "pfer" : statusEscala25(r.tipo) !== "Trabalho" ? "pfolga" : "" },
-            h25("td", null, `${r.dd}/${pad(mes + 1)} · ${WD[r.dt.getDay()]}`),
-            h25("td", null, h25("select", { value: r.row.tipoManual ? r.tipo : "__AUTO__", onChange: e => setTipoDia(r.dd, e.target.value) }, h25("option", { value: "__AUTO__" }, `Conforme escala · ${tipoDia(r.dd)}`), ["Trabalho", "Feriado", "Folga", "Folga feriado", "Atestado"].map(x => h25("option", { key: x }, x)))),
-            CAMPOS_PONTO.map(c => h25("td", { key: c }, h25("input", { className: "time-input", inputMode: "numeric", value: r.row[c] || "", placeholder: "00:00", onChange: e => setDia(r.dd, c, e.target.value), onBlur: e => setDia(r.dd, c, normalizaHora25(e.target.value)) }))),
-            h25("td", { className: "num" }, r.calc.trab ? minToDur(r.calc.trab) : "—"), h25("td", { className: `num ${corSaldo(r.calc.saldo)}` }, r.calc.trab ? minToDur(r.calc.saldo) : "—"), h25("td", null, h25("input", { className: "pobs", value: r.row.obs || "", placeholder: "Observação", onChange: e => setDia(r.dd, "obs", e.target.value) }))))))),
-        h25("div", { className: "totbar" }, h25("div", { className: "tt", style: { flex: 1 } }, h25("span", null, "Anotações gerais"), h25("textarea", { className: "inp", style: { width: "100%", minHeight: 58, marginTop: 4 }, value: doc.data.anotacoes || "", placeholder: "Justificativas e acordos do mês", onChange: e => doc.update({ anotacoes: e.target.value }) }))),
-        h25("section", { className: "print-area point-print" }, h25("div", { className: "print-title" }, `Folha de Ponto · ${func.nome}`), h25("div", { className: "print-subtitle" }, `FINI Petrópolis · ${MESES[mes]} ${ano} · Jornada 6x1 · 7h20 + 1h de almoço`), h25("table", null, h25("thead", null, h25("tr", null, ["Data", "Situação", "Entrada", "Almoço", "Retorno", "Saída", "Trab.", "Saldo", "Observação"].map(x => h25("th", { key: x }, x)))), h25("tbody", null, rows.map(r => h25("tr", { key: r.dd }, h25("td", null, `${r.dd}/${pad(mes + 1)} ${WD[r.dt.getDay()]}`), h25("td", null, r.tipo), h25("td", null, r.row.entrada || ""), h25("td", null, r.row.saidaAlmoco || ""), h25("td", null, r.row.retornoAlmoco || ""), h25("td", null, r.row.saida || ""), h25("td", null, r.calc.trab ? minToDur(r.calc.trab) : ""), h25("td", null, r.calc.trab ? minToDur(r.calc.saldo) : ""), h25("td", null, r.row.obs || ""))))), h25("div", { className: "signature-box" }, h25("div", { className: "signature-line" }, `Assinatura · ${func.nome}`), h25("div", { className: "signature-line" }, "Responsável pela conferência"))),
-        confirmacao && h25("div", { className: "ov confirm-modal" }, h25("div", { className: "mbox" }, h25("h2", null, "Confirmar horário"), h25("div", { className: "confirm-time" }, confirmacao.hora), h25("div", { className: "confirm-grid" }, h25("div", null, h25("span", null, "Funcionária"), confirmacao.f.nome), h25("div", null, h25("span", null, "Registro"), ROTULOS_PONTO[confirmacao.campo]), h25("div", null, h25("span", null, "Data"), fmtD(`${keyMes(ano, mes)}-${confirmacao.dd}`)), h25("div", null, h25("span", null, "Próximo passo"), "Gravar no Firebase")), h25("div", { className: "ma" }, h25("button", { className: "btn ghost", onClick: () => setConfirmacao(null) }, "Cancelar"), h25("button", { className: "btn primary", onClick: confirmarPonto }, "Confirmar registro")))),
-        showM && h25(ModalFuncEsc, { funcs, onSave: l => { onSaveFuncEsc(l.map(f => ({ ...f, jornada: "7:20h", regime: "6x1" }))); setShowM(false); }, onClose: () => setShowM(false) }));
-}
-
 function ModalCampanhaItens({ campanha, funcs, produtos, onSave, onClose }) {
     const edicao = Boolean(campanha && campanha.id);
     const dataFimPadrao = (() => { const d = new Date(); d.setDate(d.getDate() + 7); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; })();
@@ -3752,14 +3373,36 @@ async function enviarPedidoComExtensao(itens) {
     await mensagemExtensaoCatalogo("PING", 1800);
     return mensagemExtensaoCatalogo("ENVIAR_PEDIDO", 180000, { itens });
 }
+function idImagemCatalogo(produto) {
+    const m = String(produto?.imagem || "").match(/ComercialProduto\/(\d+)\//);
+    return m ? m[1] : null;
+}
+// A leitura do portal às vezes troca os cartões: o código fica certo, mas nome/preço/foto vêm de outro produto
+// (em 23/11/2026 isso deixou 30 produtos errados). A foto traz o código do produto no endereço; se não bate, a linha é descartada.
+function leituraCatalogoSuspeita(novo) {
+    const idFoto = idImagemCatalogo(novo);
+    return Boolean(idFoto && idFoto !== String(novo.id));
+}
+function formatarAtualizadoCatalogo(v) {
+    if (!v) return "—";
+    if (/^\d{4}-\d{2}-\d{2}T/.test(String(v))) { const d = new Date(v); if (!isNaN(d)) return d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }); }
+    return String(v);
+}
 function mesclarCatalogoManual(produtosAtuais, importados) {
     const verificadoEm = new Date().toISOString();
     const resultado = produtosAtuais.map(p => ({ ...p, disponivelCompra: false, verificadoEm }));
     const indicePorId = new Map(resultado.map((p, i) => [String(p.id), i]));
     let novos = 0, alterados = 0;
+    const suspeitos = [];
     importados.forEach(novo => {
-        const normalizado = { ...novo, disponivelCompra: novo.disponivelCompra !== false, verificadoEm };
         const indice = indicePorId.get(String(novo.id));
+        if (leituraCatalogoSuspeita(novo)) {
+            suspeitos.push(String(novo.id));
+            // Mantém o que já estava gravado; só registra que o produto continua no portal.
+            if (indice !== undefined) resultado[indice] = { ...produtosAtuais[indice], verificadoEm, revisar: "A última leitura do portal veio misturada com outro produto; dados anteriores mantidos." };
+            return;
+        }
+        const normalizado = { ...novo, disponivelCompra: novo.disponivelCompra !== false, verificadoEm };
         if (indice === undefined) {
             resultado.push(normalizado);
             indicePorId.set(String(novo.id), resultado.length - 1);
@@ -3768,11 +3411,12 @@ function mesclarCatalogoManual(produtosAtuais, importados) {
         }
         const anterior = resultado[indice];
         const atualizado = { ...anterior, ...normalizado, referencia: novo.referencia || anterior.referencia || "", imagem: novo.imagem || anterior.imagem || "", multiplo: novo.multiplo || anterior.multiplo || "" };
+        delete atualizado.revisar;
         const campos = ["nome", "categoria", "referencia", "preco", "imagem", "multiplo", "disponivelCompra"];
-        if (campos.some(c => String(anterior[c] ?? "") !== String(atualizado[c] ?? ""))) alterados++;
+        if (campos.some(c => String(produtosAtuais[indice][c] ?? "") !== String(atualizado[c] ?? ""))) alterados++;
         resultado[indice] = atualizado;
     });
-    return { produtos: resultado, novos, alterados, indisponiveis: resultado.filter(p => p.disponivelCompra === false).length };
+    return { produtos: resultado, novos, alterados, suspeitos, indisponiveis: resultado.filter(p => p.disponivelCompra === false).length };
 }
 
 function precoPedidoCatalogo(produto) {
@@ -3796,7 +3440,7 @@ function CatalogoComprasV51({ itens, balas }) {
     const termo = normaliza(busca.trim());
     const categorias = [...new Set(produtos.map(p => p.categoria || "Sem categoria"))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     const exibidos = produtos.filter(p => (categoria === "todas" || p.categoria === categoria) && (!termo || normaliza(`${p.nome} ${p.referencia} ${p.categoria}`).includes(termo))).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-    const atualizadoEm = catalogo.data.atualizadoEm || CATALOGO_COMPRAS_ATUALIZADO_EM;
+    const atualizadoEm = formatarAtualizadoCatalogo(catalogo.data.atualizacao?.data || catalogo.data.atualizadoEm || CATALOGO_COMPRAS_ATUALIZADO_EM);
     const selecionadosPedido = produtos.map(p => ({ produto: p, quantidade: quantidadePedidoCatalogo(p, quantidadesPedido[p.id]) })).filter(x => x.quantidade > 0);
     const disponiveisPedido = selecionadosPedido.filter(x => x.produto.disponivelCompra !== false);
     const indisponiveisPedido = selecionadosPedido.filter(x => x.produto.disponivelCompra === false);
@@ -3866,12 +3510,14 @@ function CatalogoComprasV51({ itens, balas }) {
             const minimoSeguro = Math.max(20, Math.floor(produtos.length * .45));
             if (importados.length < minimoSeguro) throw Object.assign(new Error(`A leitura encontrou somente ${importados.length} produto(s). Para proteger o catálogo, nada foi alterado. Abra a lista completa no portal e tente novamente.`), { codigo: "LEITURA_INCOMPLETA" });
             const mesclado = mesclarCatalogoManual(produtos, importados);
-            const iguais = Math.max(0, importados.length - mesclado.novos - mesclado.alterados);
+            const validos = importados.length - mesclado.suspeitos.length;
+            if (validos < minimoSeguro) throw Object.assign(new Error(`A leitura veio misturada: ${mesclado.suspeitos.length} produto(s) com nome/preço/foto de outro. Para proteger o catálogo, nada foi alterado. Role a lista do portal até o fim, devagar, e tente novamente.`), { codigo: "LEITURA_MISTURADA" });
+            const iguais = Math.max(0, validos - mesclado.novos - mesclado.alterados);
             await salvarDocumentoSeguro("fini_backups_catalogo", `atualizacao_portal_${Date.now()}`, { anterior: copiaSegura(catalogo.data), importados: copiaSegura(importados), versao: FINI_BUILD }, "BACKUP_CATALOGO_PORTAL");
             const agora = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-            const ok = await catalogo.save({ ...catalogo.data, produtos: mesclado.produtos, atualizadoEm: agora, atualizacao: { tipo: "portal_extensao", produtosLidos: importados.length, alterados: mesclado.alterados, novos: mesclado.novos, semMudanca: iguais, data: new Date().toISOString(), versaoExtensao: resposta.versaoExtensao || "" } });
+            const ok = await catalogo.save({ ...catalogo.data, produtos: mesclado.produtos, atualizadoEm: agora, atualizacao: { tipo: "portal_extensao", produtosLidos: importados.length, descartados: mesclado.suspeitos.length, alterados: mesclado.alterados, novos: mesclado.novos, semMudanca: iguais, data: new Date().toISOString(), versaoExtensao: resposta.versaoExtensao || "" } });
             if (!ok) throw new Error("Não foi possível gravar os dados.");
-            alert(`Catálogo atualizado automaticamente.\n\n${importados.length} produto(s) lido(s)\n${mesclado.alterados} alterado(s)\n${mesclado.novos} novo(s)\n${mesclado.indisponiveis} indisponível(is) para compra\n${iguais} sem mudança`);
+            alert(`Catálogo atualizado automaticamente.\n\n${importados.length} produto(s) lido(s)\n${mesclado.alterados} alterado(s)\n${mesclado.novos} novo(s)\n${mesclado.indisponiveis} indisponível(is) para compra\n${iguais} sem mudança${mesclado.suspeitos.length ? `\n\n${mesclado.suspeitos.length} produto(s) vieram misturados com outro e foram ignorados (dados anteriores mantidos).` : ""}`);
         }
         catch (e) {
             console.error("Erro na atualização automática do catálogo", e);
@@ -3902,7 +3548,7 @@ function CatalogoComprasV51({ itens, balas }) {
                 h25("div", { className: "tl" }, h25("button", { className: "btn ghost", type: "button", onClick: limparPedido }, "Limpar pedido"), h25("button", { className: "btn primary", type: "button", disabled: enviandoPedido || !disponiveisPedido.length, onClick: enviarPedidoPortal }, enviandoPedido ? "Montando carrinho…" : "Enviar ao carrinho FINI"))),
             exibidos.length ? h25("div", { className: "catalog-grid" }, exibidos.map(p => { const disponivel = p.disponivelCompra !== false, multiplo = Math.max(1, Math.round(num(p.multiplo) || 1)); return h25("article", { className: `catalog-card${disponivel ? "" : " unavailable"}`, key: p.id },
                 h25("div", { className: `catalog-photo${p.imagem ? "" : " empty"}` }, p.imagem && h25("img", { src: p.imagem, alt: p.nome, loading: "lazy", onError: e => e.currentTarget.parentElement.classList.add("missing") })),
-                h25("div", { className: "catalog-body" }, h25("span", { className: "catalog-category", title: p.categoria }, p.categoria || "Sem categoria"), h25("span", { className: `catalog-availability${disponivel ? "" : " no"}` }, disponivel ? "Disponível" : "Indisponível no portal"), h25("div", { className: "catalog-name" }, p.nome), h25("div", { className: "catalog-ref" }, `Ref. ${p.referencia || "—"}`), h25("div", { className: "catalog-buy" }, h25("div", { className: "catalog-price" }, h25("span", null, "Valor de compra"), h25("strong", null, brl(p.preco))), p.multiplo && h25("div", { className: "catalog-multiple" }, `Múltiplo de ${Number(p.multiplo).toLocaleString("pt-BR")}`)),
+                h25("div", { className: "catalog-body" }, h25("span", { className: "catalog-category", title: p.categoria }, p.categoria || "Sem categoria"), h25("span", { className: `catalog-availability${disponivel ? "" : " no"}` }, disponivel ? "Disponível" : "Indisponível no portal"), p.revisar && h25("span", { className: "catalog-review", title: p.revisar }, "Conferir no portal"), h25("div", { className: "catalog-name" }, p.nome), h25("div", { className: "catalog-ref" }, `Ref. ${p.referencia || "—"}`), h25("div", { className: "catalog-buy" }, h25("div", { className: "catalog-price" }, h25("span", null, "Valor de compra"), h25("strong", null, brl(p.preco)), precoPedidoCatalogo(p) !== num(p.preco) && h25("div", { className: "catalog-unit" }, `Pedido calculado a ${brl(precoPedidoCatalogo(p))}/un.`)), p.multiplo && h25("div", { className: "catalog-multiple" }, `Múltiplo de ${Number(p.multiplo).toLocaleString("pt-BR")}`)),
                     h25("div", { className: "catalog-order" }, h25("label", { htmlFor: `pedido-produto-${p.id}` }, disponivel ? "Quantidade para pedir" : "Compra indisponível", disponivel && h25("small", null, multiplo > 1 ? `Múltiplos de ${multiplo.toLocaleString("pt-BR")}` : "Unidade do portal")), h25("input", { id: `pedido-produto-${p.id}`, className: "inp", type: "number", inputMode: "numeric", min: "0", step: String(multiplo), disabled: !disponivel, value: quantidadesPedido[p.id] || "", placeholder: "0", "aria-label": `Quantidade de ${p.nome} para o pedido`, onChange: e => atualizarQuantidadePedido(p, e.target.value, false), onBlur: e => atualizarQuantidadePedido(p, e.target.value, true) })),
                     h25("a", { className: "catalog-link", href: `https://fini.sults.com.br/comercial/compras/produto/${encodeURIComponent(p.id)}`, target: "_blank", rel: "noopener noreferrer" }, "Ver produto no portal"))); })) : h25("div", { className: "meta-empty" }, h25("strong", null, "Nenhum produto encontrado"), "Revise a pesquisa ou selecione outra categoria.")),
         modo === "vinculos" && h25(VinculosCompraV38, { itens, balas, produtos, vinculosDoc }),
@@ -3998,3 +3644,4 @@ catch (e) {
 </body>
 </html>
 <!-- Versao V56 2026-11-15: polimento visual - numeros na fonte do sistema, seletores da escala legiveis, cabecalho TC (qtd.) -->
+<!-- Versao V57 2026-11-23: catalogo protegido contra leitura misturada do portal; contagens mantem os numeros apos salvar; layout das contagens e do catalogo no celular; ~420 linhas de codigo antigo removidas -->
