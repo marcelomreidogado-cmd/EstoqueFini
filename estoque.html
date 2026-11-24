@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V57</title>
+<title>FINI Petrópolis · Gestão V58</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -279,7 +279,6 @@ body{font-variant-numeric:tabular-nums}
 .bala-resumo{display:none}
 .catalog-photo{height:130px}
 .catalog-review{align-self:flex-start;border-radius:999px;padding:4px 8px;background:#fff4e8;color:#a34e22;font-size:8.5px;font-weight:800;text-transform:uppercase}
-.catalog-unit{font-size:9.5px;color:var(--ink-soft);margin-top:2px}
 @media(max-width:820px){
   .bala-count-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 8px;padding:9px 11px}
   .bala-count-row .bala-cell.auto{display:none}
@@ -289,6 +288,9 @@ body{font-variant-numeric:tabular-nums}
   .item-count-note{min-height:34px}
 }
 @media(max-width:430px){
+  .link-overview{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .link-overview>div{padding:8px 10px}
+  .link-overview strong{font-size:18px}
   .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .catalog-photo{height:96px;padding:6px}
   .catalog-body{padding:9px;gap:5px}
@@ -314,9 +316,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "23/11/2026 - V57_CONTAGEM_CATALOGO";
+const FINI_BUILD = "23/11/2026 - V58_EXTENSAO_V2";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "23/11/2026 · V57_CONTAGEM_CATALOGO";
+const APP_VERSION = "23/11/2026 · V58_EXTENSAO_V2";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -3201,6 +3203,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
     const chavesAtuais = useMemo(() => new Set(contagens.map(c => c.key)), [contagens]);
     const sugestoes = useMemo(() => Object.fromEntries(contagens.map(c => [c.key, sugerirProdutoVinculo(c, produtos)])), [contagens, produtos]);
     const pendentes = contagens.filter(c => !vinculos[c.key]), confirmados = contagens.filter(c => !!vinculos[c.key]);
+    const semCompra = confirmados.filter(c => { const v = vinculos[c.key]; if (v.origem === "manual") return false; const p = produtos.find(x => String(x.id) === String(v.catalogoId)); return !p || p.disponivelCompra === false; });
     const baseEdicao = c => {
         const salvo = vinculos[c.key], sugestao = sugestoes[c.key], produto = salvo && salvo.origem !== "manual" ? catalogoOpcoes.find(p => String(p.id) === String(salvo.catalogoId)) : sugestao ? catalogoOpcoes.find(p => String(p.id) === String(sugestao.produto.id)) : null;
         return {
@@ -3248,7 +3251,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
         setMensagens(m => ({ ...m, [c.key]: "" }));
     };
     const normalizarBusca = v => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const origem = filtro === "confirmados" ? confirmados : filtro === "todos" ? contagens : pendentes;
+    const origem = filtro === "confirmados" ? confirmados : filtro === "semcompra" ? semCompra : filtro === "todos" ? contagens : pendentes;
     const termo = normalizarBusca(buscaNome.trim());
     const visiveis = origem.filter(c => !termo || normalizarBusca(`${c.nome} ${c.categoria} ${c.tipo}`).includes(termo)).sort((a, b) => a.tipo.localeCompare(b.tipo) || a.categoria.localeCompare(b.categoria, "pt-BR") || a.nome.localeCompare(b.nome, "pt-BR"));
     const sugestoesPendentes = pendentes.filter(c => sugestoes[c.key]).length;
@@ -3262,6 +3265,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
             h25("div", { className: "link-tabs", role: "group", "aria-label": "Situação dos vínculos" },
                 h25("button", { className: filtro === "pendentes" ? "on" : "", onClick: () => setFiltro("pendentes") }, `Pendentes (${pendentes.length})`),
                 h25("button", { className: filtro === "confirmados" ? "on" : "", onClick: () => setFiltro("confirmados") }, `Confirmados (${confirmados.length})`),
+                h25("button", { className: filtro === "semcompra" ? "on" : "", title: "Vinculados a um produto que o portal não está vendendo agora", onClick: () => setFiltro("semcompra") }, `Sem compra no portal (${semCompra.length})`),
                 h25("button", { className: filtro === "todos" ? "on" : "", onClick: () => setFiltro("todos") }, "Todos")),
             h25("div", { className: "field search" }, h25("label", { htmlFor: "busca-nome-vinculo" }, "Pesquisar nome da contagem"), h25("input", { id: "busca-nome-vinculo", className: "inp", value: buscaNome, placeholder: "Nome ou categoria", onChange: e => setBuscaNome(e.target.value) })),
             h25("span", { className: "clean-note" }, `${visiveis.length} nome(s) exibido(s)`), h25(Status, { ...vinculosDoc })),
@@ -3279,7 +3283,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
                             h25(CampoMoeda25, { className: "inp num", value: edicao.precoManual, placeholder: "R$ 0,00", ariaLabel: `Valor de compra manual para ${c.nome}`, onChange: valor => atualizarEdicao(c, { precoManual: valor }) })) :
                             h25("input", { className: "inp link-product-search", list: "lista-produtos-vinculo-v38", value: edicao.catalogoTexto, placeholder: "Pesquisar nome ou referência", "aria-label": `Produto do catálogo para ${c.nome}`, onChange: e => escolherProduto(c, e.target.value) }),
                         h25("div", { className: "link-product-note" },
-                            salvo ? h25("span", { className: "link-confirmed" }, edicao.manual ? "Custo manual" : "Confirmado") : eSugestao ? h25("span", { className: `link-suggestion${sugestao.confianca === "alta" ? " high" : ""}` }, `Sugestão · ${sugestao.confianca}`) : produto ? h25("span", { className: "link-suggestion" }, "Escolha manual") : !edicao.manual && h25("span", null, sugestao ? "Apague o texto para pesquisar outra opção." : "Sem sugestão segura; pesquise manualmente."),
+                            salvo ? h25("span", { className: "link-confirmed" }, edicao.manual ? "Custo manual" : produto && produto.disponivelCompra === false ? "Confirmado · sem compra no portal agora" : "Confirmado") : eSugestao ? h25("span", { className: `link-suggestion${sugestao.confianca === "alta" ? " high" : ""}` }, `Sugestão · ${sugestao.confianca}`) : produto ? h25("span", { className: "link-suggestion" }, "Escolha manual") : !edicao.manual && h25("span", null, sugestao ? "Apague o texto para pesquisar outra opção." : "Sem sugestão segura; pesquise manualmente."),
                             edicao.manual && h25("span", null, c.tipo === "bala" ? "Informe o custo de cada pacote/pote." : "Informe o custo por unidade."),
                             produto && !edicao.manual && h25("span", null, c.tipo === "item" ? `${brl(dadosUnitariosCompra(produto).precoUnitario)} por unidade · Ref. ${produto.referencia || "—"}` : `${brl(produto.preco)} por pacote/pote · Ref. ${produto.referencia || "—"}`),
                             h25("button", { type: "button", className: "link-manual-toggle", onClick: () => alternarManual(c) }, edicao.manual ? "Usar produto do portal" : "Produto externo / custo manual"))),
@@ -3290,7 +3294,7 @@ function VinculosCompraV38({ itens, balas, produtos, vinculosDoc }) {
                         salvo && h25("button", { className: "btn ghost sm", onClick: () => remover(c) }, "Desvincular"),
                         mensagens[c.key] && h25("span", { className: "link-row-message" }, mensagens[c.key])));
             }),
-                !visiveis.length && h25("tr", null, h25("td", { colSpan: 6, style: { textAlign: "center", padding: 24 } }, filtro === "pendentes" ? "Todos os nomes foram vinculados." : "Nenhum nome encontrado neste filtro."))))));
+                !visiveis.length && h25("tr", null, h25("td", { colSpan: 6, style: { textAlign: "center", padding: 24 } }, filtro === "pendentes" ? "Todos os nomes foram vinculados." : filtro === "semcompra" ? "Todos os vínculos apontam para produtos à venda no portal." : "Nenhum nome encontrado neste filtro."))))));
 }
 
 function SugestaoCompraV37({ itens, balas, produtos, vinculosDoc }) {
@@ -3388,6 +3392,11 @@ function formatarAtualizadoCatalogo(v) {
     if (/^\d{4}-\d{2}-\d{2}T/.test(String(v))) { const d = new Date(v); if (!isNaN(d)) return d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }); }
     return String(v);
 }
+// A extensão 1.x lia o portal rolando a página e misturava produtos. Só a 2.x (lê tudo de uma vez e confere cada cartão) é aceita.
+function exigirExtensaoNova(resposta) {
+    const major = Number(String(resposta?.versaoExtensao || "0").split(".")[0]);
+    if (!(major >= 2)) throw Object.assign(new Error("A extensão instalada no Chrome é a versão antiga (1.x), que misturava produtos. Instale a versão 2 (pasta extensao-catalogo-fini) e tente de novo."), { codigo: "EXTENSAO_ANTIGA" });
+}
 function mesclarCatalogoManual(produtosAtuais, importados) {
     const verificadoEm = new Date().toISOString();
     const resultado = produtosAtuais.map(p => ({ ...p, disponivelCompra: false, verificadoEm }));
@@ -3410,7 +3419,7 @@ function mesclarCatalogoManual(produtosAtuais, importados) {
             return;
         }
         const anterior = resultado[indice];
-        const atualizado = { ...anterior, ...normalizado, referencia: novo.referencia || anterior.referencia || "", imagem: novo.imagem || anterior.imagem || "", multiplo: novo.multiplo || anterior.multiplo || "" };
+        const atualizado = { ...anterior, ...normalizado, referencia: novo.referencia || anterior.referencia || "", imagem: novo.imagem || anterior.imagem || "", multiplo: novo.multiplo !== undefined ? String(novo.multiplo || "") : (anterior.multiplo || "") };
         delete atualizado.revisar;
         const campos = ["nome", "categoria", "referencia", "preco", "imagem", "multiplo", "disponivelCompra"];
         if (campos.some(c => String(produtosAtuais[indice][c] ?? "") !== String(atualizado[c] ?? ""))) alterados++;
@@ -3420,8 +3429,9 @@ function mesclarCatalogoManual(produtosAtuais, importados) {
 }
 
 function precoPedidoCatalogo(produto) {
-    const nome = String(produto?.nome || "");
-    return /valor\s+unit[aá]rio\s+R\$/i.test(nome) ? dadosUnitariosCompra(produto).precoUnitario : num(produto?.preco);
+    // A quantidade do pedido é na unidade do portal (ex.: "BOLA COLECIONAVEL ... caixa com múltiplo de 30" custa R$ 360 por caixa
+    // e o portal conta caixas). Por isso o pedido usa o preço do portal, sem converter para unidade.
+    return num(produto?.preco);
 }
 function quantidadePedidoCatalogo(produto, valor) {
     const quantidade = Math.max(0, Math.floor(num(valor)));
@@ -3464,7 +3474,7 @@ function CatalogoComprasV51({ itens, balas }) {
         const ajuste = disponiveisPedido.some(x => Number(quantidadesPedido[x.produto.id]) !== x.quantidade);
         const avisoIndisponiveis = indisponiveisPedido.length ? `\n\n${indisponiveisPedido.length} produto(s) indisponível(is) não serão enviados.` : "";
         const avisoMultiplo = ajuste ? "\nAs quantidades serão arredondadas para o múltiplo aceito pelo portal." : "";
-        if (!confirm(`Adicionar ${disponiveisPedido.length} produto(s) ao carrinho do portal FINI?\n\nUnidade obrigatória: 70270F | Pátio Petrópolis Shopping\nValor estimado: ${brl(valorPedido)}${avisoMultiplo}${avisoIndisponiveis}\n\nO pedido NÃO será finalizado. Revise o carrinho no portal antes de continuar.`)) return;
+        if (!confirm(`Adicionar ${disponiveisPedido.length} produto(s) ao carrinho do portal FINI?\n\nUnidade obrigatória: 70270F | Pátio Petrópolis Shopping\nValor estimado: ${brl(valorPedido)}${avisoMultiplo}${avisoIndisponiveis}\n\nSe o produto já estiver no carrinho, a quantidade de lá é trocada pela daqui.\nO pedido NÃO será finalizado. Revise o carrinho no portal antes de continuar.`)) return;
         setEnviandoPedido(true);
         try {
             const itensPortal = disponiveisPedido.map(x => ({
@@ -3475,6 +3485,7 @@ function CatalogoComprasV51({ itens, balas }) {
                 paginaPortal: Math.max(0, Math.round(num(x.produto.paginaPortal) || 0))
             }));
             const resposta = await enviarPedidoComExtensao(itensPortal);
+            exigirExtensaoNova(resposta);
             const adicionados = Array.isArray(resposta.adicionados) ? resposta.adicionados : [];
             const idsAdicionados = new Set(adicionados.map(x => String(x.id ?? x)));
             if (idsAdicionados.size) pedidoDoc.update(d => {
@@ -3485,8 +3496,9 @@ function CatalogoComprasV51({ itens, balas }) {
             const indisponiveis = Array.isArray(resposta.indisponiveis) ? resposta.indisponiveis : [];
             const falhas = [...(Array.isArray(resposta.falhas) ? resposta.falhas : []), ...(Array.isArray(resposta.naoEncontrados) ? resposta.naoEncontrados : [])];
             const partes = [`${adicionados.length} produto(s) adicionado(s) ao carrinho.`];
-            if (indisponiveis.length) partes.push(`${indisponiveis.length} indisponível(is) no portal.`);
-            if (falhas.length) partes.push(`${falhas.length} não pôde/puderam ser incluído(s); as quantidades permaneceram no sistema para correção.`);
+            const nomeDe = x => x?.nome || (produtos.find(p => String(p.id) === String(x?.id ?? x))?.nome) || `código ${x?.id ?? x}`;
+            if (indisponiveis.length) partes.push(`${indisponiveis.length} indisponível(is) no portal: ${indisponiveis.map(nomeDe).join(", ")}.`);
+            if (falhas.length) partes.push(`${falhas.length} não entrou/entraram no carrinho (as quantidades ficaram no sistema): ${falhas.map(x => `${nomeDe(x)}${x?.motivo ? ` (${x.motivo})` : ""}`).join("; ")}.`);
             partes.push(adicionados.length ? "O carrinho do portal foi aberto para sua conferência. O pedido ainda não foi finalizado." : "Nenhum produto foi adicionado. Revise as quantidades e a disponibilidade.");
             alert(partes.join("\n\n"));
         }
@@ -3506,8 +3518,11 @@ function CatalogoComprasV51({ itens, balas }) {
         setAtualizandoCatalogo(true);
         try {
             const resposta = await buscarCatalogoComExtensao();
+            exigirExtensaoNova(resposta);
+            const totalPortal = Number(resposta.totalPortal || 0);
             const importados = Array.isArray(resposta.produtos) ? resposta.produtos.filter(p => /^\d+$/.test(String(p.id || "")) && String(p.nome || "").trim().length >= 3 && num(p.preco) > 0) : [];
             const minimoSeguro = Math.max(20, Math.floor(produtos.length * .45));
+            if (totalPortal && importados.length < totalPortal) throw Object.assign(new Error(`O portal tem ${totalPortal} produtos, mas a leitura trouxe ${importados.length}. Para proteger o catálogo, nada foi alterado. Tente de novo.`), { codigo: "LEITURA_INCOMPLETA" });
             if (importados.length < minimoSeguro) throw Object.assign(new Error(`A leitura encontrou somente ${importados.length} produto(s). Para proteger o catálogo, nada foi alterado. Abra a lista completa no portal e tente novamente.`), { codigo: "LEITURA_INCOMPLETA" });
             const mesclado = mesclarCatalogoManual(produtos, importados);
             const validos = importados.length - mesclado.suspeitos.length;
@@ -3524,6 +3539,7 @@ function CatalogoComprasV51({ itens, balas }) {
             if (e?.codigo === "EXTENSAO_NAO_INSTALADA") alert("A extensão Atualizador do Catálogo FINI não está instalada ou está desativada neste computador. Instale a extensão uma única vez no Chrome e tente novamente.");
             else if (e?.codigo === "PORTAL_NAO_ABERTO") alert("Abra o módulo de pedidos da FINI, faça login e depois clique novamente em Atualizar catálogo.");
             else if (e?.codigo === "PORTAL_SEM_LOGIN") alert("A sessão do portal FINI não está autenticada. Faça login no portal e tente novamente.");
+            else if (e?.codigo === "EXTENSAO_ANTIGA") alert(e.message);
             else if (e?.codigo === "UNIDADE_INCORRETA" || e?.codigo === "UNIDADE_NAO_IDENTIFICADA") alert(e.message);
             else alert(`Não foi possível atualizar o catálogo. ${e?.message || "Verifique se o portal está aberto e tente novamente."}`);
         }
@@ -3548,7 +3564,7 @@ function CatalogoComprasV51({ itens, balas }) {
                 h25("div", { className: "tl" }, h25("button", { className: "btn ghost", type: "button", onClick: limparPedido }, "Limpar pedido"), h25("button", { className: "btn primary", type: "button", disabled: enviandoPedido || !disponiveisPedido.length, onClick: enviarPedidoPortal }, enviandoPedido ? "Montando carrinho…" : "Enviar ao carrinho FINI"))),
             exibidos.length ? h25("div", { className: "catalog-grid" }, exibidos.map(p => { const disponivel = p.disponivelCompra !== false, multiplo = Math.max(1, Math.round(num(p.multiplo) || 1)); return h25("article", { className: `catalog-card${disponivel ? "" : " unavailable"}`, key: p.id },
                 h25("div", { className: `catalog-photo${p.imagem ? "" : " empty"}` }, p.imagem && h25("img", { src: p.imagem, alt: p.nome, loading: "lazy", onError: e => e.currentTarget.parentElement.classList.add("missing") })),
-                h25("div", { className: "catalog-body" }, h25("span", { className: "catalog-category", title: p.categoria }, p.categoria || "Sem categoria"), h25("span", { className: `catalog-availability${disponivel ? "" : " no"}` }, disponivel ? "Disponível" : "Indisponível no portal"), p.revisar && h25("span", { className: "catalog-review", title: p.revisar }, "Conferir no portal"), h25("div", { className: "catalog-name" }, p.nome), h25("div", { className: "catalog-ref" }, `Ref. ${p.referencia || "—"}`), h25("div", { className: "catalog-buy" }, h25("div", { className: "catalog-price" }, h25("span", null, "Valor de compra"), h25("strong", null, brl(p.preco)), precoPedidoCatalogo(p) !== num(p.preco) && h25("div", { className: "catalog-unit" }, `Pedido calculado a ${brl(precoPedidoCatalogo(p))}/un.`)), p.multiplo && h25("div", { className: "catalog-multiple" }, `Múltiplo de ${Number(p.multiplo).toLocaleString("pt-BR")}`)),
+                h25("div", { className: "catalog-body" }, h25("span", { className: "catalog-category", title: p.categoria }, p.categoria || "Sem categoria"), h25("span", { className: `catalog-availability${disponivel ? "" : " no"}` }, disponivel ? "Disponível" : "Indisponível no portal"), p.revisar && h25("span", { className: "catalog-review", title: p.revisar }, "Conferir no portal"), h25("div", { className: "catalog-name" }, p.nome), h25("div", { className: "catalog-ref" }, `Ref. ${p.referencia || "—"}`), h25("div", { className: "catalog-buy" }, h25("div", { className: "catalog-price" }, h25("span", null, "Valor de compra"), h25("strong", null, brl(p.preco))), p.multiplo && h25("div", { className: "catalog-multiple" }, `Múltiplo de ${Number(p.multiplo).toLocaleString("pt-BR")}`)),
                     h25("div", { className: "catalog-order" }, h25("label", { htmlFor: `pedido-produto-${p.id}` }, disponivel ? "Quantidade para pedir" : "Compra indisponível", disponivel && h25("small", null, multiplo > 1 ? `Múltiplos de ${multiplo.toLocaleString("pt-BR")}` : "Unidade do portal")), h25("input", { id: `pedido-produto-${p.id}`, className: "inp", type: "number", inputMode: "numeric", min: "0", step: String(multiplo), disabled: !disponivel, value: quantidadesPedido[p.id] || "", placeholder: "0", "aria-label": `Quantidade de ${p.nome} para o pedido`, onChange: e => atualizarQuantidadePedido(p, e.target.value, false), onBlur: e => atualizarQuantidadePedido(p, e.target.value, true) })),
                     h25("a", { className: "catalog-link", href: `https://fini.sults.com.br/comercial/compras/produto/${encodeURIComponent(p.id)}`, target: "_blank", rel: "noopener noreferrer" }, "Ver produto no portal"))); })) : h25("div", { className: "meta-empty" }, h25("strong", null, "Nenhum produto encontrado"), "Revise a pesquisa ou selecione outra categoria.")),
         modo === "vinculos" && h25(VinculosCompraV38, { itens, balas, produtos, vinculosDoc }),
@@ -3645,3 +3661,4 @@ catch (e) {
 </html>
 <!-- Versao V56 2026-11-15: polimento visual - numeros na fonte do sistema, seletores da escala legiveis, cabecalho TC (qtd.) -->
 <!-- Versao V57 2026-11-23: catalogo protegido contra leitura misturada do portal; contagens mantem os numeros apos salvar; layout das contagens e do catalogo no celular; ~420 linhas de codigo antigo removidas -->
+<!-- Versao V58 2026-11-23: exige extensao 2.x (leitura completa do portal, conferida por cartao); pedido no preco/unidade do portal; filtro de vinculos sem compra no portal -->

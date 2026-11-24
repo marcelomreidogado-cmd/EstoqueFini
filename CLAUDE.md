@@ -12,6 +12,7 @@ Gestão do quiosque FINI Pátio Petrópolis (franquia de balas): estoque, balas 
 - Acesso por PIN dentro do app (não usa Firebase Auth).
 
 ## Integrações
+- **Extensão do Chrome** `extensao-catalogo-fini/` (v2, desde 23/11/2026): lê o catálogo do portal SULTS (`fini.sults.com.br`) e monta o carrinho. Lê tudo de uma vez (`PF('mainDatagridWVar').paginator.setRowsPerPage`), confere o código do cartão (`#input-<id>-jsf`) contra o da foto e devolve `totalPortal`; o carrinho usa `changeQnt<id>RmtCmd()` (DEFINE a quantidade, não soma). O app recusa extensão 1.x e leitura com menos itens que `totalPortal`. Instalação: `extensao-catalogo-fini/LEIA-ME.md`.
 - `fini_vendas_diarias/{AAAA-MM}` → `dias.DD.{vendas,tc}` é lido pelo **Contas a Pagar Fini** (repo `contasapagar-fini`) para preencher vendas diárias. Não mudar esse formato sem ajustar lá também.
 
 ## Fluxo de trabalho

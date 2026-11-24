@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "FINI · Catálogo e Pedido (Pátio Petrópolis)",
+  "version": "2.0.0",
+  "description": "Lê o catálogo completo do portal FINI (SULTS) e monta o carrinho a partir do sistema Estoque FINI. Não finaliza pedidos.",
+  "permissions": ["scripting", "tabs"],
+  "host_permissions": ["https://fini.sults.com.br/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://marcelomreidogado-cmd.github.io/EstoqueFini/*"],
+      "js": ["ponte.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
