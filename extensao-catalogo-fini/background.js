@@ -1,5 +1,3 @@
-importScripts("portal.js");
-
 const UNIDADE = "70270F";
 const PORTAL_PRODUTOS = "https://fini.sults.com.br/comercial/compras/produto?ctx=compras-list&u=272";
 const PORTAL_CARRINHO = "https://fini.sults.com.br/comercial/compras/carrinho";
@@ -29,19 +27,21 @@ async function abrirPortal() {
   return aba.id;
 }
 
-async function rodarNoPortal(tabId, func, args) {
-  const [resultado] = await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func, args });
+// Carrega portal.js na página do portal (as duas funções ficam disponíveis lá) e chama a pedida.
+async function rodarNoPortal(tabId, nomeFuncao, args) {
+  await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", files: ["portal.js"] });
+  const [resultado] = await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func: (nome, argumentos) => window[nome](...argumentos), args: [nomeFuncao, args] });
   return resultado?.result || { ok: false, codigo: "ERRO_EXTENSAO", mensagem: "O portal não devolveu resposta." };
 }
 
 async function tratar(msg) {
   if (msg.tipo === "ATUALIZAR_CATALOGO") {
     const tabId = await abrirPortal();
-    return rodarNoPortal(tabId, finiLerCatalogoPortal, [UNIDADE]);
+    return rodarNoPortal(tabId, "finiLerCatalogoPortal", [UNIDADE]);
   }
   if (msg.tipo === "ENVIAR_PEDIDO") {
     const tabId = await abrirPortal();
-    const resposta = await rodarNoPortal(tabId, finiEnviarPedidoPortal, [msg.itens || [], UNIDADE]);
+    const resposta = await rodarNoPortal(tabId, "finiEnviarPedidoPortal", [msg.itens || [], UNIDADE]);
     if (resposta.ok && resposta.adicionados?.length) await chrome.tabs.update(tabId, { url: PORTAL_CARRINHO, active: true });
     return resposta;
   }
