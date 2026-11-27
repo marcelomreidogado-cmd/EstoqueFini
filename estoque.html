@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FINI Petrópolis · Gestão V58</title>
+<title>FINI Petrópolis · Gestão V59</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -316,9 +316,9 @@ window.addEventListener('error', function(e){
 <div id="root"></div>
 <script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
-const FINI_BUILD = "23/11/2026 - V58_EXTENSAO_V2";
+const FINI_BUILD = "27/11/2026 - V59_COMPENSACAO_FERIADO";
 console.log("FINI BUILD", FINI_BUILD);
-const APP_VERSION = "23/11/2026 · V58_EXTENSAO_V2";
+const APP_VERSION = "27/11/2026 · V59_COMPENSACAO_FERIADO";
 /* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAsHpGbvRwEinIanr9EKeJPb9L3pXbZ4-k",
@@ -1391,32 +1391,7 @@ function gerarSugestaoEscalaMes25(ano, mes, funcsOriginais, feriadosMes = {}) {
         const dia = domingos[i % domingos.length];
         if (!diasOcupados.has(dia)) marcarFolga(dia, f.nome, "6x1");
     });
-    // Feriado trabalhado gera duas folgas. Elas são distribuídas antes de completar
-    // a escala 6x1 porque uma folga compensatória já atende o descanso daquela semana.
-    const compensacoes = [];
-    Object.keys(feriadosMes).sort().forEach(iso => {
-        if (!iso.startsWith(`${keyMes(ano, mes)}-`)) return;
-        const diaFeriado = Number(iso.slice(8, 10)), folgaNoFeriado = folgas[diaFeriado] && folgas[diaFeriado].nome;
-        funcs.filter(f => f.nome !== folgaNoFeriado).forEach(f => {
-            compensacoes.push({ nome: f.nome, feriado: iso, diaFeriado });
-            compensacoes.push({ nome: f.nome, feriado: iso, diaFeriado });
-        });
-    });
-    const pendentes = [];
-    compensacoes.forEach((comp, idx) => {
-        const candidatos = diasUteisFolga.filter(d => !diasOcupados.has(d));
-        candidatos.sort((a, b) => {
-            const semanaA = semanaEscala25(ano, mes, a), semanaB = semanaEscala25(ano, mes, b);
-            const jaFolgaA = (semanasComFolga.get(semanaA) || new Set()).has(comp.nome) ? 1 : 0;
-            const jaFolgaB = (semanasComFolga.get(semanaB) || new Set()).has(comp.nome) ? 1 : 0;
-            const aposA = a > comp.diaFeriado ? 0 : 1, aposB = b > comp.diaFeriado ? 0 : 1;
-            return jaFolgaA - jaFolgaB || aposA - aposB || Math.abs(a - comp.diaFeriado) - Math.abs(b - comp.diaFeriado) || a - b;
-        });
-        if (!candidatos.length) { pendentes.push(comp); return; }
-        marcarFolga(candidatos[0], comp.nome, "feriado", comp.feriado);
-    });
-    // Completa a folga semanal somente de segunda a quinta, sem usar sexta ou sábado.
-    // Domingo e compensação de feriado já contam como folga na respectiva semana.
+    // A folga semanal tem prioridade. A compensação é adicional.
     [...semanas.entries()].forEach(([chave, diasSemana], semanaIdx) => {
         const jaAtendidos = semanasComFolga.get(chave) || new Set();
         funcs.forEach((f, fi) => {
@@ -1431,6 +1406,19 @@ function gerarSugestaoEscalaMes25(ano, mes, funcsOriginais, feriadosMes = {}) {
             jaAtendidos.add(f.nome);
         });
     });
+    const pendentes = [];
+    let compensacoesGeradas = 0;
+    for (const feriado of Object.keys(feriadosMes).sort()) {
+        if (!feriado.startsWith(`${keyMes(ano, mes)}-`)) continue;
+        const diaFeriado = Number(feriado.slice(-2));
+        for (const { nome } of funcs) {
+            if (folgas[diaFeriado]?.nome === nome) continue;
+            const dia = diasUteisFolga.find(d => d > diaFeriado && !diasOcupados.has(d));
+            if (!dia) { pendentes.push({ nome, feriado }); continue; }
+            marcarFolga(dia, nome, "feriado", feriado);
+            compensacoesGeradas++;
+        }
+    }
     const dias = {};
     for (let dia = 1; dia <= nd; dia++) {
         const dd = pad(dia), dt = new Date(ano, mes, dia), iso = isoDia(ano, mes, dia), horas = horariosEscalaPorFuncionarias(dt.getDay() === 0 || Boolean(feriadosMes[iso]), funcs);
@@ -1444,7 +1432,7 @@ function gerarSugestaoEscalaMes25(ano, mes, funcsOriginais, feriadosMes = {}) {
         dias[dd] = { folga: folgaDia.nome, tipoFolga: folgaDia.tipoFolga, feriadoOrigem: folgaDia.feriadoOrigem, slots };
     }
     const domingosDistribuidos = Object.entries(folgas).filter(([dia]) => new Date(ano, mes, Number(dia)).getDay() === 0).length;
-    return { dias, pendentes, domingosDistribuidos, compensacoesGeradas: compensacoes.length - pendentes.length };
+    return { dias, pendentes, domingosDistribuidos, compensacoesGeradas };
 }
 function Escala({ funcEsc, onSaveFuncEsc }) {
     const [ano, setAno] = useState(hjD.getFullYear());
@@ -1452,6 +1440,8 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
     const [showM, setShowM] = useState(false);
     const doc = useFireDoc("fini_escala", keyMes(ano, mes), { dias: {}, anotacoes: "", feriados: {} });
     const pontoHistorico = useFireDoc("fini_folha_ponto", keyMes(ano, mes), { funcionarias: {} });
+    const mesChave = keyMes(ano, mes);
+    const compensacao = useCompensacoesFeriado(mesChave, doc, pontoHistorico);
     const cells = useMemo(() => gerarCels(ano, mes), [ano, mes]);
     const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
     const dias = doc.data.dias || {}, fer = doc.data.feriados || {};
@@ -1650,11 +1640,13 @@ function Escala({ funcEsc, onSaveFuncEsc }) {
                             React.createElement("span", { className: "badge" + (isFer ? "" : " off"), onClick: () => toggleFer(c.iso), title: isFer ? nomeFeriado(c.iso) : "Marcar feriado local" }, isFer ? "feriado" : "?"))),
                     React.createElement("div", { className: "ce-rows" },
                         React.createElement(EscalaFolgaRow, { nome: esc.folga, funcs: funcs, onChange: nome => updateFolga(dd, c.date, c.iso, nome), alerta: folgaAlerta }),
+                        esc.folga && React.createElement(OrigemCompensacao, { esc, data: c.iso, compensacao, onChange: origem => setDia(dd, { ...esc, tipoFolga: origem ? "feriado" : "manual", feriadoOrigem: origem }) }),
                         esc.slots.map((s, i) => React.createElement(EscalaSlot, { key: i, slot: s, idx: i, funcs: funcs, alerta: slotAlert(s), onChange: slot => updateSlot(dd, c.date, c.iso, i, slot) }))),
                     especial(c.date, c.iso) && React.createElement("div", { className: "es-mini" },
                         React.createElement("b", null, isFer ? `${nomeFeriado(c.iso)}:` : "Domingo:"),
                         " entradas 11h e 13h")));
             })),
+        React.createElement(ResumoCompensacoes, { compensacao, mesChave }),
         React.createElement("div", { style: { margin: "16px 0 14px" } },
             React.createElement("div", { style: { fontFamily: "'Fraunces',serif", fontWeight: 700, fontSize: 16, marginBottom: 10, color: "var(--ink)" } },
                 "\uD83D\uDCCB Resumo do M\u00EAs \u2014 ",
@@ -1764,12 +1756,106 @@ function normalizeTipoPonto(tipo) {
         return "Falta";
     return t;
 }
+function temBatidaPonto(row) {
+    return CAMPOS_PONTO.some(campo => row[campo]) || Boolean(row.registrosPonto?.length);
+}
+function tipoDiaComEscala(raw, esc, nome, feriado) {
+    const tipo = normalizeTipoPonto(raw.tipo);
+    if (tipo && tipo !== "Feriado") return tipo;
+    if (nome && esc?.folga === nome && !temBatidaPonto(raw) && (!raw.tipoManual || feriado)) return "Folga";
+    return feriado || tipo === "Feriado" ? "Feriado" : "";
+}
+function apurarCompensacoesFeriado(escalas, folhas, hoje) {
+    const creditos = new Map(), vinculos = new Map(), compensadas = new Map();
+    const chave = (nome, data) => JSON.stringify([nome, data]);
+    for (const [mes, folha] of Object.entries(folhas)) {
+        const ano = Number(mes.slice(0, 4));
+        const feriados = { ...feriadosNacionais25(ano), ...escalas[mes]?.feriados };
+        for (const [nome, ficha] of Object.entries(folha.funcionarias || {})) {
+            for (const [dd, row] of Object.entries(ficha.dias || {})) {
+                const data = `${mes}-${dd}`;
+                if (data > hoje || tipoDiaComEscala(row, escalas[mes]?.dias?.[dd], nome, feriados[data]) !== "Feriado") continue;
+                const minutos = minutosTrabalhadosPonto(row);
+                if (minutos > 0) creditos.set(chave(nome, data), { nome, data, minutos, folga: "" });
+            }
+        }
+    }
+    for (const mes of Object.keys(escalas).sort()) {
+        for (const [dd, esc] of Object.entries(escalas[mes].dias || {}).sort(([a], [b]) => a.localeCompare(b))) {
+            if (!esc.folga || esc.tipoFolga !== "feriado") continue;
+            const data = `${mes}-${dd}`, nome = esc.folga, origem = esc.feriadoOrigem;
+            const credito = creditos.get(chave(nome, origem));
+            const row = folhas[mes]?.funcionarias?.[nome]?.dias?.[dd] || {};
+            const tipo = normalizeTipoPonto(row.tipo);
+            let aviso = "";
+            if (temBatidaPonto(row) || ["Falta", "Atestado"].includes(tipo)) aviso = "A folga tem lançamento de trabalho, falta ou atestado";
+            else if (!origem || origem >= data) aviso = "Escolha um feriado anterior à folga";
+            else if (!credito) aviso = "Aguardando confirmação do trabalho no feriado";
+            else if (credito.folga) aviso = `Feriado já vinculado a ${dataCurtaCompensacao(credito.folga)}`;
+            else {
+                credito.folga = data;
+                if (data <= hoje) compensadas.set(chave(nome, data), origem);
+            }
+            vinculos.set(chave(nome, data), { nome, data, origem, aviso });
+        }
+    }
+    return { creditos: [...creditos.values()], vinculos: [...vinculos.values()], compensadas, chave };
+}
+function useCompensacoesFeriado(mes, escala, ponto) {
+    const [escalas, setEscalas] = useState(null);
+    const [folhas, setFolhas] = useState(null);
+    const [falha, setFalha] = useState(false);
+    useEffect(() => {
+        const observar = (colecao, setter) => db.collection(colecao).onSnapshot(
+            snap => setter(Object.fromEntries(snap.docs.filter(d => /^\d{4}-\d{2}$/.test(d.id)).map(d => [d.id, d.data()]))),
+            () => setFalha(true)
+        );
+        const pararEscalas = observar("fini_escala", setEscalas);
+        const pararPonto = observar("fini_folha_ponto", setFolhas);
+        return () => { pararEscalas(); pararPonto(); };
+    }, []);
+    return useMemo(() => {
+        const dadosEscala = escala.dirty ? { ...escalas, [mes]: escala.data } : escalas || {};
+        const dadosPonto = ponto.dirty ? { ...folhas, [mes]: ponto.data } : folhas || {};
+        return { ...apurarCompensacoesFeriado(dadosEscala, dadosPonto, HOJE), pronto: Boolean(escalas && folhas && !falha), falha };
+    }, [mes, escalas, folhas, escala.dirty, escala.data, ponto.dirty, ponto.data, falha]);
+}
+function dataCurtaCompensacao(data) {
+    return data ? data.split("-").reverse().join("/") : "";
+}
+function OrigemCompensacao({ esc, data, compensacao, onChange }) {
+    const atual = esc.feriadoOrigem || "";
+    const vinculo = compensacao.vinculos.find(v => v.nome === esc.folga && v.data === data);
+    const opcoes = compensacao.creditos.filter(c => c.nome === esc.folga && c.data < data && (!c.folga || c.folga === data));
+    if (!atual && !opcoes.length) return null;
+    return React.createElement("div", { className: "es-mini" },
+        React.createElement("select", { className: "ce-select", value: atual, disabled: !compensacao.pronto, "aria-label": `Feriado compensado pela folga de ${esc.folga} em ${dataCurtaCompensacao(data)}`, onChange: e => onChange(e.target.value) },
+            React.createElement("option", { value: "" }, "Folga comum"),
+            atual && !opcoes.some(c => c.data === atual) && React.createElement("option", { value: atual }, `Feriado de ${dataCurtaCompensacao(atual)}`),
+            opcoes.map(c => React.createElement("option", { key: c.data, value: c.data }, `Compensar ${dataCurtaCompensacao(c.data)}`))),
+        vinculo?.aviso && React.createElement("span", null, vinculo.aviso));
+}
+function ResumoCompensacoes({ compensacao, mesChave, nome }) {
+    const doMes = data => data?.startsWith(mesChave + "-");
+    const creditos = compensacao.creditos.filter(c => (!nome || c.nome === nome) && (doMes(c.data) || doMes(c.folga)));
+    const avisos = compensacao.vinculos.filter(v => v.aviso && (!nome || v.nome === nome) && (doMes(v.data) || doMes(v.origem)));
+    return React.createElement("div", { className: "totbar" },
+        React.createElement("div", { className: "tt" },
+            React.createElement("strong", null, "Compensações de feriado"),
+            !compensacao.pronto ? React.createElement("div", null, compensacao.falha ? "Histórico indisponível. Reabra a aba para consultar os vínculos." : "Consultando Escala e Ponto…") :
+                React.createElement(React.Fragment, null,
+                    React.createElement("div", null, creditos.length ? "Para dar baixa, escolha o feriado na folga correspondente da Escala." : "Nenhum feriado trabalhado com saída registrada no período."),
+                    creditos.map(c => React.createElement("div", { key: compensacao.chave(c.nome, c.data) },
+                        `${c.nome} · ${dataCurtaCompensacao(c.data)} · +${minToDur(c.minutos)} · ${c.folga ? (c.folga <= HOJE ? "Compensado em " : "Folga marcada para ") + dataCurtaCompensacao(c.folga) : "A vincular ou agendar"}`)),
+                    avisos.map(v => React.createElement("div", { key: compensacao.chave(v.nome, v.data) },
+                        `${v.nome} · ${dataCurtaCompensacao(v.data)} · ${v.aviso}`)))));
+}
 function jornadaMinFunc(func) { return String((func === null || func === void 0 ? void 0 : func.jornada) || "7:20h") === "7h" ? durToMin("07:00") : durToMin("07:20"); }
-function isFolgaTipo(tipo) { return ["Folga", "Folga extra"].includes(normalizeTipoPonto(tipo)); }
+function isFolgaTipo(tipo) { return ["Folga", "Folga extra", "Folga feriado"].includes(normalizeTipoPonto(tipo)); }
 function isFeriadoTipo(tipo) { return normalizeTipoPonto(tipo) === "Feriado"; }
 function escalaSugeridaPonto(ano, mes, dd, func, tipo) {
     const tp = normalizeTipoPonto(tipo);
-    if (tp === "Folga" || tp === "Folga extra" || tp === "Atestado" || tp === "Falta")
+    if (isFolgaTipo(tp) || tp === "Atestado" || tp === "Falta")
         return { entrada: "", saidaAlmoco: "", retornoAlmoco: "", saida: "", intervalo: "00:00", jornada: "00:00" };
     if (tp === "Feriado")
         return { entrada: "11:00", saidaAlmoco: "14:00", retornoAlmoco: "15:00", saida: "19:20", intervalo: "01:00", jornada: "07:20" };
@@ -1783,13 +1869,20 @@ function horarioBasePonto(ano, mes, dd, func, tipo) {
     return { entrada: "", saidaAlmoco: "", retornoAlmoco: "", saida: "", intervalo: sug.intervalo, jornada: sug.jornada };
 }
 function defaultPontoRow(ano, mes, dd, func) { return { tipo: "", ajuste: "", obs: "", registrosPonto: [], ...horarioBasePonto(ano, mes, dd, func, "") }; }
-function aplicarTipoPonto(row, tipo, ano, mes, dd, func) { const tp = normalizeTipoPonto(tipo); return { ...row, tipo: tp, ...horarioBasePonto(ano, mes, dd, func, tp) }; }
+function aplicarTipoPonto(row, tipo, ano, mes, dd, func) {
+    const tp = normalizeTipoPonto(tipo);
+    if (tp === "Feriado" || (tp === "" && isFeriadoTipo(row.tipo))) return { ...row, tipo: tp };
+    return { ...row, tipo: tp, ...horarioBasePonto(ano, mes, dd, func, tp) };
+}
 function opcoesTipoPonto() { return PONTO_OCORRENCIAS; }
 function rowAtivaPonto(row, ano, mes, dd) {
     const tp = normalizeTipoPonto(row.tipo);
-    if (tp === "Folga" || tp === "Folga extra" || tp === "Atestado" || tp === "Falta" || tp === "Feriado")
+    if (isFolgaTipo(tp) || tp === "Atestado" || tp === "Falta" || tp === "Feriado")
         return true;
     return Boolean(row.entrada || row.saidaAlmoco || row.retornoAlmoco || row.saida || row.ajuste || row.obs);
+}
+function minutosTrabalhadosPonto(row, intervalo = (row.saidaAlmoco && row.retornoAlmoco) ? diffHora(row.saidaAlmoco, row.retornoAlmoco) : durToMin(row.intervalo ?? "01:00")) {
+    return row.entrada && row.saida ? Math.max(0, diffHora(row.entrada, row.saida) - intervalo) : 0;
 }
 function calcPonto(row, ano, mes, dd, func) {
     const ativa = rowAtivaPonto(row, ano, mes, dd);
@@ -1806,27 +1899,21 @@ function calcPonto(row, ano, mes, dd, func) {
         const prevista = jornadaMinFunc(func), banco = -prevista + ajuste;
         return { ativa: true, prevista, trabalhada: 0, intervalo: 0, extra: Math.max(0, banco), devida: prevista, banco, credito: Math.max(0, banco), debito: Math.max(0, -banco) };
     }
-    if (tp === "Folga extra") {
-        const banco = -(jornadaMinFunc(func)) + ajuste;
+    if (tp === "Folga extra" || tp === "Folga feriado") {
+        const banco = -(tp === "Folga feriado" ? durToMin("07:20") : jornadaMinFunc(func)) + ajuste;
         return { ativa: true, prevista: 0, trabalhada: 0, intervalo: 0, extra: 0, devida: 0, banco, credito: Math.max(0, banco), debito: Math.max(0, -banco) };
     }
     // A jornada prevista vem sempre do cadastro atual da funcionária.
     // Assim, se mudar de 7h para 7:20h, a folha recalcula automaticamente, inclusive dias já lançados.
     const prevista = jornadaMinFunc(func);
     const intervalo = (row.saidaAlmoco && row.retornoAlmoco) ? diffHora(row.saidaAlmoco, row.retornoAlmoco) : durToMin(row.intervalo);
-    let trabalhada = 0;
-    if (row.entrada && row.saida) {
-        trabalhada = Math.max(0, diffHora(row.entrada, row.saida) - intervalo);
-    }
+    const trabalhada = minutosTrabalhadosPonto(row, intervalo);
     let banco = 0, extra = 0, devida = 0;
     if (tp === "Feriado") {
-        // Feriado trabalhado gera duas folgas compensatórias (2 x 7h20).
-        // A diferença entre o ponto real e a jornada padrão também permanece no banco.
-        const previstaPadrao = jornadaMinFunc(func);
-        banco = trabalhada + previstaPadrao + ajuste;
+        banco = trabalhada + ajuste;
         extra = Math.max(0, banco);
         devida = Math.max(0, -banco);
-        return { ativa, prevista: previstaPadrao, trabalhada, intervalo, extra, devida, banco, credito: Math.max(0, banco), debito: Math.max(0, -banco) };
+        return { ativa, prevista: trabalhada > 0 ? prevista : 0, trabalhada, intervalo, extra, devida, banco, credito: Math.max(0, banco), debito: Math.max(0, -banco) };
     }
     else {
         banco = (trabalhada - prevista) + ajuste;
@@ -1866,6 +1953,8 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
     const [dataFalta, setDataFalta] = useState(HOJE);
     const doc = useFireDoc("fini_folha_ponto", keyMes(ano, mes), { funcionarias: {}, anotacoes: "", status: "Aberto" });
     const escalaDoc = useFireDoc("fini_escala", keyMes(ano, mes), { dias: {}, anotacoes: "", feriados: {} });
+    const mesChave = keyMes(ano, mes);
+    const compensacao = useCompensacoesFeriado(mesChave, escalaDoc, doc);
     const funcs = useMemo(() => listaFuncionarias(funcEsc), [funcEsc]);
     const nomesDoc = Object.keys(doc.data.funcionarias || {});
     const nomes = useMemo(() => [...new Set([...funcs.map(f => f.nome), ...nomesDoc])].filter(Boolean), [funcs, nomesDoc.join("|")]);
@@ -1883,36 +1972,14 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
     const diasEscala = escalaMes.dias || {};
     const ferEscala = escalaMes.feriados || {};
     const nd = diMes(ano, mes);
-    const tipoAutoEscala = (dd, func = funcAtual) => {
-        const dt = new Date(ano, mes, Number(dd));
-        const iso = isoDia(ano, mes, Number(dd));
-        const ehFeriado = Boolean(ferEscala[iso] || feriadosNacionais25(ano)[iso]);
-        const esc = normalizarEscalaDia(diasEscala[dd], dt.getDay() === 0 || ehFeriado, funcs);
-        if (ehFeriado)
-            return "Feriado";
-        return esc.folga && esc.folga === func.nome ? "Folga" : "";
+    const feriadosAno = feriadosNacionais25(ano);
+    const montarLinha = (dd, func, raw) => {
+        const data = `${mesChave}-${dd}`;
+        const origem = compensacao.pronto && compensacao.compensadas.get(compensacao.chave(func.nome, data));
+        const tipo = origem ? "Folga feriado" : tipoDiaComEscala(raw, diasEscala[dd], func.nome, ferEscala[data] || feriadosAno[data]);
+        return { ...defaultPontoRow(ano, mes, dd, func), ...raw, tipo, origemCompensacao: origem || "", tipoAutoEscala: Boolean(tipo && tipo !== normalizeTipoPonto(raw.tipo)) };
     };
-    const temRegistroPonto = raw => Boolean(raw.entrada || raw.saidaAlmoco || raw.retornoAlmoco || raw.saida || raw.ajuste || raw.obs || (raw.registrosPonto || []).length);
-    const devePuxarTipoEscala = raw => !raw.tipoManual && !raw.tipo && !temRegistroPonto(raw);
-    const getRow = dd => {
-        const raw = { ...(dias[dd] || {}) };
-        const tp = normalizeTipoPonto(raw.tipo);
-        const base = defaultPontoRow(ano, mes, dd, funcAtual);
-        const autoEscala = tipoAutoEscala(dd);
-        const autoTipo = (!raw.tipoManual && autoEscala) ? autoEscala : (devePuxarTipoEscala(raw) ? autoEscala : "");
-        const row = { ...base, ...raw, tipo: tp || autoTipo };
-        if (autoTipo && !raw.tipo) {
-            row.tipoAutoEscala = true;
-        }
-        if (!raw.tipo && !autoTipo) {
-            row.tipo = "";
-        }
-        // Se era um tipo antigo salvo, normaliza para a nova lógica e mantém horários editados, se existirem.
-        if (raw.tipo && tp !== raw.tipo) {
-            row.tipo = tp;
-        }
-        return row;
-    };
+    const getRow = dd => montarLinha(dd, funcAtual, dias[dd] || {});
     const liberarAdmin = () => {
         if (adminOn) {
             setAdminOn(false);
@@ -2016,7 +2083,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         const saldoInicial = durToMin(dadosFunc.saldoInicial);
         const saldo = saldoInicial + cred - deb;
         return { ativos, trab, prev, extra, devida, cred, deb, saldoInicial, saldo, feriados, folgas, folgasExtra, atestados, faltas };
-    }, [JSON.stringify(dias), dadosFunc.saldoInicial, ano, mes, nd, funcAtual.jornada, funcAtual.regime]);
+    }, [dias, dadosFunc.saldoInicial, ano, mes, nd, funcAtual.jornada, funcAtual.regime, funcNome, escalaMes, compensacao]);
     const registrarPonto = async () => {
         var _a;
         const id = String(pontoId || "").trim();
@@ -2055,10 +2122,8 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
         const all = baseDoc.funcionarias || {};
         const fd = all[f.nome] || { saldoInicial: "", dias: {} };
         const raw = ((_a = fd.dias) === null || _a === void 0 ? void 0 : _a[dd]) || {};
-        const autoEscala = tipoAutoEscala(dd, f);
-        const autoTipo = (!raw.tipoManual && autoEscala) ? autoEscala : (devePuxarTipoEscala(raw) ? autoEscala : "");
-        let row = { ...defaultPontoRow(ano, mes, dd, f), ...raw, tipo: normalizeTipoPonto(raw.tipo) || autoTipo };
-        if (["Folga", "Folga extra", "Atestado", "Falta"].includes(normalizeTipoPonto(row.tipo))) {
+        const row = montarLinha(dd, f, raw);
+        if (isFolgaTipo(row.tipo) || ["Atestado", "Falta"].includes(row.tipo)) {
             setPontoMsg(`Hoje está marcado como ${row.tipo} para ${f.nome}. Remova o tipo antes de registrar ponto.`);
             return;
         }
@@ -2095,9 +2160,12 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
             const all = baseDoc.funcionarias || {};
             const fd = all[f.nome] || { saldoInicial: "", dias: {} };
             const raw = (fd.dias || {})[dd] || {};
-            const autoEscala = tipoAutoEscala(dd, f);
-            const autoTipo = (!raw.tipoManual && autoEscala) ? autoEscala : (devePuxarTipoEscala(raw) ? autoEscala : "");
-            let row = { ...defaultPontoRow(ano, mes, dd, f), ...raw, tipo: normalizeTipoPonto(raw.tipo) || autoTipo };
+            let row = montarLinha(dd, f, raw);
+            if (isFolgaTipo(row.tipo) || ["Atestado", "Falta"].includes(row.tipo)) {
+                setConfirmacao(null);
+                setPontoMsg(`Hoje está marcado como ${row.tipo} para ${f.nome}.`);
+                return;
+            }
             const bloqueio = bloqueioPontoRestante(row, f.id);
             if (bloqueio > 0) {
                 setConfirmacao(null);
@@ -2206,6 +2274,7 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
             React.createElement("div", { className: "tt" },
                 React.createElement("span", null, "Saldo final"),
                 React.createElement("b", { className: corSaldo(resumo.saldo) }, minToDur(resumo.saldo)))),
+        React.createElement(ResumoCompensacoes, { compensacao, mesChave, nome: funcNome }),
         React.createElement("div", { className: "panel ponto-scroll" },
             React.createElement("table", { className: "ponto-table" },
                 React.createElement("thead", null,
@@ -2233,10 +2302,11 @@ function FolhaPonto({ funcEsc, onSaveFuncEsc }) {
                             pad(mes + 1),
                             React.createElement("div", { className: "pmini" }, WD[dt.getDay()])),
                         React.createElement("td", { className: "ptype" },
-                            React.createElement("select", { value: row.tipo || "", onChange: e => setDia(dd, "tipo", e.target.value) },
+                            React.createElement("select", { value: row.tipo || "", disabled: Boolean(row.origemCompensacao), title: row.origemCompensacao ? "Altere o vínculo da compensação na Escala" : undefined, onChange: e => setDia(dd, "tipo", e.target.value) },
                                 React.createElement("option", { value: "" }, "Trabalho"),
+                                row.origemCompensacao && React.createElement("option", { value: "Folga feriado", disabled: true }, "Folga feriado"),
                                 opcoesTipoPonto().map(t => React.createElement("option", { key: t }, t))),
-                            row.tipoAutoEscala && React.createElement("div", { className: "pmini" }, "Puxado da escala")),
+                            row.tipoAutoEscala && React.createElement("div", { className: "pmini" }, row.origemCompensacao ? `Compensa ${dataCurtaCompensacao(row.origemCompensacao)}` : "Puxado da escala")),
                         React.createElement("td", null,
                             React.createElement("input", { className: "pinput-mini", inputMode: "numeric", value: row.entrada || "", placeholder: sug.entrada || "--:--", readOnly: !adminOn, onChange: e => setDia(dd, "entrada", e.target.value), onBlur: e => adminOn && setDia(dd, "entrada", normalizaHora25(e.target.value)), title: adminOn ? "Edi\u00E7\u00E3o manual liberada; pode digitar 0940" : "Registro autom\u00E1tico por ID" })),
                         React.createElement("td", null,
@@ -3657,6 +3727,7 @@ catch (e) {
 <!-- Versao V50 2026-10-13: catalogo com disponibilidade, pedido assistido e envio seguro ao carrinho do portal -->
 <!-- Versao V51 2026-10-13: pedido rapido por paginas e bloqueio para a unidade 70270F Patio Petropolis Shopping -->
 <!-- Versao V55 2026-11-08: horarios de entrada da escala editaveis por dia e linha, com validacao e backup -->
+<!-- Versao V59 2026-11-27: credito unico por feriado trabalhado e folga vinculada na escala -->
 </body>
 </html>
 <!-- Versao V56 2026-11-15: polimento visual - numeros na fonte do sistema, seletores da escala legiveis, cabecalho TC (qtd.) -->
